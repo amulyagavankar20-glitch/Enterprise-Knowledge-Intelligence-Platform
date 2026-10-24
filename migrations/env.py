@@ -30,8 +30,8 @@ if not database_url:
         drivername="postgresql+psycopg",
         username="rag_user",
         password=os.environ["POSTGRES_PASSWORD"],
-        host="127.0.0.1",
-        port=5433,
+        host=os.getenv("DATABASE_HOST", "127.0.0.1"),
+        port=int(os.getenv("DATABASE_PORT", "5433")),
         database="enterprise_rag",
     ).render_as_string(hide_password=False)
 
