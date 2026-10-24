@@ -1,0 +1,95 @@
+{
+  "metrics": {
+    "total_cases": 4,
+    "passed_cases": 4,
+    "pass_rate": 1.0,
+    "retrieval_pass_rate": 1.0,
+    "answer_correct_rate": 1.0,
+    "citation_pass_rate": 1.0,
+    "average_latency_seconds": 4.756
+  },
+  "results": [
+    {
+      "question": "What is the department of the test user?",
+      "expected_answer": "Research",
+      "answer": "Based on the provided document context, the department of the test user is **Research** [Source 1].",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "retrieved_count": 1,
+      "retrieval_pass": true,
+      "evidence_found": true,
+      "answer_correct": true,
+      "citation_present": true,
+      "citation_valid": true,
+      "citation_pass": true,
+      "latency_seconds": 12.084,
+      "passed": true,
+      "sources": [
+        {
+          "document_id": "c60df8ff-2a1b-47a9-a520-1af2dbc595a3",
+          "source_number": 1,
+          "reranker_score": 0.904992401599884
+        }
+      ]
+    },
+    {
+      "question": "What is the capital of Japan?",
+      "expected_answer": null,
+      "answer": "I couldn't find sufficient relevant evidence in your accessible documents to answer this question reliably.",
+      "model": null,
+      "retrieved_count": 0,
+      "retrieval_pass": true,
+      "evidence_found": true,
+      "answer_correct": true,
+      "citation_present": false,
+      "citation_valid": false,
+      "citation_pass": true,
+      "latency_seconds": 0.286,
+      "passed": true,
+      "sources": []
+    },
+    {
+      "question": "What is the name of the test user?",
+      "expected_answer": "Test User",
+      "answer": "Based on the supplied evidence, the name of the test user is **Test User**.\n\n[Source 1]",
+      "model": "poolside/laguna-s-2.1:free",
+      "retrieved_count": 1,
+      "retrieval_pass": true,
+      "evidence_found": true,
+      "answer_correct": true,
+      "citation_present": true,
+      "citation_valid": true,
+      "citation_pass": true,
+      "latency_seconds": 1.765,
+      "passed": true,
+      "sources": [
+        {
+          "document_id": "c60df8ff-2a1b-47a9-a520-1af2dbc595a3",
+          "source_number": 1,
+          "reranker_score": 0.4643319547176361
+        }
+      ]
+    },
+    {
+      "question": "What is the status of the test user?",
+      "expected_answer": "Active",
+      "answer": "Active [Source 1]",
+      "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "retrieved_count": 1,
+      "retrieval_pass": true,
+      "evidence_found": true,
+      "answer_correct": true,
+      "citation_present": true,
+      "citation_valid": true,
+      "citation_pass": true,
+      "latency_seconds": 4.891,
+      "passed": true,
+      "sources": [
+        {
+          "document_id": "c60df8ff-2a1b-47a9-a520-1af2dbc595a3",
+          "source_number": 1,
+          "reranker_score": 0.6630576848983765
+        }
+      ]
+    }
+  ]
+}

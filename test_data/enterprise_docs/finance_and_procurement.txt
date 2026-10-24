@@ -1,0 +1,32 @@
+NOVA TECH SOLUTIONS — FINANCE AND PROCUREMENT
+Version: 1.0
+
+EXPENSE REIMBURSEMENT — FIN-POL-001
+
+Expense claims must be submitted within 30 calendar days of
+the transaction date.
+
+Claims require an itemized receipt, business purpose,
+transaction date, and expense category.
+
+Claims above INR 25,000 require department-head approval
+before reimbursement processing.
+
+Finance reviews complete claims within seven business days.
+Incomplete claims are returned for correction. Approved claims
+are paid in the next scheduled reimbursement cycle.
+
+EQUIPMENT PROCUREMENT — OPS-POL-001
+
+Equipment purchases costing up to INR 10,000 require approval
+from the employee's department manager.
+
+Purchases above INR 10,000 and up to INR 50,000 require
+department-manager and Finance approval.
+
+Purchases above INR 50,000 require department-manager,
+Finance, and Procurement approval.
+
+Every purchase requires a business justification and an
+appropriate cost center. Splitting purchases to avoid approval
+thresholds is prohibited.

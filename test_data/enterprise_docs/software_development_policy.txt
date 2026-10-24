@@ -1,0 +1,20 @@
+NOVA TECH SOLUTIONS — SOFTWARE DEVELOPMENT PROCEDURES
+Version: 1.0
+
+CODE REVIEW AND RELEASE — ENG-PROC-001
+
+All production code changes must be submitted through a
+pull request. At least one engineer other than the author
+must review and approve the change.
+
+Automated unit tests and applicable integration tests must
+pass before production release.
+
+Critical security findings must be resolved before deployment.
+
+Production releases require approval from the designated
+release owner. Emergency changes must be documented and
+reviewed retrospectively within two business days.
+
+Developers must not commit API keys, passwords, customer data,
+or private credentials to source control.

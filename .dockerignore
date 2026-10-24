@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+.git
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.pytest-tmp*/
+backend/tests/
+docs/
+reports/
+scripts/
+frontend/designs/
+stored_documents
+test_data
+*.json

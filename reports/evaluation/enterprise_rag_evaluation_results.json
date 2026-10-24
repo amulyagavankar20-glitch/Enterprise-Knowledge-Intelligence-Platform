@@ -1,0 +1,1528 @@
+{
+  "evaluation": "fixed enterprise RAG evaluation with approximate lexical checks",
+  "execution_status": "completed",
+  "case_count": 31,
+  "generation_error_count": 0,
+  "semantic_judge": {
+    "enabled": true,
+    "provider": "ollama",
+    "model": "qwen3.5:4b",
+    "interpretation": "Model-assisted judgments are estimates; the default judge uses the same provider/model as generation and is not independent proof."
+  },
+  "interpretation": "Lexical expected-fact checks are approximate; results do not prove semantic correctness, factual faithfulness, or citation entailment.",
+  "retrieval_labels": "expected source document filename; chunk labels are not stored in the fixtures",
+  "top_k": 5,
+  "reranker_score_threshold": 0.001,
+  "metrics": {
+    "case_count": 31,
+    "overall_pass_rate": 1.0,
+    "retrieval_success_recall_at_5": 1.0,
+    "mrr_by_expected_source_document": 1.0,
+    "ndcg_at_5_by_expected_source_document": 1.0,
+    "unsupported_abstention_correctness": 1.0,
+    "answer_expected_fact_accuracy_approximate": 1.0,
+    "answer_expected_fact_coverage_approximate": 1.0,
+    "unsupported_retrieval_empty_rate": 0.75,
+    "semantic_judge_scored_cases": 31,
+    "semantic_judge_error_count": 0,
+    "semantic_answer_addresses_question": 1.0,
+    "semantic_claims_supported_by_evidence": 1.0,
+    "semantic_citation_entailment_estimate": 1.0,
+    "semantic_unsupported_abstention_estimate": 1.0,
+    "semantic_pass_rate_approximate": 1.0,
+    "evidence_expected_fact_coverage_approximate": 1.0,
+    "citation_label_validity": 1.0,
+    "citation_scored_answers": 28,
+    "citation_presence_answerable": 1.0,
+    "abstention_correctness": 1.0,
+    "unsupported_abstention_cases_scored": 4,
+    "average_latency_seconds": 3.1507,
+    "p95_latency_seconds": 5.7513
+  },
+  "threshold_sweep": [
+    {
+      "threshold": 0.001,
+      "answerable_recall_at_5": 1.0,
+      "unsupported_empty_retrieval_rate": 0.75,
+      "unsupported_false_retrieval_rate": 0.25
+    },
+    {
+      "threshold": 0.001037,
+      "answerable_recall_at_5": 1.0,
+      "unsupported_empty_retrieval_rate": 0.75,
+      "unsupported_false_retrieval_rate": 0.25
+    },
+    {
+      "threshold": 0.002663,
+      "answerable_recall_at_5": 0.963,
+      "unsupported_empty_retrieval_rate": 1.0,
+      "unsupported_false_retrieval_rate": 0.0
+    },
+    {
+      "threshold": 0.01,
+      "answerable_recall_at_5": 0.8519,
+      "unsupported_empty_retrieval_rate": 1.0,
+      "unsupported_false_retrieval_rate": 0.0
+    },
+    {
+      "threshold": 0.012173,
+      "answerable_recall_at_5": 0.8519,
+      "unsupported_empty_retrieval_rate": 1.0,
+      "unsupported_false_retrieval_rate": 0.0
+    },
+    {
+      "threshold": 0.05,
+      "answerable_recall_at_5": 0.8148,
+      "unsupported_empty_retrieval_rate": 1.0,
+      "unsupported_false_retrieval_rate": 0.0
+    },
+    {
+      "threshold": 0.1,
+      "answerable_recall_at_5": 0.8148,
+      "unsupported_empty_retrieval_rate": 1.0,
+      "unsupported_false_retrieval_rate": 0.0
+    },
+    {
+      "threshold": 0.2,
+      "answerable_recall_at_5": 0.7778,
+      "unsupported_empty_retrieval_rate": 1.0,
+      "unsupported_false_retrieval_rate": 0.0
+    },
+    {
+      "threshold": 0.5,
+      "answerable_recall_at_5": 0.5926,
+      "unsupported_empty_retrieval_rate": 1.0,
+      "unsupported_false_retrieval_rate": 0.0
+    },
+    {
+      "threshold": 0.660656,
+      "answerable_recall_at_5": 0.5926,
+      "unsupported_empty_retrieval_rate": 1.0,
+      "unsupported_false_retrieval_rate": 0.0
+    },
+    {
+      "threshold": 0.998476,
+      "answerable_recall_at_5": 0.037,
+      "unsupported_empty_retrieval_rate": 1.0,
+      "unsupported_false_retrieval_rate": 0.0
+    },
+    {
+      "threshold": 1.0,
+      "answerable_recall_at_5": 0.0,
+      "unsupported_empty_retrieval_rate": 1.0,
+      "unsupported_false_retrieval_rate": 0.0
+    }
+  ],
+  "threshold_sweep_scope": "Thresholds at or above the configured threshold, applied to candidates retained at the configured threshold; lower-threshold scores were not retrieved.",
+  "results": [
+    {
+      "question": "How many annual paid leave days do full-time employees receive?",
+      "expected_facts": [
+        "18 days"
+      ],
+      "expected_source_label": "hr_policies.txt",
+      "source_rank": 1,
+      "retrieved_count": 2,
+      "answer": "Full-time employees at NOVA TECH SOLUTIONS receive 18 days of annual paid leave per calendar year [Source 1]. Employees who join during the year are eligible for a prorated amount of leave [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.9984764456748962
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.012302315793931484
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.3097,
+      "latency_seconds": 10.5816,
+      "passed": true
+    },
+    {
+      "question": "Can unused vacation time roll into next year? How much?",
+      "expected_facts": [
+        "five",
+        "days"
+      ],
+      "expected_source_label": "hr_policies.txt",
+      "source_rank": 1,
+      "retrieved_count": 1,
+      "answer": "Yes, unused vacation time can roll into the next year. Up to five unused annual leave days may be carried forward to the next calendar year [Source 1]. Any additional carry-forward beyond those five days requires written approval from Human Resources [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.0010852732229977846
+        }
+      ],
+      "answer_expected_facts_matched_count": 2,
+      "answer_expected_facts_total": 2,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.0714,
+      "latency_seconds": 2.6285,
+      "passed": true
+    },
+    {
+      "question": "How early should a normal leave request be submitted?",
+      "expected_facts": [
+        "three working days"
+      ],
+      "expected_source_label": "hr_policies.txt",
+      "source_rank": 1,
+      "retrieved_count": 2,
+      "answer": "A normal leave request should be submitted at least three working days before the intended leave date [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.8106706738471985
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.631236732006073
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.1251,
+      "latency_seconds": 1.987,
+      "passed": true
+    },
+    {
+      "question": "Who approves an employee's leave request?",
+      "expected_facts": [
+        "reporting manager"
+      ],
+      "expected_source_label": "hr_policies.txt",
+      "source_rank": 1,
+      "retrieved_count": 5,
+      "answer": "Based on the provided document context, an employee's leave request is approved by their **reporting manager**.\n\n*   **Approval Authority:** The reporting manager approves leave requests [Source 1].\n*   **Request Process:** Employees must submit leave requests through the HR portal at least three working days before the intended leave date. Emergency leave should be reported to the manager as soon as reasonably possible [Source 1].\n*   **Carry-Forward Rules:** While up to five unused annual leave days may be carried forward automatically, any additional carry-forward requires written approval from Human Resources [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.9185598492622375
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.3637115955352783
+        },
+        {
+          "filename": "software_development_policy.txt",
+          "reranker_score": 0.007385008502751589
+        },
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.00292643578723073
+        },
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.0018784032436087728
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.3147,
+      "latency_seconds": 3.8558,
+      "passed": true
+    },
+    {
+      "question": "What are the standard office hours during the work week?",
+      "expected_facts": [
+        "9:30 AM",
+        "6:00 PM"
+      ],
+      "expected_source_label": "hr_policies.txt",
+      "source_rank": 1,
+      "retrieved_count": 2,
+      "answer": "The standard office hours during the work week are 9:30 AM to 6:00 PM, Monday through Friday [Source 1]. Employees who expect to arrive more than 15 minutes late should notify their manager [Source 1]. Additionally, role-specific operational requirements may require additional office attendance beyond these standard hours [Source 2].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.23172645270824432
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.1060166284441948
+        }
+      ],
+      "answer_expected_facts_matched_count": 2,
+      "answer_expected_facts_total": 2,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.1284,
+      "latency_seconds": 2.9419,
+      "passed": true
+    },
+    {
+      "question": "How many days each week can an employee work remotely with approval?",
+      "expected_facts": [
+        "two days"
+      ],
+      "expected_source_label": "hr_policies.txt",
+      "source_rank": 1,
+      "retrieved_count": 4,
+      "answer": "An employee may work remotely up to two days per week with manager approval [Source 1], [Source 2]. Role-specific operational requirements may require additional office attendance [Source 1], [Source 2].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.9978259205818176
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.9518206715583801
+        },
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.009424792602658272
+        },
+        {
+          "filename": "software_development_policy.txt",
+          "reranker_score": 0.001155500067397952
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.3221,
+      "latency_seconds": 2.3652,
+      "passed": true
+    },
+    {
+      "question": "If someone expects to be over fifteen minutes late, who should they notify?",
+      "expected_facts": [
+        "manager"
+      ],
+      "expected_source_label": "hr_policies.txt",
+      "source_rank": 1,
+      "retrieved_count": 2,
+      "answer": "If someone expects to be over fifteen minutes late, they should notify their manager [Source 1], [Source 2].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.9855420589447021
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.9652087688446045
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.081,
+      "latency_seconds": 2.1217,
+      "passed": true
+    },
+    {
+      "question": "What is the minimum password length?",
+      "expected_facts": [
+        "12 characters"
+      ],
+      "expected_source_label": "it_security_and_support.txt",
+      "source_rank": 1,
+      "retrieved_count": 2,
+      "answer": "The minimum password length is 12 characters. This requirement is specified in the IT Security and Support policy document [Source 2]. The policy further states that passwords must not be reused across company systems and personal accounts, and multi-factor authentication is required for company email, remote access, and administrative systems [Source 2].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.00286790169775486
+        },
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.002772607607766986
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.1211,
+      "latency_seconds": 2.8639,
+      "passed": true
+    },
+    {
+      "question": "Which company systems require multi-factor authentication?",
+      "expected_facts": [
+        "company email",
+        "remote access",
+        "administrative systems"
+      ],
+      "expected_source_label": "it_security_and_support.txt",
+      "source_rank": 1,
+      "retrieved_count": 4,
+      "answer": "Based on the provided document context, multi-factor authentication is required for the following company systems:\n\n*   Company email\n*   Remote access\n*   Administrative systems\n\nThis requirement is explicitly stated in the IT Security and Support policy [Source 1]. The policy also notes that passwords must contain at least 12 characters and should not be reused across these company systems or personal accounts [Source 1]. Additionally, employees are instructed to never share passwords or authentication codes, and any suspected account compromise must be reported immediately to the IT help desk [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.9031977653503418
+        },
+        {
+          "filename": "employee_directory.txt",
+          "reranker_score": 0.02404855564236641
+        },
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.0022176923230290413
+        },
+        {
+          "filename": "software_development_policy.txt",
+          "reranker_score": 0.0013910605339333415
+        }
+      ],
+      "answer_expected_facts_matched_count": 3,
+      "answer_expected_facts_total": 3,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.2738,
+      "latency_seconds": 3.6961,
+      "passed": true
+    },
+    {
+      "question": "How should a suspected account takeover be reported?",
+      "expected_facts": [
+        "IT help desk",
+        "immediately"
+      ],
+      "expected_source_label": "it_security_and_support.txt",
+      "source_rank": 1,
+      "retrieved_count": 1,
+      "answer": "A suspected account takeover should be reported to the IT help desk immediately [Source 1]. Support requests must be submitted through the internal service desk portal, and critical incidents affecting multiple employees or essential business services must also be reported immediately by phone to the IT on-call team, followed by a service desk ticket [Source 1]. Incident reports should include the affected system, time observed, business impact, and any error message, but passwords, private keys, and authentication codes must never be included [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.009145233780145645
+        }
+      ],
+      "answer_expected_facts_matched_count": 2,
+      "answer_expected_facts_total": 2,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.0748,
+      "latency_seconds": 3.5525,
+      "passed": true
+    },
+    {
+      "question": "What steps are required for a critical incident affecting essential services?",
+      "expected_facts": [
+        "phone",
+        "IT on-call team",
+        "service desk ticket"
+      ],
+      "expected_source_label": "it_security_and_support.txt",
+      "source_rank": 1,
+      "retrieved_count": 4,
+      "answer": "For a critical incident affecting essential services, the following steps are required:\n\n1.  **Report immediately by phone**: Critical incidents affecting multiple employees or essential business services must be reported immediately by phone to the IT on-call team [Source 1].\n2.  **Submit a service desk ticket**: Following the phone report, a service desk ticket must be submitted [Source 1].\n3.  **Include specific details in the report**: Incident reports should include the affected system, time observed, business impact, and any error message [Source 1].\n4.  **Exclude sensitive information**: Passwords, private keys, and authentication codes must never be included in the incident report [Source 1].\n5.  **Receive priority handling**: Critical incidents receive priority handling [Source 2].\n\n*Note: The document states that standard tickets are acknowledged within one business day, but it cuts off before specifying the acknowledgment timeframe specifically for critical incidents, though it implies priority handling applies [Source 1][Source 2].*",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.9218419790267944
+        },
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.069814033806324
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.0013321343576535583
+        },
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.00121807842515409
+        }
+      ],
+      "answer_expected_facts_matched_count": 3,
+      "answer_expected_facts_total": 3,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.1858,
+      "latency_seconds": 5.7023,
+      "passed": true
+    },
+    {
+      "question": "What information belongs in an incident report?",
+      "expected_facts": [
+        "affected system",
+        "business impact",
+        "error message"
+      ],
+      "expected_source_label": "it_security_and_support.txt",
+      "source_rank": 1,
+      "retrieved_count": 2,
+      "answer": "Based on the provided document context, an incident report should include the following specific information:\n\n*   **The affected system** [Source 1]\n*   **The time observed** [Source 1]\n*   **The business impact** [Source 1]\n*   **Any error message** [Source 1]\n\nAdditionally, the documents explicitly state that passwords, private keys, and authentication codes must never be included in these reports [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.023116275668144226
+        },
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.0011450279271230102
+        }
+      ],
+      "answer_expected_facts_matched_count": 3,
+      "answer_expected_facts_total": 3,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.1175,
+      "latency_seconds": 3.5635,
+      "passed": true
+    },
+    {
+      "question": "How quickly are routine support tickets acknowledged?",
+      "expected_facts": [
+        "one business day"
+      ],
+      "expected_source_label": "it_security_and_support.txt",
+      "source_rank": 1,
+      "retrieved_count": 3,
+      "answer": "Routine support tickets are acknowledged within one business day [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.9552496671676636
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.11426576226949692
+        },
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.08274644613265991
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.1414,
+      "latency_seconds": 1.8934,
+      "passed": true
+    },
+    {
+      "question": "How long after a purchase can an employee submit an expense claim?",
+      "expected_facts": [
+        "30 calendar days"
+      ],
+      "expected_source_label": "finance_and_procurement.txt",
+      "source_rank": 1,
+      "retrieved_count": 5,
+      "answer": "An employee must submit an expense claim within **30 calendar days** of the transaction date [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.6932907104492188
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.009409917518496513
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.007326529826968908
+        },
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.0010786729399114847
+        },
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.001036733970977366
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.0185,
+      "latency_seconds": 1.9225,
+      "passed": true
+    },
+    {
+      "question": "What documentation must accompany a reimbursement request?",
+      "expected_facts": [
+        "itemized receipt",
+        "business purpose"
+      ],
+      "expected_source_label": "finance_and_procurement.txt",
+      "source_rank": 1,
+      "retrieved_count": 2,
+      "answer": "Based on the provided document context, an expense reimbursement request at NOVA TECH SOLUTIONS must include the following documentation and details:\n\n*   **An itemized receipt** [Source 1].\n*   **A business purpose** [Source 1].\n*   **The transaction date** [Source 1].\n*   **An expense category** [Source 1].\n\nAdditionally, claims must be submitted within 30 calendar days of the transaction date, and any claim exceeding INR 25,000 requires department-head approval before processing [Source 1]. Incomplete claims are returned for correction, while approved claims are paid in the next scheduled reimbursement cycle [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.0073874411173164845
+        },
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.004119616933166981
+        }
+      ],
+      "answer_expected_facts_matched_count": 2,
+      "answer_expected_facts_total": 2,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.2177,
+      "latency_seconds": 4.7143,
+      "passed": true
+    },
+    {
+      "question": "What approval is needed for a claim above INR 25,000?",
+      "expected_facts": [
+        "department-head approval"
+      ],
+      "expected_source_label": "finance_and_procurement.txt",
+      "source_rank": 1,
+      "retrieved_count": 5,
+      "answer": "For a claim above INR 25,000, department-head approval is required before reimbursement processing [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.994309663772583
+        },
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.01837199367582798
+        },
+        {
+          "filename": "software_development_policy.txt",
+          "reranker_score": 0.012172726914286613
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.011748967692255974
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.003247911110520363
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.0475,
+      "latency_seconds": 2.0118,
+      "passed": true
+    },
+    {
+      "question": "How long does Finance take to review a complete expense claim?",
+      "expected_facts": [
+        "seven business days"
+      ],
+      "expected_source_label": "finance_and_procurement.txt",
+      "source_rank": 1,
+      "retrieved_count": 1,
+      "answer": "Finance reviews complete expense claims within seven business days [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.8794355988502502
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.0556,
+      "latency_seconds": 1.8522,
+      "passed": true
+    },
+    {
+      "question": "Who must approve a 40,000 rupee equipment purchase?",
+      "expected_facts": [
+        "department-manager",
+        "Finance"
+      ],
+      "expected_source_label": "finance_and_procurement.txt",
+      "source_rank": 1,
+      "retrieved_count": 5,
+      "answer": "A 40,000 rupee equipment purchase requires approval from the **department manager** and **Finance**.\n\nAccording to the Equipment Procurement policy (OPS-POL-001), purchases costing above INR 10,000 and up to INR 50,000 require approval from both the department manager and Finance [Source 1]. Since 40,000 rupees falls within this range, it does not require Procurement approval (which is needed for purchases above INR 50,000) [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.3686211407184601
+        },
+        {
+          "filename": "software_development_policy.txt",
+          "reranker_score": 0.009222043678164482
+        },
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.008285715244710445
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.007076529320329428
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.003752852790057659
+        }
+      ],
+      "answer_expected_facts_matched_count": 2,
+      "answer_expected_facts_total": 2,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.0248,
+      "latency_seconds": 3.894,
+      "passed": true
+    },
+    {
+      "question": "What approvals apply to equipment costing INR 60,000?",
+      "expected_facts": [
+        "department-manager",
+        "Finance",
+        "Procurement"
+      ],
+      "expected_source_label": "finance_and_procurement.txt",
+      "source_rank": 1,
+      "retrieved_count": 3,
+      "answer": "Based on the provided document context, equipment costing **INR 60,000** requires approvals from three specific entities:\n\n1.  **Department Manager**: Required for all purchases above INR 10,000 [Source 1].\n2.  **Finance**: Required for purchases above INR 50,000 (since INR 60,000 exceeds this threshold) [Source 1].\n3.  **Procurement**: Required for purchases above INR 50,000 [Source 1].\n\nTherefore, the required approval chain for an equipment purchase of INR 60,000 is: **Department Manager, Finance, and Procurement**.\n\n*Supporting Evidence:*\n[Source 1] states: \"Purchases above INR 50,000 require department-manager, Finance, and Procurement approval.\"",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.1608155220746994
+        },
+        {
+          "filename": "software_development_policy.txt",
+          "reranker_score": 0.011165009811520576
+        },
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.0022003676276654005
+        }
+      ],
+      "answer_expected_facts_matched_count": 3,
+      "answer_expected_facts_total": 3,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.1922,
+      "latency_seconds": 5.3499,
+      "passed": true
+    },
+    {
+      "question": "Can a purchase be split to stay under an approval threshold?",
+      "expected_facts": [
+        "prohibited"
+      ],
+      "expected_source_label": "finance_and_procurement.txt",
+      "source_rank": 1,
+      "retrieved_count": 2,
+      "answer": "No, splitting purchases to stay under an approval threshold is prohibited. The policy explicitly states that \"Splitting purchases to avoid approval thresholds is prohibited\" [Source 1]. This rule applies across all purchase types, including expense claims and equipment procurement, regardless of the specific monetary thresholds involved (e.g., INR 10,000 or INR 50,000) [Source 2]. Every purchase must still meet the requirements for its respective approval level based on its actual total cost.",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.986753523349762
+        },
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.038166869431734085
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.1123,
+      "latency_seconds": 3.6219,
+      "passed": true
+    },
+    {
+      "question": "What review is required before production code can be released?",
+      "expected_facts": [
+        "pull request",
+        "one engineer",
+        "approve"
+      ],
+      "expected_source_label": "software_development_policy.txt",
+      "source_rank": 1,
+      "retrieved_count": 1,
+      "answer": "Before production code can be released, the following review and approval steps are required:\n\n1.  **Pull Request Submission**: All production code changes must be submitted through a pull request [Source 1].\n2.  **Engineer Review and Approval**: At least one engineer other than the author must review and approve the change [Source 1].\n3.  **Test Execution**: Automated unit tests and applicable integration tests must pass before the production release [Source 1].\n4.  **Security Resolution**: Critical security findings must be resolved before deployment [Source 1].\n5.  **Release Owner Approval**: Production releases require approval from the designated release owner [Source 1].\n\nAdditionally, if emergency changes are made, they must be documented and reviewed retrospectively within two business days [Source 1]. Developers are also prohibited from committing API keys, passwords, customer data, or private credentials to source control [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "software_development_policy.txt",
+          "reranker_score": 0.9960137605667114
+        }
+      ],
+      "answer_expected_facts_matched_count": 3,
+      "answer_expected_facts_total": 3,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.1848,
+      "latency_seconds": 5.7513,
+      "passed": true
+    },
+    {
+      "question": "Which tests need to pass before a production release?",
+      "expected_facts": [
+        "unit tests",
+        "integration tests"
+      ],
+      "expected_source_label": "software_development_policy.txt",
+      "source_rank": 1,
+      "retrieved_count": 2,
+      "answer": "Based on the provided document context, the following tests must pass before a production release:\n\n*   **Automated unit tests** [Source 1].\n*   **Applicable integration tests** [Source 1].\n\nThe policy states that \"Automated unit tests and applicable integration tests must pass before production release\" [Source 1]. Additionally, critical security findings must be resolved before deployment, though this is listed as a requirement rather than a specific test type in the text provided [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "software_development_policy.txt",
+          "reranker_score": 0.9983610510826111
+        },
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.001100043416954577
+        }
+      ],
+      "answer_expected_facts_matched_count": 2,
+      "answer_expected_facts_total": 2,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.1583,
+      "latency_seconds": 3.6284,
+      "passed": true
+    },
+    {
+      "question": "When must a critical security finding be resolved?",
+      "expected_facts": [
+        "before deployment"
+      ],
+      "expected_source_label": "software_development_policy.txt",
+      "source_rank": 1,
+      "retrieved_count": 1,
+      "answer": "A critical security finding must be resolved before deployment. This requirement is explicitly stated in the Software Development Policy under the Code Review and Release procedures [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "software_development_policy.txt",
+          "reranker_score": 0.9278934597969055
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.079,
+      "latency_seconds": 2.199,
+      "passed": true
+    },
+    {
+      "question": "Who authorizes a production release?",
+      "expected_facts": [
+        "release owner"
+      ],
+      "expected_source_label": "software_development_policy.txt",
+      "source_rank": 1,
+      "retrieved_count": 4,
+      "answer": "Based on the provided document context, a production release is authorized by the **designated release owner**.\n\nSupporting evidence:\n*   \"Production releases require approval from the designated release owner.\" [Source 1]\n\nAdditionally, the process requires that at least one engineer other than the author reviews and approves the change, automated unit tests and applicable integration tests pass, and critical security findings are resolved before deployment. However, the specific authorization for the production release itself rests with the designated release owner.",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "software_development_policy.txt",
+          "reranker_score": 0.24779102206230164
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.0026626824401319027
+        },
+        {
+          "filename": "finance_and_procurement.txt",
+          "reranker_score": 0.0013775784755125642
+        },
+        {
+          "filename": "employee_directory.txt",
+          "reranker_score": 0.0011901060352101922
+        }
+      ],
+      "answer_expected_facts_matched_count": 1,
+      "answer_expected_facts_total": 1,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.1032,
+      "latency_seconds": 3.5848,
+      "passed": true
+    },
+    {
+      "question": "What must happen after an emergency code change?",
+      "expected_facts": [
+        "documented",
+        "two business days"
+      ],
+      "expected_source_label": "software_development_policy.txt",
+      "source_rank": 1,
+      "retrieved_count": 3,
+      "answer": "After an emergency code change, it must be documented and reviewed retrospectively within two business days [Source 1]. Additionally, critical security findings must be resolved before deployment, and production releases generally require approval from a designated release owner, though the specific retrospective review requirement applies to emergency changes [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "software_development_policy.txt",
+          "reranker_score": 0.3280596435070038
+        },
+        {
+          "filename": "hr_policies.txt",
+          "reranker_score": 0.0018452334916219115
+        },
+        {
+          "filename": "it_security_and_support.txt",
+          "reranker_score": 0.0014781462959945202
+        }
+      ],
+      "answer_expected_facts_matched_count": 2,
+      "answer_expected_facts_total": 2,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.075,
+      "latency_seconds": 2.7771,
+      "passed": true
+    },
+    {
+      "question": "Where does Rahul Mehta work, and what is his role?",
+      "expected_facts": [
+        "NOVA TECH SOLUTIONS",
+        "IT Support Engineer",
+        "Pune"
+      ],
+      "expected_source_label": "employee_directory.txt",
+      "source_rank": 1,
+      "retrieved_count": 1,
+      "answer": "Rahul Mehta works at **NOVA TECH SOLUTIONS** in **Pune**, where his role is **IT Support Engineer**.\n\n*   **Employer:** NOVA TECH SOLUTIONS [Source 1]\n*   **Location:** Pune [Source 1]\n*   **Role:** IT Support Engineer [Source 1]",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "employee_directory.txt",
+          "reranker_score": 0.3951442837715149
+        }
+      ],
+      "answer_expected_facts_matched_count": 3,
+      "answer_expected_facts_total": 3,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.0394,
+      "latency_seconds": 2.9319,
+      "passed": true
+    },
+    {
+      "question": "Which department and city is Aditi Sharma associated with?",
+      "expected_facts": [
+        "Human Resources",
+        "Mumbai"
+      ],
+      "expected_source_label": "employee_directory.txt",
+      "source_rank": 1,
+      "retrieved_count": 1,
+      "answer": "Aditi Sharma is associated with the Human Resources department in Mumbai. According to the employee directory, she holds the role of HR Manager at NOVA TECH SOLUTIONS [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": true,
+      "unsupported_retrieval_empty": null,
+      "source_scores": [
+        {
+          "filename": "employee_directory.txt",
+          "reranker_score": 0.6606561541557312
+        }
+      ],
+      "answer_expected_facts_matched_count": 2,
+      "answer_expected_facts_total": 2,
+      "answer_expected_fact_coverage_approximate": 1.0,
+      "answer_expected_facts_complete_approximate": true,
+      "evidence_expected_facts_approximate": 1.0,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": null,
+      "semantic_judgment": {
+        "answer_addresses_question": true,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": false,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.021,
+      "latency_seconds": 2.2908,
+      "passed": true
+    },
+    {
+      "question": "What is the CEO's name?",
+      "expected_facts": [],
+      "expected_source_label": null,
+      "source_rank": null,
+      "retrieved_count": 0,
+      "answer": "I couldn't find sufficient relevant evidence in your accessible documents to answer this question reliably.",
+      "model": null,
+      "generation_error": null,
+      "retrieval_success_at_k": null,
+      "unsupported_retrieval_empty": true,
+      "source_scores": [],
+      "answer_expected_facts_matched_count": null,
+      "answer_expected_facts_total": null,
+      "answer_expected_fact_coverage_approximate": null,
+      "answer_expected_facts_complete_approximate": null,
+      "evidence_expected_facts_approximate": null,
+      "citation_labels_valid": true,
+      "citation_present": false,
+      "abstention_correct": true,
+      "semantic_judgment": {
+        "answer_addresses_question": false,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": true,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 2.0717,
+      "latency_seconds": 0.2456,
+      "passed": true
+    },
+    {
+      "question": "What is the company's annual revenue?",
+      "expected_facts": [],
+      "expected_source_label": null,
+      "source_rank": null,
+      "retrieved_count": 0,
+      "answer": "I couldn't find sufficient relevant evidence in your accessible documents to answer this question reliably.",
+      "model": null,
+      "generation_error": null,
+      "retrieval_success_at_k": null,
+      "unsupported_retrieval_empty": true,
+      "source_scores": [],
+      "answer_expected_facts_matched_count": null,
+      "answer_expected_facts_total": null,
+      "answer_expected_fact_coverage_approximate": null,
+      "answer_expected_facts_complete_approximate": null,
+      "evidence_expected_facts_approximate": null,
+      "citation_labels_valid": true,
+      "citation_present": false,
+      "abstention_correct": true,
+      "semantic_judgment": {
+        "answer_addresses_question": false,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": true,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 2.1806,
+      "latency_seconds": 0.3039,
+      "passed": true
+    },
+    {
+      "question": "How many employees work in the Singapore office?",
+      "expected_facts": [],
+      "expected_source_label": null,
+      "source_rank": null,
+      "retrieved_count": 0,
+      "answer": "I couldn't find sufficient relevant evidence in your accessible documents to answer this question reliably.",
+      "model": null,
+      "generation_error": null,
+      "retrieval_success_at_k": null,
+      "unsupported_retrieval_empty": true,
+      "source_scores": [],
+      "answer_expected_facts_matched_count": null,
+      "answer_expected_facts_total": null,
+      "answer_expected_fact_coverage_approximate": null,
+      "answer_expected_facts_complete_approximate": null,
+      "evidence_expected_facts_approximate": null,
+      "citation_labels_valid": true,
+      "citation_present": false,
+      "abstention_correct": true,
+      "semantic_judgment": {
+        "answer_addresses_question": false,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": true,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 2.1528,
+      "latency_seconds": 0.2616,
+      "passed": true
+    },
+    {
+      "question": "What is the CEO's personal phone number?",
+      "expected_facts": [],
+      "expected_source_label": null,
+      "source_rank": null,
+      "retrieved_count": 1,
+      "answer": "The provided document does not contain the CEO's personal phone number. The employee directory lists Aditi Sharma as the HR Manager reporting to the Chief Operating Officer, but it does not identify who holds the title of CEO or provide any personal contact information for executive roles [Source 1].",
+      "model": "qwen3.5:4b",
+      "generation_error": null,
+      "retrieval_success_at_k": null,
+      "unsupported_retrieval_empty": false,
+      "source_scores": [
+        {
+          "filename": "employee_directory.txt",
+          "reranker_score": 0.0017422960372641683
+        }
+      ],
+      "answer_expected_facts_matched_count": null,
+      "answer_expected_facts_total": null,
+      "answer_expected_fact_coverage_approximate": null,
+      "answer_expected_facts_complete_approximate": null,
+      "evidence_expected_facts_approximate": null,
+      "citation_labels_valid": true,
+      "citation_present": true,
+      "abstention_correct": true,
+      "semantic_judgment": {
+        "answer_addresses_question": false,
+        "claims_supported_by_evidence": true,
+        "citation_entailment": true,
+        "abstention_correct": true,
+        "model": "qwen3.5:4b"
+      },
+      "semantic_judge_error": null,
+      "semantic_pass_approximate": true,
+      "semantic_judge_latency_seconds": 1.0556,
+      "latency_seconds": 2.5765,
+      "passed": true
+    }
+  ]
+}

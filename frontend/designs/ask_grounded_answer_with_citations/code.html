@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-tint": "#0284c7", "outline": "#64748b", "surface-container-highest": "#f1f5f9", "on-tertiary-container": "#fdfcff", "on-error": "#ffffff", "secondary": "#0284c7", "tertiary": "#475569", "outline-variant": "#e2e8f0", "error": "#ba1a1a", "primary-fixed": "#e0f2fe", "inverse-primary": "#7dd3fc", "surface": "#ffffff", "surface-container-lowest": "#ffffff", "on-tertiary-fixed": "#0b1c30", "tertiary-fixed": "#e2e8f0", "surface-container-low": "#f8fafc", "secondary-fixed-dim": "#bae6fd", "surface-dim": "#f1f5f9", "on-surface": "#0f172a", "background": "#ffffff", "inverse-on-surface": "#f8fafc", "on-secondary-fixed-variant": "#0369a1", "primary": "#0284c7", "on-secondary": "#ffffff", "secondary-container": "#e0f2fe", "on-secondary-fixed": "#0c4a6e", "surface-bright": "#ffffff", "on-primary-fixed": "#0c4a6e", "on-primary": "#ffffff", "on-primary-fixed-variant": "#0369a1", "primary-fixed-dim": "#7dd3fc", "surface-container": "#f1f5f9", "surface-container-high": "#e2e8f0", "on-tertiary": "#ffffff", "inverse-surface": "#1e293b", "on-error-container": "#93000a", "primary-container": "#0369a1", "on-surface-variant": "#64748b", "error-container": "#ffdad6", "tertiary-fixed-dim": "#cbd5e1", "on-background": "#0f172a", "tertiary-container": "#64748b", "on-primary-container": "#ffffff", "surface-variant": "#f1f5f9", "on-secondary-container": "#0369a1", "on-tertiary-fixed-variant": "#334155", "secondary-fixed": "#bae6fd" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "margin": "1rem", "space-sm": "0.5rem", "space-xl": "1.5rem", "space-md": "0.75rem", "gutter-lg": "2rem", "gutter": "1rem", "space-xs": "0.25rem", "gutter-md": "1.5rem", "margin-md": "1.5rem", "margin-lg": "2rem", "space-lg": "1rem" }, "fontFamily": { "headline-sm": [ "Inter" ], "headline-lg": [ "Inter" ], "headline-lg-mobile": [ "Inter" ], "body-lg": [ "Inter" ], "label-sm": [ "Inter" ], "code-inline": [ "JetBrains Mono" ], "body-md": [ "Inter" ], "headline-md": [ "Inter" ], "label-md": [ "Inter" ], "display": [ "Inter" ], "title-md": [ "Inter" ], "body-sm": [ "Inter" ] }, "fontSize": { "headline-sm": [ "1.0625rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "headline-lg": [ "1.75rem", { "lineHeight": "2.25rem", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "headline-lg-mobile": [ "1.5rem", { "lineHeight": "2rem", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "body-lg": [ "1rem", { "lineHeight": "1.625rem", "letterSpacing": "0em", "fontWeight": "400" } ], "label-sm": [ "0.6875rem", { "lineHeight": "0.875rem", "letterSpacing": "0.025em", "fontWeight": "600" } ], "code-inline": [ "0.8125rem", { "lineHeight": "1.125rem", "letterSpacing": "0em", "fontWeight": "400" } ], "body-md": [ "0.875rem", { "lineHeight": "1.375rem", "letterSpacing": "0em", "fontWeight": "400" } ], "headline-md": [ "1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "label-md": [ "0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.01em", "fontWeight": "500" } ], "display": [ "2.25rem", { "lineHeight": "2.75rem", "letterSpacing": "-0.025em", "fontWeight": "600" } ], "title-md": [ "0.9375rem", { "lineHeight": "1.375rem", "letterSpacing": "-0.005em", "fontWeight": "500" } ], "body-sm": [ "0.8125rem", { "lineHeight": "1.25rem", "letterSpacing": "0.005em", "fontWeight": "400" } ] } } } };</script></head><body class="bg-white text-on-surface antialiased"><aside class="fixed left-0 top-0 bottom-0 w-60 bg-surface-container-low border-r border-slate-200 flex flex-col z-40 hidden md:flex"><div class="h-14 px-margin-md flex items-center gap-space-sm border-b border-slate-200"><div class="w-7 h-7 rounded-lg bg-[#0284c7] flex items-center justify-center text-on-primary shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" viewbox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><circle cx="11.5" cy="14.5" r="2.5"></circle><line x1="13.5" x2="16.5" y1="16.5" y2="19.5"></line></svg></div><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight truncate">Knowledge Intelligence</span></div><div class="px-margin-md py-space-sm"><button class="w-full h-9 rounded-lg bg-[#0284c7] hover:bg-[#0369a1] text-white font-label-md text-label-md flex items-center justify-center gap-space-xs transition-colors shadow-sm" type="button"><span class="material-symbols-outlined text-[18px]">add</span><span>New Inquiry</span></button></div><nav class="flex-1 px-space-sm py-space-sm space-y-space-xs" data-active-classes="bg-[#e0f2fe] text-[#0284c7] font-title-md border border-[#bae6fd]"><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-xs rounded-lg transition-colors bg-[#e0f2fe] text-[#0284c7] font-title-md border border-[#bae6fd]" data-path="ask" href="#"><span class="material-symbols-outlined text-[20px] text-[#0284c7]">chat_bubble</span><span>Ask</span></a><a class="flex items-center gap-space-sm px-space-md py-space-xs rounded-lg font-body-md text-body-md text-on-surface-variant hover:bg-slate-100 hover:text-on-surface transition-colors" data-path="knowledge-base" href="#"><span class="material-symbols-outlined text-[20px]">folder</span><span>Knowledge base</span></a></nav><div class="p-space-sm border-t border-slate-200"><div class="p-space-sm rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-space-sm relative group shadow-sm"><div class="flex items-center gap-space-sm min-w-0"><div class="w-8 h-8 rounded-full bg-[#0284c7] flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-white text-[18px]">person</span></div><div class="min-w-0 flex-1"><div class="flex items-center gap-space-xs"><span class="font-label-md text-label-md text-on-surface truncate leading-tight">Elena Vance</span><span class="px-space-xs py-[1px] rounded bg-[#f1f5f9] text-[#334155] border border-slate-200 font-label-sm text-label-sm leading-none">Member</span></div><span class="font-body-sm text-body-sm text-on-surface-variant truncate block">e.vance@acme-corp.internal</span></div></div><div class="relative"><button aria-label="Account settings menu" class="p-space-xs rounded text-on-surface-variant hover:text-on-surface hover:bg-slate-100 transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">more_vert</span></button><div class="absolute bottom-full right-0 mb-space-xs hidden group-hover:block group-focus-within:block w-36 py-space-xs bg-white border border-slate-200 rounded-lg shadow-lg z-50"><a class="flex items-center gap-space-xs px-space-md py-space-xs font-body-sm text-body-sm text-error hover:bg-error-container hover:text-on-error-container transition-colors" href="#"><span class="material-symbols-outlined text-[16px]">logout</span><span>Sign out</span></a></div></div></div></div></aside><div class="md:pl-60"><header class="fixed top-0 left-0 md:left-60 right-0 h-14 bg-white/90 border-b border-slate-200 backdrop-blur-xl z-30 flex items-center justify-between px-gutter md:px-gutter-md"><div class="flex items-center gap-space-md"><button aria-label="Open navigation" class="md:hidden p-space-xs text-on-surface-variant hover:text-on-surface" type="button"><span class="material-symbols-outlined text-[24px]">menu</span></button><nav class="hidden sm:flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant"><span>Workspace</span><span class="material-symbols-outlined text-[14px]">chevron_right</span><span class="text-on-surface font-title-md text-title-md">Intelligence Feed</span></nav></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-[2px] rounded-full bg-slate-100 border border-slate-200"><span class="w-2 h-2 rounded-full bg-[#0284c7] animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface-variant">System Operational</span></div><div class="w-8 h-8 rounded-full bg-[#0284c7] flex items-center justify-center"><span class="material-symbols-outlined text-white text-[18px]">person</span></div></div></header><main class="w-full pt-14 bg-white min-h-screen"><div class="flex flex-col w-full">
+<div class="px-gutter md:px-gutter-lg py-space-lg max-w-[1400px] mx-auto w-full">
+<!-- Breadcrumb & Workspace Status Bar -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md mb-space-lg">
+<div class="flex items-center gap-space-sm font-label-md text-label-md text-on-surface-variant">
+<span>Knowledge</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="font-title-md text-title-md text-on-surface">Ask</span>
+</div>
+<div class="flex items-center gap-space-sm self-start sm:self-auto">
+<div class="flex items-center gap-space-xs px-space-md py-1 rounded-full bg-slate-100 border border-slate-200 text-on-surface font-label-sm text-label-sm shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-[#0284c7]"></span>
+<span>Grounding: 48 documents available</span>
+</div>
+<button class="px-space-sm py-1 rounded-full bg-slate-100 border border-slate-200 text-on-surface-variant hover:text-on-surface hover:bg-slate-200 transition-colors font-label-sm text-label-sm flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[15px]">tune</span>
+<span>Filters</span>
+</button>
+</div>
+</div>
+<!-- Main Dynamic Layout (Two-Column Stream / Inspector) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-md items-start">
+<!-- Left Column: Interaction & Synthesis Feed (7 Cols) -->
+<div class="lg:col-span-7 flex flex-col gap-space-xl">
+<!-- User Query Card -->
+<div class="bg-white rounded-xl p-space-lg shadow-sm border border-slate-200 relative overflow-hidden group">
+<div class="flex items-start gap-space-md">
+<div class="w-7 h-7 rounded-lg bg-[#f1f5f9] border border-slate-200 text-[#0284c7] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]">help_center</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-space-sm mb-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">User Query</span>
+<span class="font-code-inline text-code-inline text-on-surface-variant text-[11px]">Today • 14:28 EST</span>
+</div>
+<h1 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">
+                What is the reimbursement limit and submission window for home office equipment under the updated remote work policy?
+              </h1>
+</div>
+</div>
+</div>
+<!-- Synthesis Response Card -->
+<div class="bg-white rounded-xl p-space-xl shadow-sm border border-slate-200 relative">
+<!-- Card Header & Metadata -->
+<div class="flex items-center justify-between pb-space-md mb-space-md border-b border-slate-100">
+<div class="flex items-center gap-space-sm">
+<div class="w-7 h-7 rounded-lg bg-[#0284c7] text-white flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[17px]">auto_awesome</span>
+</div>
+<div>
+<span class="font-title-md text-title-md text-on-surface block leading-tight">Synthesized Intelligence</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Deterministic RAG Extraction • Confidence: 99.4%</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button aria-label="Copy Answer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors border border-slate-200" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+<button aria-label="Rate helpful" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors border border-slate-200" type="button">
+<span class="material-symbols-outlined text-[16px]">thumb_up</span>
+</button>
+<button aria-label="More actions" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors border border-slate-200" type="button">
+<span class="material-symbols-outlined text-[16px]">share</span>
+</button>
+</div>
+</div>
+<!-- Answer Body -->
+<div class="space-y-space-md font-body-lg text-body-lg text-on-surface leading-relaxed">
+<p>
+              Under Section 4.2 of the Remote Work &amp; Equipment Policy, full-time employees are eligible for a one-time reimbursement of up to <span class="font-title-md font-semibold text-[#0284c7]">$750 USD</span> for approved ergonomic equipment (monitors, chairs, standing desk converters). 
+              <button class="inline-flex items-center align-baseline px-space-xs py-[1px] mx-1 rounded bg-[#f1f5f9] border border-[#e2e8f0] hover:border-[#0284c7] text-[#0284c7] font-label-sm text-label-sm transition-all transform active:scale-95 shadow-sm" onclick="scrollToSource('source-card-1')" type="button">
+<span class="material-symbols-outlined text-[12px] mr-0.5 text-[#0284c7]">dock_to_right</span>Source 1
+              </button>
+              All reimbursement requests must be submitted via the Concur procurement portal within <span class="font-title-md font-semibold text-on-surface">60 calendar days</span> of purchase with itemized receipts attached. 
+              <button class="inline-flex items-center align-baseline px-space-xs py-[1px] mx-1 rounded bg-[#f1f5f9] border border-[#e2e8f0] hover:border-[#0284c7] text-[#0284c7] font-label-sm text-label-sm transition-all transform active:scale-95 shadow-sm" onclick="scrollToSource('source-card-2')" type="button">
+<span class="material-symbols-outlined text-[12px] mr-0.5 text-[#0284c7]">dock_to_right</span>Source 2
+              </button>
+              Purchases exceeding $750 require pre-approval from department VP. 
+              <button class="inline-flex items-center align-baseline px-space-xs py-[1px] mx-1 rounded bg-[#f1f5f9] border border-[#e2e8f0] hover:border-[#0284c7] text-[#0284c7] font-label-sm text-label-sm transition-all transform active:scale-95 shadow-sm" onclick="scrollToSource('source-card-1')" type="button">
+<span class="material-symbols-outlined text-[12px] mr-0.5 text-[#0284c7]">dock_to_right</span>Source 1
+              </button>
+</p>
+</div>
+<!-- Structured Quick Metrics Ribbon -->
+<div class="mt-space-lg pt-space-md grid grid-cols-2 sm:grid-cols-3 gap-space-sm border-t border-slate-100">
+<div class="p-space-sm rounded-lg bg-slate-50 border border-slate-200">
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wide">Allowance</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold">$750 USD (One-time)</span>
+</div>
+<div class="p-space-sm rounded-lg bg-slate-50 border border-slate-200">
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wide">Filing Window</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold">60 Days Post-Tx</span>
+</div>
+<div class="p-space-sm rounded-lg bg-slate-50 border border-slate-200 col-span-2 sm:col-span-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wide">Filing Channel</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold">Concur Portal</span>
+</div>
+</div>
+<!-- Interactive Question Suggestions -->
+<div class="mt-space-md flex flex-wrap items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant mr-1">Follow-ups:</span>
+<button class="px-space-sm py-1 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-on-surface font-label-md text-label-md transition-colors" type="button">
+              How do I initiate a VP pre-approval request?
+            </button>
+<button class="px-space-sm py-1 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-on-surface font-label-md text-label-md transition-colors" type="button">
+              Are ergonomic footrests eligible items?
+            </button>
+</div>
+</div>
+<!-- Integrated Knowledge Composer Bar -->
+<div class="bg-white rounded-xl p-space-md shadow-sm border border-slate-200">
+<div class="relative">
+<textarea class="w-full bg-slate-50 border border-slate-200 rounded-lg p-space-md font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:bg-white focus:border-[#0284c7] transition-all resize-none" placeholder="Ask a clarifying question or explore connected policies..." rows="2"></textarea>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pt-space-xs mt-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[15px] text-[#0284c7]">verified_user</span>
+<span class="font-label-sm text-label-sm">Searching 48 documents accessible to your role</span>
+</div>
+<div class="flex items-center justify-between sm:justify-end gap-space-md">
+<span class="hidden md:inline font-code-inline text-code-inline text-[11px] text-on-surface-variant">
+                  Press Enter ↵ to ask, Shift+Enter for new line
+                </span>
+<button class="h-9 px-space-md rounded-lg bg-[#0284c7] hover:bg-[#0369a1] text-white font-label-md text-label-md flex items-center gap-space-xs transition-colors shadow-sm" type="button">
+<span>Send</span>
+<span class="material-symbols-outlined text-[16px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Strict Grounding Disclaimer -->
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center px-space-md">
+          Answers are synthesized strictly from accessible company documentation with citations to source passages.
+        </p>
+</div>
+<!-- Right Column: Evidence Inspector & Referenced Source Cards (5 Cols) -->
+<div class="lg:col-span-5 flex flex-col gap-space-md">
+<!-- Inspector Context Header -->
+<div class="flex items-center justify-between px-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-[#0284c7]">menu_book</span>
+<h2 class="font-title-md text-title-md text-on-surface font-semibold">Connected Source Evidence</h2>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-slate-100 border border-slate-200 font-code-inline text-[11px] text-on-surface-variant">2 Sources Cited</span>
+</div>
+<!-- Source Card 1 -->
+<div class="bg-white rounded-xl p-space-md shadow-sm border border-slate-200 transition-all duration-300" id="source-card-1">
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-[#f1f5f9] border border-slate-200 text-[#0284c7] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs mb-[2px]">
+<span class="px-space-xs py-[2px] rounded bg-[#f1f5f9] text-[#334155] border border-[#e2e8f0] font-label-sm text-label-sm leading-none font-semibold">Source 1</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">HR &amp; Workplace</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-medium truncate">
+                  Remote_Work_Equipment_Policy_2024.pdf
+                </h3>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-1">
+<span class="px-space-xs py-[2px] rounded bg-slate-100 border border-slate-200 text-on-surface-variant font-code-inline text-[11px]">v2.1</span>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-slate-50 border border-slate-200 mb-space-sm font-body-sm text-body-sm text-on-surface leading-relaxed">
+<span class="text-on-surface-variant">...</span>
+<span class="font-semibold text-on-surface">4.2 Home Workspace Allowance:</span>
+            Regular full-time personnel may claim 
+            <mark class="bg-sky-100 text-[#0369a1] px-1 py-0.5 rounded font-medium border border-sky-200">up to $750 for qualified ergonomic furniture</mark> 
+            and peripherals. Expenses exceeding this allocation require prior written authorization from the 
+            <mark class="bg-sky-100 text-[#0369a1] px-1 py-0.5 rounded font-medium border border-sky-200">Department VP</mark>...
+          </div>
+<div class="flex items-center justify-between pt-space-xs text-on-surface-variant">
+<span class="font-code-inline text-[11px]">Updated Oct 12, 2024</span>
+<button class="flex items-center gap-1 text-[#0284c7] hover:text-[#0369a1] font-label-md text-label-md transition-colors" type="button">
+<span>View excerpt in context</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- Source Card 2 -->
+<div class="bg-white rounded-xl p-space-md shadow-sm border border-slate-200 transition-all duration-300" id="source-card-2">
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-[#f1f5f9] border border-slate-200 text-[#0284c7] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">description</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs mb-[2px]">
+<span class="px-space-xs py-[2px] rounded bg-[#f1f5f9] text-[#334155] border border-[#e2e8f0] font-label-sm text-label-sm leading-none font-semibold">Source 2</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Finance</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-medium truncate">
+                  Expense_Reimbursement_Standard_Operating_Procedure.docx
+                </h3>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-1">
+<span class="px-space-xs py-[2px] rounded bg-slate-100 border border-slate-200 text-on-surface-variant font-code-inline text-[11px]">v3.0</span>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-slate-50 border border-slate-200 mb-space-sm font-body-sm text-body-sm text-on-surface leading-relaxed">
+<span class="text-on-surface-variant">...</span>
+<span class="font-semibold text-on-surface">5.1 Timelines for Filing:</span>
+            All documentation and itemized payment proofs must be entered into 
+            <mark class="bg-sky-100 text-[#0369a1] px-1 py-0.5 rounded font-medium border border-sky-200">Concur no later than 60 calendar days post-transaction</mark>...
+          </div>
+<div class="flex items-center justify-between pt-space-xs text-on-surface-variant">
+<span class="font-code-inline text-[11px]">Updated Sep 28, 2024</span>
+<button class="flex items-center gap-1 text-[#0284c7] hover:text-[#0369a1] font-label-md text-label-md transition-colors" type="button">
+<span>View excerpt in context</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- Grounding Knowledge Distribution Card -->
+<div class="bg-white rounded-xl p-space-md shadow-sm border border-slate-200">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-title-md text-title-md text-on-surface font-medium">Document Cluster Match</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Semantic Density</span>
+</div>
+<!-- Semantic Match Vector Bar Chart -->
+<div class="space-y-space-sm">
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface">Remote Work &amp; Equip Policy</span>
+<span class="text-[#0284c7] font-semibold">94%</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+<div class="h-full bg-[#0284c7] rounded-full" style="width: 94%;"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface">Expense Reimbursement SOP</span>
+<span class="text-[#0284c7] font-semibold">88%</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+<div class="h-full bg-[#0284c7] rounded-full" style="width: 88%;"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface">Information Security Hardware Guide</span>
+<span class="text-on-surface-variant">32%</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+<div class="h-full bg-slate-400 rounded-full" style="width: 32%;"></div>
+</div>
+</div>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center justify-between text-on-surface-variant">
+<span class="font-label-sm text-label-sm">Indexed Corpus: Q3 Enterprise V4</span>
+<a class="font-label-sm text-label-sm text-[#0284c7] hover:underline" href="#">Explore all 48 docs</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Highlight Script -->
+<script>
+    function scrollToSource(cardId) {
+      const card = document.getElementById(cardId);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('ring-2', 'ring-[#0284c7]', 'bg-sky-50');
+        setTimeout(() => {
+          card.classList.remove('ring-2', 'ring-[#0284c7]', 'bg-sky-50');
+        }, 1800);
+      }
+    }
+  </script>
+</div></main></div></body></html>

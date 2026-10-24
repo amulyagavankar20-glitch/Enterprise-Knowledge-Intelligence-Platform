@@ -1,0 +1,148 @@
+ENTERPRISE KNOWLEDGE BASE
+Organization: NovaTech Solutions
+Document Version: 1.0
+Last Updated: 2026-10-15
+
+==================================================
+SECTION 1: EMPLOYEE DIRECTORY
+==================================================
+
+Employee ID: EMP-1001
+Name: Aditi Sharma
+Department: Human Resources
+Role: HR Manager
+Location: Mumbai
+Manager: Chief Operating Officer
+
+Employee ID: EMP-1002
+Name: Rahul Mehta
+Department: Information Technology
+Role: IT Support Engineer
+Location: Pune
+Manager: IT Manager
+
+Employee ID: EMP-1003
+Name: Priya Nair
+Department: Finance
+Role: Financial Analyst
+Location: Mumbai
+Manager: Finance Director
+
+Employee ID: EMP-1004
+Name: Arjun Patel
+Department: Information Technology
+Role: Senior Software Engineer
+Location: Bengaluru
+Manager: Engineering Manager
+
+Employee ID: EMP-1005
+Name: Sneha Iyer
+Department: Marketing
+Role: Marketing Specialist
+Location: Hyderabad
+Manager: Marketing Director
+
+==================================================
+SECTION 2: LEAVE AND ATTENDANCE POLICY
+==================================================
+
+Policy ID: HR-POL-001
+Policy Name: Annual Leave Policy
+Effective Date: 2026-01-01
+
+Full-time employees receive 18 days of annual paid leave per calendar year. Employees who join during the year receive leave on a prorated basis.
+
+Employees must submit leave requests through the internal HR portal at least three working days before the intended leave date. Emergency leave may be reported to the employee's manager as soon as reasonably possible.
+
+Leave approval is provided by the employee's reporting manager. Leave balances can be checked through the HR portal.
+
+Unused annual leave may be carried forward for up to five days into the next calendar year. Any additional carry-forward requires written approval from Human Resources.
+
+Policy ID: HR-POL-002
+Policy Name: Attendance and Remote Work Policy
+Effective Date: 2026-01-01
+
+Standard working hours are 9:30 AM to 6:00 PM, Monday through Friday. Employees should notify their manager if they expect to arrive more than 15 minutes late.
+
+Employees may work remotely up to two days per week with manager approval. Certain roles may require additional on-site attendance based on operational needs.
+
+Remote work does not change the employee's normal working hours or availability expectations.
+
+==================================================
+SECTION 3: IT SUPPORT AND SECURITY
+==================================================
+
+Policy ID: IT-POL-001
+Policy Name: Password Security
+
+Employees must use passwords with at least 12 characters. Passwords should not be reused across company systems and personal accounts.
+
+Multi-factor authentication is required for company email, remote access, and administrative systems.
+
+Employees must never share passwords or authentication codes with colleagues. Suspected account compromise must be reported to the IT help desk immediately.
+
+Policy ID: IT-POL-002
+Policy Name: Incident Reporting
+
+IT support requests must be submitted through the internal service desk portal.
+
+Critical incidents affecting multiple employees or essential business services should be reported immediately by phone to the IT on-call team, followed by a service desk ticket.
+
+Every incident report should include the affected system, time observed, business impact, and any error message. Employees should not include passwords, private keys, or authentication codes in support tickets.
+
+The IT support team acknowledges standard tickets within one business day. Critical incidents receive priority handling.
+
+==================================================
+SECTION 4: FINANCE AND EXPENSE REIMBURSEMENT
+==================================================
+
+Policy ID: FIN-POL-001
+Policy Name: Employee Expense Reimbursement
+
+Employees must submit expense claims within 30 calendar days of the transaction date.
+
+Claims must include an itemized receipt, business purpose, transaction date, and expense category. Claims above INR 25,000 require department-head approval before reimbursement processing.
+
+Finance reviews complete claims within seven business days. Incomplete claims are returned to the employee for correction.
+
+Approved reimbursements are paid in the next scheduled reimbursement cycle. Submission of a claim does not guarantee approval.
+
+==================================================
+SECTION 5: SOFTWARE DEVELOPMENT PROCEDURES
+==================================================
+
+Policy ID: ENG-PROC-001
+Policy Name: Code Review and Release
+
+All production code changes must be submitted through a pull request. At least one engineer other than the author must review and approve the change.
+
+Automated unit tests and applicable integration tests must pass before a production release. Critical security findings must be resolved before deployment.
+
+Production releases require approval from the designated release owner. Emergency changes must be documented and reviewed retrospectively within two business days.
+
+Developers must not commit API keys, passwords, customer data, or private credentials to source control.
+
+==================================================
+SECTION 6: PROCUREMENT AND EQUIPMENT
+==================================================
+
+Policy ID: OPS-POL-001
+Policy Name: Equipment Procurement
+
+Equipment purchases costing up to INR 10,000 require approval from the employee's department manager.
+
+Purchases above INR 10,000 and up to INR 50,000 require department-manager and Finance approval.
+
+Purchases above INR 50,000 require department-manager, Finance, and Procurement approval.
+
+All purchases must include a business justification and an appropriate cost center. Splitting purchases to avoid approval thresholds is prohibited.
+
+==================================================
+SECTION 7: KNOWLEDGE BASE LIMITATIONS
+==================================================
+
+This knowledge base contains policies and employee records for the fictional organization NovaTech Solutions.
+
+It does not specify the company's office addresses, CEO's name, customer identities, revenue, bank details, or employee salaries.
+
+Questions requesting information absent from this knowledge base should be answered by stating that the available documents do not provide sufficient evidence.

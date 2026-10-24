@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "chip-text": "#334155",
+          "inverse-surface": "#283044",
+          "on-surface": "#131b2e",
+          "on-surface-variant": "#3f4850",
+          "on-background": "#131b2e",
+          "secondary-container": "#e2e8f0",
+          "on-tertiary-container": "#fdfcff",
+          "bg-surface-subdued": "#f8fafc",
+          "on-primary": "#ffffff",
+          "error": "#ba1a1a",
+          "secondary-fixed-dim": "#b9c7e0",
+          "bg-canvas": "#ffffff",
+          "on-primary-fixed-variant": "#004b73",
+          "on-tertiary": "#ffffff",
+          "primary-fixed-dim": "#93ccff",
+          "surface-container-highest": "#e2e8f0",
+          "on-secondary": "#ffffff",
+          "tertiary-fixed-dim": "#b7c8e1",
+          "on-primary-fixed": "#001d31",
+          "status-error": "#b91c1c",
+          "status-success": "#15803d",
+          "background": "#f8fafc",
+          "surface-container-lowest": "#ffffff",
+          "inverse-primary": "#93ccff",
+          "surface-dim": "#d2d9f4",
+          "secondary": "#0284c7",
+          "border-strong": "#cbd5e1",
+          "surface": "#f8fafc",
+          "inverse-on-surface": "#eef0ff",
+          "text-secondary": "#334155",
+          "chip-bg": "#f1f5f9",
+          "tertiary-fixed": "#d3e4fe",
+          "surface-container-low": "#f8fafc",
+          "surface-variant": "#f1f5f9",
+          "primary": "#0284c7",
+          "outline-variant": "#e2e8f0",
+          "outline": "#707881",
+          "tertiary": "#475569",
+          "on-error": "#ffffff",
+          "border-subtle": "#e2e8f0",
+          "text-muted": "#64748b",
+          "on-secondary-fixed": "#0d1c2f",
+          "surface-tint": "#0284c7",
+          "status-warning": "#b45309",
+          "on-tertiary-fixed": "#0b1c30",
+          "tertiary-container": "#64748b",
+          "bg-surface-elevated": "#f1f5f9",
+          "surface-container-high": "#f1f5f9",
+          "primary-container": "#0369a1",
+          "surface-container": "#f1f5f9",
+          "on-secondary-container": "#334155",
+          "error-container": "#fee2e2",
+          "on-primary-container": "#ffffff",
+          "surface-bright": "#ffffff",
+          "text-primary": "#0f172a",
+          "primary-hover": "#0369a1",
+          "on-tertiary-fixed-variant": "#38485d",
+          "primary-fixed": "#e0f2fe",
+          "secondary-fixed": "#e0f2fe",
+          "on-error-container": "#991b1b",
+          "on-secondary-fixed-variant": "#3a485c"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "space-xl": "1.5rem",
+          "gutter-md": "1.5rem",
+          "margin-md": "1.5rem",
+          "gutter-lg": "2rem",
+          "gutter": "1rem",
+          "space-xs": "0.25rem",
+          "space-sm": "0.5rem",
+          "space-md": "0.75rem",
+          "margin-lg": "2rem",
+          "margin": "1rem",
+          "space-lg": "1rem"
+        },
+        "fontFamily": {
+          "label-sm": [
+            "Inter"
+          ],
+          "label-md": [
+            "Inter"
+          ],
+          "body-md": [
+            "Inter"
+          ],
+          "headline-md": [
+            "Inter"
+          ],
+          "headline-sm": [
+            "Inter"
+          ],
+          "title-md": [
+            "Inter"
+          ],
+          "code-inline": [
+            "JetBrains Mono"
+          ],
+          "headline-lg": [
+            "Inter"
+          ],
+          "body-lg": [
+            "Inter"
+          ],
+          "headline-lg-mobile": [
+            "Inter"
+          ],
+          "display": [
+            "Inter"
+          ],
+          "body-sm": [
+            "Inter"
+          ]
+        },
+        "fontSize": {
+          "label-sm": [
+            "0.6875rem",
+            {
+              "lineHeight": "0.875rem",
+              "letterSpacing": "0.025em",
+              "fontWeight": "600"
+            }
+          ],
+          "label-md": [
+            "0.75rem",
+            {
+              "lineHeight": "1rem",
+              "letterSpacing": "0.01em",
+              "fontWeight": "500"
+            }
+          ],
+          "body-md": [
+            "0.875rem",
+            {
+              "lineHeight": "1.375rem",
+              "letterSpacing": "0em",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-md": [
+            "1.25rem",
+            {
+              "lineHeight": "1.75rem",
+              "letterSpacing": "-0.015em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-sm": [
+            "1.0625rem",
+            {
+              "lineHeight": "1.5rem",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "title-md": [
+            "0.9375rem",
+            {
+              "lineHeight": "1.375rem",
+              "letterSpacing": "-0.005em",
+              "fontWeight": "500"
+            }
+          ],
+          "code-inline": [
+            "0.8125rem",
+            {
+              "lineHeight": "1.125rem",
+              "letterSpacing": "0em",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-lg": [
+            "1.75rem",
+            {
+              "lineHeight": "2.25rem",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-lg": [
+            "1rem",
+            {
+              "lineHeight": "1.625rem",
+              "letterSpacing": "0em",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-lg-mobile": [
+            "1.5rem",
+            {
+              "lineHeight": "2rem",
+              "letterSpacing": "-0.015em",
+              "fontWeight": "600"
+            }
+          ],
+          "display": [
+            "2.25rem",
+            {
+              "lineHeight": "2.75rem",
+              "letterSpacing": "-0.025em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-sm": [
+            "0.8125rem",
+            {
+              "lineHeight": "1.25rem",
+              "letterSpacing": "0.005em",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      },
+    },
+  }
+</script></head><body class="bg-background text-on-surface antialiased"><aside class="fixed left-0 top-0 bottom-0 w-60 bg-surface-container-low border-r border-[#E2E8F0] flex flex-col z-40 hidden md:flex"><div class="h-14 px-margin-md flex items-center gap-space-sm"><div class="w-7 h-7 rounded-lg bg-[#0284C7] flex items-center justify-center text-on-primary shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" viewbox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><circle cx="11.5" cy="14.5" r="2.5"></circle><line x1="13.5" x2="16.5" y1="16.5" y2="19.5"></line></svg></div><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight truncate">Knowledge Intelligence</span></div><div class="px-margin-md py-space-sm"><button class="w-full h-9 rounded-lg bg-[#0284C7] hover:bg-[#0369a1] text-white font-label-md text-label-md flex items-center justify-center gap-space-xs transition-colors shadow-sm" type="button"><span class="material-symbols-outlined text-[18px]">add</span><span>New Inquiry</span></button></div><nav class="flex-1 px-space-sm py-space-sm space-y-space-xs" data-active-classes="bg-[#e0f2fe] text-[#0284C7] font-title-md"><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-xs rounded-lg transition-colors bg-[#e0f2fe] text-[#0284c7] font-title-md" data-path="ask" href="#"><span class="material-symbols-outlined text-[20px] text-[#0284c7]">chat_bubble</span><span>Ask</span></a><a class="flex items-center gap-space-sm px-space-md py-space-xs rounded-lg font-body-md text-body-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="knowledge-base" href="#"><span class="material-symbols-outlined text-[20px]">folder</span><span>Knowledge base</span></a></nav><div class="p-space-sm"><div class="p-space-sm rounded-xl bg-white border border-[#E2E8F0] flex items-center justify-between gap-space-sm relative group"><div class="flex items-center gap-space-sm min-w-0"><div class="w-8 h-8 rounded-full bg-[#0284C7] flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-white text-[18px]">person</span></div><div class="min-w-0 flex-1"><div class="flex items-center gap-space-xs"><span class="font-label-md text-label-md text-on-surface truncate leading-tight">Elena Vance</span><span class="px-space-xs py-[1px] rounded bg-[#F1F5F9] text-[#334155] border border-[#E2E8F0] font-label-sm text-label-sm leading-none">Member</span></div><span class="font-body-sm text-body-sm text-on-surface-variant truncate block">e.vance@acme-corp.internal</span></div></div><div class="relative"><button aria-label="Account settings menu" class="p-space-xs rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">more_vert</span></button><div class="absolute bottom-full right-0 mb-space-xs hidden group-hover:block group-focus-within:block w-36 py-space-xs bg-white border border-[#E2E8F0] rounded-lg shadow-[0_4px_12px_-2px_rgba(15,23,42,0.08)] z-50"><a class="flex items-center gap-space-xs px-space-md py-space-xs font-body-sm text-body-sm text-error hover:bg-error-container hover:text-on-error-container transition-colors" href="#"><span class="material-symbols-outlined text-[16px]">logout</span><span>Sign out</span></a></div></div></div></div></aside><div class="md:pl-60"><header class="fixed top-0 left-0 md:left-60 right-0 h-14 bg-white/90 backdrop-blur-xl border-b border-[#E2E8F0] z-30 flex items-center justify-between px-gutter md:px-gutter-md"><div class="flex items-center gap-space-md"><button aria-label="Open navigation" class="md:hidden p-space-xs text-on-surface-variant hover:text-on-surface" type="button"><span class="material-symbols-outlined text-[24px]">menu</span></button><nav class="hidden sm:flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant"><span>Workspace</span><span class="material-symbols-outlined text-[14px]">chevron_right</span><span class="text-on-surface font-title-md text-title-md">Intelligence Feed</span></nav></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-[2px] rounded-full bg-[#F1F5F9] border border-[#E2E8F0] text-[#334155]"><span class="w-2 h-2 rounded-full bg-[#0284C7] animate-pulse"></span><span class="font-label-sm text-label-sm text-[#334155]">System Operational</span></div><div class="w-8 h-8 rounded-full bg-[#0284C7] flex items-center justify-center"><span class="material-symbols-outlined text-white text-[18px]">person</span></div></div></header><main class="w-full pt-14 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Command & Breadcrumb Context Bar -->
+<div class="w-full px-gutter md:px-gutter-lg py-space-md flex flex-wrap items-center justify-between gap-space-sm bg-white border-b border-[#E2E8F0]">
+<div class="flex items-center gap-space-sm">
+<div class="flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant">
+<span>Knowledge</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface font-title-md text-title-md">Ask</span>
+</div>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F1F5F9] text-[#334155] border border-[#E2E8F0] font-code-inline text-code-inline">
+<span class="w-1.5 h-1.5 rounded-full bg-[#0284C7]"></span>
+        ID: INQ-8942-VERIFIED
+      </span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-md text-label-md text-on-surface-variant">Coverage Audit:</span>
+<div class="flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-[#F1F5F9] text-[#334155] border border-[#E2E8F0] font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-[#0284C7]">menu_book</span>
+<span>48 indexed documents analyzed</span>
+</div>
+<button class="p-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Export Audit Log" type="button">
+<span class="material-symbols-outlined text-[18px]">ios_share</span>
+</button>
+</div>
+</div>
+<!-- Primary Asymmetric Workspace -->
+<div class="w-full max-w-[1440px] mx-auto px-gutter md:px-gutter-lg py-space-xl grid grid-cols-1 lg:grid-cols-12 gap-gutter-lg">
+<!-- Main Synthesis Stream (8 Columns) -->
+<div class="lg:col-span-8 flex flex-col gap-space-lg">
+<!-- User Query Card -->
+<div class="rounded-xl bg-white border border-[#E2E8F0] p-space-lg shadow-sm flex flex-col gap-space-md relative overflow-hidden">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-[#e0f2fe] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">account_circle</span>
+</div>
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="font-title-md text-title-md text-on-surface">Elena Vance</span>
+<span class="text-outline text-[12px]">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">11:42 AM</span>
+</div>
+<span class="font-code-inline text-code-inline text-on-surface-variant">Direct Inquiry • Travel &amp; Expenses Scope</span>
+</div>
+</div>
+<span class="px-space-sm py-0.5 rounded-full bg-[#F1F5F9] text-[#334155] border border-[#E2E8F0] font-label-sm text-label-sm tracking-wide uppercase">Original Prompt</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-on-surface leading-snug pl-11">
+          “What is the company budget and reimbursement policy for personal travel expenses tacked onto a business trip?”
+        </p>
+<!-- Subtle Query Metadata Tag Strip -->
+<div class="flex flex-wrap items-center gap-space-xs pl-11 pt-space-xs">
+<span class="px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#334155] border border-[#E2E8F0] font-code-inline text-code-inline">intent: reimbursement_policy</span>
+<span class="px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#334155] border border-[#E2E8F0] font-code-inline text-code-inline">entities: [business_trip, personal_extension]</span>
+<span class="px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#334155] border border-[#E2E8F0] font-code-inline text-code-inline">confidence_cutoff: 0.88</span>
+</div>
+</div>
+<!-- System Abstention Card (The Hero State Component) -->
+<div class="rounded-xl bg-white border border-[#E2E8F0] shadow-sm overflow-hidden relative">
+<!-- Structural Top Accent Pill -->
+<div class="h-1.5 w-full bg-gradient-to-r from-amber-400 via-sky-500 to-[#0284C7]"></div>
+<div class="p-space-xl flex flex-col gap-space-lg">
+<!-- Card Header & Status Shield -->
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 text-amber-600">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">gpp_maybe</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#334155] border border-[#E2E8F0] font-label-sm text-label-sm uppercase tracking-wider">Zero Hallucination Protocol</span>
+<span class="text-outline text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-tertiary">Deterministic Verification</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mt-1">Insufficient Evidence to Answer</h2>
+</div>
+</div>
+<!-- Verification Status Badge -->
+<div class="hidden sm:flex flex-col items-end">
+<span class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-[#F1F5F9] text-[#334155] border border-[#E2E8F0] font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px] text-tertiary">verified_user</span>
+                Strict Abstention
+              </span>
+<span class="font-code-inline text-code-inline text-outline mt-1">Status 412: Unresolved</span>
+</div>
+</div>
+<!-- Explanation Lead -->
+<div class="p-space-md rounded-lg bg-amber-50/70 border border-amber-200/60 text-on-surface">
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed">
+              The platform could not find sufficient supporting information in your <strong class="font-medium text-[#0284C7]">48 accessible documents</strong> to answer this question accurately. To avoid misleading citations or hallucinations, generation was paused.
+            </p>
+</div>
+<!-- Forensic Breakdown Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Documents Examined -->
+<div class="p-space-md rounded-lg bg-white border border-[#E2E8F0] shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">find_in_page</span>
+<span class="font-title-md text-title-md font-semibold">Documents Examined</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">
+                Searched <span class="font-code-inline text-code-inline text-[#334155] bg-[#F1F5F9] border border-[#E2E8F0] px-1.5 py-0.5 rounded">Travel_Policy_2023.pdf</span>, <span class="font-code-inline text-code-inline text-[#334155] bg-[#F1F5F9] border border-[#E2E8F0] px-1.5 py-0.5 rounded">Expense_Reimbursement_SOP.docx</span>, and <span class="font-code-inline text-code-inline text-[#334155] bg-[#F1F5F9] border border-[#E2E8F0] px-1.5 py-0.5 rounded">Employee_Handbook_v4.pdf</span>.
+              </p>
+<div class="mt-space-xs flex items-center gap-space-xs font-label-sm text-label-sm text-outline">
+<span class="material-symbols-outlined text-[14px]">done_all</span>
+<span>Semantic match score: 32.4% (Threshold: 75.0%)</span>
+</div>
+</div>
+<!-- Finding -->
+<div class="p-space-md rounded-lg bg-white border border-[#E2E8F0] shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">rule</span>
+<span class="font-title-md text-title-md font-semibold">Specific Finding</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">
+                Current policies discuss lodging per diems and flight booking windows during official duties, but contain <span class="text-on-surface font-medium underline decoration-slate-300">no documented rules regarding personal travel extensions</span> or split itineraries.
+              </p>
+<div class="mt-space-xs flex items-center gap-space-xs font-label-sm text-label-sm text-outline">
+<span class="material-symbols-outlined text-[14px]">info</span>
+<span>Corpus gap confirmed by multi-vector retrieval</span>
+</div>
+</div>
+</div>
+<!-- Actionable Guidance Banner -->
+<div class="p-space-md rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] flex items-start gap-space-md">
+<div class="w-8 h-8 rounded-lg bg-[#e0f2fe] text-[#0284C7] flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">lightbulb</span>
+</div>
+<div class="flex-1">
+<span class="font-label-md text-label-md uppercase tracking-wider text-on-surface font-semibold block mb-1">Recommended Action</span>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                To resolve this question, upload the updated <span class="font-medium text-on-surface">2024 Corporate Travel Policy</span> or contact your department travel coordinator (<a class="text-[#0284C7] hover:underline font-code-inline" href="#">travel-ops@internal.acme</a>).
+              </p>
+</div>
+</div>
+<!-- Interactive Action Buttons -->
+<div class="flex flex-wrap items-center justify-between gap-space-md pt-space-xs">
+<div class="flex flex-wrap items-center gap-space-sm">
+<button class="h-9 px-space-md rounded-lg bg-[#0284C7] hover:bg-[#0369a1] text-white font-label-md text-label-md flex items-center gap-space-xs transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+<span>Upload relevant document</span>
+</button>
+<button class="h-9 px-space-md rounded-lg bg-[#F1F5F9] hover:bg-slate-200 text-[#334155] border border-[#E2E8F0] font-label-md text-label-md flex items-center gap-space-xs transition-colors" onclick="document.getElementById('inquiry-input').focus();" type="button">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+<span>Revise question</span>
+</button>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="h-8 px-space-sm rounded text-[#334155] hover:text-on-surface hover:bg-[#F1F5F9] border border-[#E2E8F0] text-label-sm font-label-sm flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">bug_report</span>
+<span>Flag discrepancy</span>
+</button>
+<button class="h-8 px-space-sm rounded text-[#334155] hover:text-on-surface hover:bg-[#F1F5F9] border border-[#E2E8F0] text-label-sm font-label-sm flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">history</span>
+<span>Audit trail</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Question Composer for Follow-up / Refinement -->
+<div class="rounded-xl bg-white border border-[#E2E8F0] p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">edit</span>
+<span class="font-title-md text-title-md text-on-surface">Follow-up Inquiry or Query Revision</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Focus search with doc tags using @</span>
+</div>
+<div class="relative rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] p-space-sm focus-within:bg-white focus-within:ring-2 focus-within:ring-[#0284C7]/20 focus-within:border-[#0284C7] focus-within:shadow-sm transition-all">
+<textarea class="w-full bg-transparent resize-none outline-none font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/70" id="inquiry-input" placeholder="Ask a broader query (e.g. 'What are standard business lodging limits?') or attach missing documents..." rows="3"></textarea>
+<div class="flex items-center justify-between pt-space-sm border-t border-[#E2E8F0]/70 mt-space-xs">
+<div class="flex items-center gap-space-xs">
+<button class="p-1.5 rounded hover:bg-slate-200/60 text-[#0284C7] transition-colors" title="Attach context file" type="button">
+<span class="material-symbols-outlined text-[18px]">attach_file</span>
+</button>
+<button class="p-1.5 rounded hover:bg-slate-200/60 text-[#0284C7] transition-colors" title="Filter to Specific Repository" type="button">
+<span class="material-symbols-outlined text-[18px]">dataset</span>
+</button>
+<span class="text-outline text-label-sm px-1">|</span>
+<button class="text-label-sm font-label-sm text-[#334155] hover:text-[#0284C7] px-1.5 py-0.5 rounded hover:bg-[#F1F5F9] transition-colors" type="button">
+                Use fallback web-search
+              </button>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="text-label-sm font-label-sm text-outline hidden sm:inline">⌘ + Enter to submit</span>
+<button class="h-8 px-space-md rounded-lg bg-[#0284C7] hover:bg-[#0369a1] text-white font-label-md text-label-md flex items-center gap-1 transition-colors shadow-sm" type="button">
+<span>Query Corpus</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side Inspection & Diagnostic Drawer (4 Columns) -->
+<div class="lg:col-span-4 flex flex-col gap-space-lg">
+<!-- Diagnostic Confidence Graph Card -->
+<div class="rounded-xl bg-white border border-[#E2E8F0] p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[#0284C7] text-[18px]">analytics</span>
+<span class="font-title-md text-title-md text-on-surface">Evidence Retrieval Matrix</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 font-label-sm text-label-sm font-medium">Deficit</span>
+</div>
+<!-- Inline SVG Visualization: Semantic Distance Breakdown -->
+<div class="py-space-xs">
+<svg class="w-full h-28" fill="none" viewbox="0 0 320 110" xmlns="http://www.w3.org/2000/svg">
+<!-- Gridlines -->
+<line class="text-slate-100" stroke="#E2E8F0" stroke-dasharray="2 2" x1="10" x2="310" y1="20" y2="20"></line>
+<line class="text-slate-100" stroke="#E2E8F0" stroke-dasharray="2 2" x1="10" x2="310" y1="55" y2="55"></line>
+<line class="text-slate-100" stroke="#E2E8F0" stroke-dasharray="2 2" x1="10" x2="310" y1="90" y2="90"></line>
+<!-- Threshold Barrier (Confidence cutoff = 75%) -->
+<line stroke="#ba1a1a" stroke-dasharray="4 3" stroke-width="1.5" x1="10" x2="310" y1="35" y2="35"></line>
+<text class="font-code-inline text-[9px] font-semibold" fill="#ba1a1a" x="210" y="31">MIN THRESHOLD: 75%</text>
+<!-- Bars -->
+<!-- Doc 1 -->
+<rect fill="#0284c7" height="30" rx="3" width="35" x="25" y="60"></rect>
+<text class="text-on-surface-variant font-code-inline text-[10px]" fill="#334155" text-anchor="middle" x="42" y="55">32%</text>
+<text class="font-label-sm text-[9px]" fill="#64748b" text-anchor="middle" x="42" y="103">Travel '23</text>
+<!-- Doc 2 -->
+<rect fill="#0284c7" height="18" opacity="0.85" rx="3" width="35" x="85" y="72"></rect>
+<text class="text-on-surface-variant font-code-inline text-[10px]" fill="#334155" text-anchor="middle" x="102" y="67">21%</text>
+<text class="font-label-sm text-[9px]" fill="#64748b" text-anchor="middle" x="102" y="103">SOP.docx</text>
+<!-- Doc 3 -->
+<rect fill="#0284c7" height="12" opacity="0.65" rx="3" width="35" x="145" y="78"></rect>
+<text class="text-on-surface-variant font-code-inline text-[10px]" fill="#334155" text-anchor="middle" x="162" y="73">14%</text>
+<text class="font-label-sm text-[9px]" fill="#64748b" text-anchor="middle" x="162" y="103">Handbook</text>
+<!-- Doc 4 (Missing Policy) -->
+<rect fill="#cbd5e1" height="5" rx="3" width="35" x="205" y="85"></rect>
+<text class="font-code-inline text-[10px]" fill="#64748b" text-anchor="middle" x="222" y="80">6%</text>
+<text class="font-label-sm text-[9px]" fill="#64748b" text-anchor="middle" x="222" y="103">Org Chart</text>
+<!-- Unmatched / Gap -->
+<rect fill="#f1f5f9" height="70" rx="3" stroke="#94a3b8" stroke-dasharray="3 3" width="35" x="265" y="20"></rect>
+<text class="font-code-inline text-[10px] font-semibold" fill="#475569" text-anchor="middle" x="282" y="58">GAP</text>
+<text class="font-label-sm text-[9px]" fill="#64748b" text-anchor="middle" x="282" y="103">2024 Addenda</text>
+</svg>
+</div>
+<div class="p-space-sm rounded bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-[#334155]">Max Semantic Density</span>
+<span class="font-code-inline text-code-inline text-[#0284C7] font-semibold">0.324 / 1.000</span>
+</div>
+</div>
+<!-- Scanned Repositories Inspector -->
+<div class="rounded-xl bg-white border border-[#E2E8F0] p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between pb-space-xs">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Queried Documents</span>
+<span class="font-label-sm text-label-sm text-[#0284C7] font-medium cursor-pointer hover:underline">View Index</span>
+</div>
+<!-- Document Item 1 -->
+<div class="p-space-sm rounded-lg bg-white border border-[#E2E8F0] flex flex-col gap-1 hover:bg-[#F8FAFC] transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-[16px] text-[#0284C7] shrink-0">picture_as_pdf</span>
+<span class="font-label-md text-label-md text-on-surface font-medium truncate">Travel_Policy_2023.pdf</span>
+</div>
+<span class="font-code-inline text-code-inline text-[#334155] bg-[#F1F5F9] border border-[#E2E8F0] px-1.5 py-0.5 rounded text-[11px]">p. 14-22</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Section 4.1 covers authorized standard airfare, meals per-diem cap of $75/day, but makes no mention of hybrid personal excursions.
+          </p>
+</div>
+<!-- Document Item 2 -->
+<div class="p-space-sm rounded-lg bg-white border border-[#E2E8F0] flex flex-col gap-1 hover:bg-[#F8FAFC] transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-[16px] text-[#0284C7] shrink-0">description</span>
+<span class="font-label-md text-label-md text-on-surface font-medium truncate">Expense_Reimbursement_SOP.docx</span>
+</div>
+<span class="font-code-inline text-code-inline text-[#334155] bg-[#F1F5F9] border border-[#E2E8F0] px-1.5 py-0.5 rounded text-[11px]">Sec. 8</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Receipt submission windows, corporate card reconciliations, and currency conversion rules for international assignments.
+          </p>
+</div>
+<!-- Document Item 3 -->
+<div class="p-space-sm rounded-lg bg-white border border-[#E2E8F0] flex flex-col gap-1 hover:bg-[#F8FAFC] transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-[16px] text-[#0284C7] shrink-0">menu_book</span>
+<span class="font-label-md text-label-md text-on-surface font-medium truncate">Employee_Handbook_v4.pdf</span>
+</div>
+<span class="font-code-inline text-code-inline text-[#334155] bg-[#F1F5F9] border border-[#E2E8F0] px-1.5 py-0.5 rounded text-[11px]">Ch. 6</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Standard paid time-off accrual guidelines; PTO request protocols unrelated to business itineraries.
+          </p>
+</div>
+</div>
+<!-- Human-in-the-Loop Travel Ops Escort -->
+<div class="rounded-xl bg-[#F0F9FF] border border-sky-100 p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-title-md text-title-md font-semibold">
+            TO
+          </div>
+<div class="min-w-0">
+<span class="font-title-md text-title-md text-on-surface block leading-tight truncate">Travel Coordination Desk</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Finance &amp; Operations Group</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-space-xs">
+          Need immediate pre-approval for upcoming blended business &amp; leisure dates? Submit an exception inquiry ticket directly.
+        </p>
+<a class="mt-space-xs w-full py-space-xs rounded bg-white hover:bg-slate-50 border border-[#E2E8F0] text-[#0284C7] font-label-md text-label-md flex items-center justify-center gap-space-xs transition-colors shadow-sm font-semibold" href="#">
+<span class="material-symbols-outlined text-[16px]">send</span>
+<span>Open Coordinator Ticket</span>
+</a>
+</div>
+<!-- System Diagnostic Telemetry -->
+<div class="px-space-sm flex items-center justify-between text-outline font-code-inline text-code-inline">
+<span>KNOWLEDGE-ENGINE: v4.8.2</span>
+<span>LATENCY: 418ms</span>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple interaction for keyboard shortcut to submit
+  document.getElementById('inquiry-input')?.addEventListener('keydown', function(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      alert('Inquiry submitted to Knowledge Retrieval Engine: ' + this.value);
+    }
+  });
+</script></main></div></body></html>

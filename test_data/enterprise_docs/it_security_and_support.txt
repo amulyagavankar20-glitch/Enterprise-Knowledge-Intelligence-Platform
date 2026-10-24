@@ -1,0 +1,30 @@
+NOVA TECH SOLUTIONS — IT SECURITY AND SUPPORT
+Version: 1.0
+
+PASSWORD SECURITY — IT-POL-001
+
+Passwords must contain at least 12 characters and should not
+be reused across company systems and personal accounts.
+
+Multi-factor authentication is required for company email,
+remote access, and administrative systems.
+
+Employees must never share passwords or authentication codes.
+Suspected account compromise must be reported to the IT help
+desk immediately.
+
+INCIDENT REPORTING — IT-POL-002
+
+Support requests must be submitted through the internal
+service desk portal.
+
+Critical incidents affecting multiple employees or essential
+business services must be reported immediately by phone to the
+IT on-call team, followed by a service desk ticket.
+
+Incident reports should include the affected system, time
+observed, business impact, and any error message. Passwords,
+private keys, and authentication codes must never be included.
+
+Standard tickets are acknowledged within one business day.
+Critical incidents receive priority handling.

@@ -1,0 +1,37 @@
+NOVA TECH SOLUTIONS — EMPLOYEE DIRECTORY
+Version: 1.0
+
+Employee ID: EMP-1001
+Name: Aditi Sharma
+Department: Human Resources
+Role: HR Manager
+Location: Mumbai
+Manager: Chief Operating Officer
+
+Employee ID: EMP-1002
+Name: Rahul Mehta
+Department: Information Technology
+Role: IT Support Engineer
+Location: Pune
+Manager: IT Manager
+
+Employee ID: EMP-1003
+Name: Priya Nair
+Department: Finance
+Role: Financial Analyst
+Location: Mumbai
+Manager: Finance Director
+
+Employee ID: EMP-1004
+Name: Arjun Patel
+Department: Information Technology
+Role: Senior Software Engineer
+Location: Bengaluru
+Manager: Engineering Manager
+
+Employee ID: EMP-1005
+Name: Sneha Iyer
+Department: Marketing
+Role: Marketing Specialist
+Location: Hyderabad
+Manager: Marketing Director

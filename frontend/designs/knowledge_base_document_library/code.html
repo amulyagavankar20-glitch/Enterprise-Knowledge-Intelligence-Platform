@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "chip-text": "#334155", "chip-bg": "#f1f5f9", "border-subtle": "#e2e8f0", "surface-tint": "#0284c7", "outline": "#64748b", "surface-container-highest": "#f1f5f9", "on-tertiary-container": "#fdfcff", "on-error": "#ffffff", "secondary": "#0284c7", "tertiary": "#4d5d73", "outline-variant": "#e2e8f0", "error": "#ba1a1a", "primary-fixed": "#cce5ff", "inverse-primary": "#93ccff", "surface": "#ffffff", "surface-container-lowest": "#ffffff", "on-tertiary-fixed": "#0b1c30", "tertiary-fixed": "#d3e4fe", "surface-container-low": "#f8fafc", "secondary-fixed-dim": "#b9c7e0", "surface-dim": "#f1f5f9", "on-surface": "#0f172a", "background": "#ffffff", "inverse-on-surface": "#eef0ff", "on-secondary-fixed-variant": "#004b73", "primary": "#0284c7", "on-secondary": "#ffffff", "secondary-container": "#f1f5f9", "on-secondary-fixed": "#001d31", "surface-bright": "#ffffff", "on-primary-fixed": "#001d31", "on-primary": "#ffffff", "on-primary-fixed-variant": "#004b73", "primary-fixed-dim": "#93ccff", "surface-container": "#f8fafc", "surface-container-high": "#f1f5f9", "on-tertiary": "#ffffff", "inverse-surface": "#1e293b", "on-error-container": "#93000a", "primary-container": "#0369a1", "on-surface-variant": "#64748b", "error-container": "#fef2f2", "tertiary-fixed-dim": "#b7c8e1", "on-background": "#0f172a", "tertiary-container": "#66768d", "on-primary-container": "#fdfcff", "surface-variant": "#f1f5f9", "on-secondary-container": "#334155", "on-tertiary-fixed-variant": "#38485d", "secondary-fixed": "#e0f2fe" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "margin": "1rem", "space-sm": "0.5rem", "space-xl": "1.5rem", "space-md": "0.75rem", "gutter-lg": "2rem", "gutter": "1rem", "space-xs": "0.25rem", "gutter-md": "1.5rem", "margin-md": "1.5rem", "margin-lg": "2rem", "space-lg": "1rem" }, "fontFamily": { "headline-sm": [ "Inter" ], "headline-lg": [ "Inter" ], "headline-lg-mobile": [ "Inter" ], "body-lg": [ "Inter" ], "label-sm": [ "Inter" ], "code-inline": [ "JetBrains Mono" ], "body-md": [ "Inter" ], "headline-md": [ "Inter" ], "label-md": [ "Inter" ], "display": [ "Inter" ], "title-md": [ "Inter" ], "body-sm": [ "Inter" ] }, "fontSize": { "headline-sm": [ "1.0625rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.01em", "fontWeight": "600" } ], "headline-lg": [ "1.75rem", { "lineHeight": "2.25rem", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "headline-lg-mobile": [ "1.5rem", { "lineHeight": "2rem", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "body-lg": [ "1rem", { "lineHeight": "1.625rem", "letterSpacing": "0em", "fontWeight": "400" } ], "label-sm": [ "0.6875rem", { "lineHeight": "0.875rem", "letterSpacing": "0.025em", "fontWeight": "600" } ], "code-inline": [ "0.8125rem", { "lineHeight": "1.125rem", "letterSpacing": "0em", "fontWeight": "400" } ], "body-md": [ "0.875rem", { "lineHeight": "1.375rem", "letterSpacing": "0em", "fontWeight": "400" } ], "headline-md": [ "1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "label-md": [ "0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.01em", "fontWeight": "500" } ], "display": [ "2.25rem", { "lineHeight": "2.75rem", "letterSpacing": "-0.025em", "fontWeight": "600" } ], "title-md": [ "0.9375rem", { "lineHeight": "1.375rem", "letterSpacing": "-0.005em", "fontWeight": "500" } ], "body-sm": [ "0.8125rem", { "lineHeight": "1.25rem", "letterSpacing": "0.005em", "fontWeight": "400" } ] } } } };</script></head><body class="bg-[#ffffff] text-on-surface antialiased"><aside class="fixed left-0 top-0 bottom-0 w-60 bg-surface-container-low border-r border-[#e2e8f0] flex flex-col z-40 hidden md:flex"><div class="h-14 px-margin-md flex items-center gap-space-sm border-b border-[#e2e8f0]"><div class="w-7 h-7 rounded-lg bg-[#0284c7] flex items-center justify-center text-on-primary shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" viewbox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><circle cx="11.5" cy="14.5" r="2.5"></circle><line x1="13.5" x2="16.5" y1="16.5" y2="19.5"></line></svg></div><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight truncate">Knowledge Intelligence</span></div><div class="px-margin-md py-space-sm"><button class="w-full h-9 rounded-lg bg-[#0284c7] hover:bg-[#0369a1] text-white font-label-md text-label-md flex items-center justify-center gap-space-xs transition-colors shadow-sm" type="button"><span class="material-symbols-outlined text-[18px]">add</span><span>New Inquiry</span></button></div><nav class="flex-1 px-space-sm py-space-sm space-y-space-xs"><a class="flex items-center gap-space-sm px-space-md py-space-xs rounded-lg font-body-md text-body-md text-on-surface-variant hover:bg-[#f1f5f9] hover:text-on-surface transition-colors" data-path="ask" href="#"><span class="material-symbols-outlined text-[20px]">chat_bubble</span><span>Ask</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-xs rounded-lg transition-colors bg-[#0284c7]/10 text-[#0284c7] font-title-md border border-[#0284c7]/20" data-path="knowledge-base" href="#"><span class="material-symbols-outlined text-[20px] text-[#0284c7]">folder</span><span>Knowledge base</span></a></nav><div class="p-space-sm border-t border-[#e2e8f0]"><div class="p-space-sm rounded-xl bg-surface-container-lowest border border-[#e2e8f0] flex items-center justify-between gap-space-sm relative group"><div class="flex items-center gap-space-sm min-w-0"><div class="w-8 h-8 rounded-full bg-[#0284c7] flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-white text-[18px]">person</span></div><div class="min-w-0 flex-1"><div class="flex items-center gap-space-xs"><span class="font-label-md text-label-md text-on-surface truncate leading-tight">Elena Vance</span><span class="px-space-xs py-[1px] rounded bg-[#f1f5f9] text-[#334155] border border-[#e2e8f0] font-label-sm text-label-sm leading-none">Member</span></div><span class="font-body-sm text-body-sm text-on-surface-variant truncate block">e.vance@acme-corp.internal</span></div></div><div class="relative"><button aria-label="Account settings menu" class="p-space-xs rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">more_vert</span></button><div class="absolute bottom-full right-0 mb-space-xs hidden group-hover:block group-focus-within:block w-36 py-space-xs bg-surface-container-lowest rounded-lg border border-[#e2e8f0] shadow-lg z-50"><a class="flex items-center gap-space-xs px-space-md py-space-xs font-body-sm text-body-sm text-error hover:bg-red-50 transition-colors" href="#"><span class="material-symbols-outlined text-[16px]">logout</span><span>Sign out</span></a></div></div></div></div></aside><div class="md:pl-60"><header class="fixed top-0 left-0 md:left-60 right-0 h-14 bg-white/90 backdrop-blur-xl border-b border-[#e2e8f0] z-30 flex items-center justify-between px-gutter md:px-gutter-md"><div class="flex items-center gap-space-md"><button aria-label="Open navigation" class="md:hidden p-space-xs text-on-surface-variant hover:text-on-surface" type="button"><span class="material-symbols-outlined text-[24px]">menu</span></button><nav class="hidden sm:flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant"><span>Workspace</span><span class="material-symbols-outlined text-[14px]">chevron_right</span><span class="text-on-surface font-title-md text-title-md">Intelligence Feed</span></nav></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-[2px] rounded-full bg-[#f1f5f9] border border-[#e2e8f0]"><span class="w-2 h-2 rounded-full bg-[#0284c7] animate-pulse"></span><span class="font-label-sm text-label-sm text-[#334155]">System Operational</span></div><div class="w-8 h-8 rounded-full bg-[#0284c7] flex items-center justify-center"><span class="material-symbols-outlined text-white text-[18px]">person</span></div></div></header><main class="w-full pt-14 bg-[#ffffff] min-h-screen"><div class="flex flex-col w-full">
+<div class="px-gutter md:px-gutter-lg py-margin-md space-y-gutter">
+<!-- Header Section with Metadatum Overline -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="space-y-space-xs">
+<div class="flex items-center gap-space-xs text-[#0284c7] font-label-sm text-label-sm uppercase tracking-wider font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-[#0284c7]"></span>
+<span>Corpus Vector Space • Cluster 04</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Knowledge Base</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+          Manage, verify, and inspect enterprise repositories synchronized into high-density vector retrieval indices.
+        </p>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="h-9 px-space-md rounded-lg bg-white border border-[#e2e8f0] hover:bg-[#f1f5f9] text-[#334155] font-title-md text-title-md flex items-center gap-space-xs transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px] text-[#64748b]">sync</span>
+<span>Re-index Sync</span>
+</button>
+<button class="h-9 px-space-md rounded-lg bg-[#0284c7] hover:bg-[#0369a1] text-white font-title-md text-title-md flex items-center gap-space-xs transition-all shadow-sm active:scale-95" type="button">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+<span>Upload documents</span>
+</button>
+</div>
+</div>
+<!-- Telemetry Metric Strip -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-space-md">
+<div class="p-space-md rounded-xl bg-white border border-[#e2e8f0] shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant font-label-md text-label-md">
+<span>Total Ingested</span>
+<span class="material-symbols-outlined text-[16px]">inventory_2</span>
+</div>
+<div class="mt-space-sm flex items-baseline gap-space-xs">
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">48</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">files</span>
+</div>
+<div class="w-full bg-[#f1f5f9] h-1 rounded-full mt-space-xs overflow-hidden">
+<div class="bg-[#0284c7] h-full w-[88%]"></div>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-white border border-[#e2e8f0] shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-[#0284c7] font-label-md text-label-md">
+<span>Active &amp; Indexed</span>
+<span class="material-symbols-outlined text-[16px]">verified</span>
+</div>
+<div class="mt-space-sm flex items-baseline gap-space-xs">
+<span class="font-headline-md text-headline-md text-[#0284c7] font-semibold">44</span>
+<span class="font-label-sm text-label-sm text-[#0284c7]">91.6%</span>
+</div>
+<div class="w-full bg-[#f1f5f9] h-1 rounded-full mt-space-xs overflow-hidden">
+<div class="bg-[#0284c7] h-full w-[91%]"></div>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-white border border-[#e2e8f0] shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-on-surface-variant font-label-md text-label-md">
+<span>Pipeline Processing</span>
+<span class="material-symbols-outlined text-[16px] animate-spin">refresh</span>
+</div>
+<div class="mt-space-sm flex items-baseline gap-space-xs">
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">3</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">OCR / Vectorizing</span>
+</div>
+<div class="w-full bg-[#f1f5f9] h-1 rounded-full mt-space-xs overflow-hidden">
+<div class="bg-slate-400 h-full w-[65%]"></div>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-white border border-[#e2e8f0] shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between text-error font-label-md text-label-md">
+<span>Ingest Alerts</span>
+<span class="material-symbols-outlined text-[16px]">error</span>
+</div>
+<div class="mt-space-sm flex items-baseline gap-space-xs">
+<span class="font-headline-md text-headline-md text-error font-semibold">1</span>
+<span class="font-label-sm text-label-sm text-error">Requires review</span>
+</div>
+<div class="w-full bg-[#f1f5f9] h-1 rounded-full mt-space-xs overflow-hidden">
+<div class="bg-error h-full w-[12%]"></div>
+</div>
+</div>
+</div>
+<!-- Filter & Query Control Deck -->
+<div class="p-space-sm bg-white border border-[#e2e8f0] rounded-xl shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-sm">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-space-md top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full h-10 pl-10 pr-space-md bg-[#f8fafc] focus:bg-white border border-[#e2e8f0] rounded-lg font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-[#0284c7] transition-all" placeholder="Filter documents by name, type, or tag..." type="text"/>
+<div class="absolute right-space-sm top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-[2px] px-1.5 py-0.5 rounded bg-[#f1f5f9] border border-[#e2e8f0] font-code-inline text-label-sm text-[#334155]">
+<span>⌘</span><span>K</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-space-xs">
+<div class="relative">
+<select class="appearance-none h-10 pl-space-md pr-8 bg-[#f1f5f9] border border-[#e2e8f0] hover:bg-[#e2e8f0]/60 rounded-lg font-title-md text-title-md text-[#334155] cursor-pointer focus:outline-none transition-colors">
+<option>All types (PDF, DOCX, TXT, MD)</option>
+<option>PDF Documents (.pdf)</option>
+<option>Word Documents (.docx)</option>
+<option>Markdown Notes (.md)</option>
+<option>Plain Text (.txt)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[18px] text-[#64748b] pointer-events-none">expand_more</span>
+</div>
+<div class="relative">
+<select class="appearance-none h-10 pl-space-md pr-8 bg-[#f1f5f9] border border-[#e2e8f0] hover:bg-[#e2e8f0]/60 rounded-lg font-title-md text-title-md text-[#334155] cursor-pointer focus:outline-none transition-colors">
+<option>All statuses</option>
+<option>Indexed (42)</option>
+<option>Processing (3)</option>
+<option>Failed (1)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[18px] text-[#64748b] pointer-events-none">expand_more</span>
+</div>
+<button aria-label="Sort configuration" class="h-10 w-10 flex items-center justify-center rounded-lg bg-[#f1f5f9] border border-[#e2e8f0] hover:bg-[#e2e8f0]/60 text-[#334155] transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">sort</span>
+</button>
+<button aria-label="View settings" class="h-10 w-10 flex items-center justify-center rounded-lg bg-[#f1f5f9] border border-[#e2e8f0] hover:bg-[#e2e8f0]/60 text-[#334155] transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Main Documents Table Container -->
+<div class="bg-white border border-[#e2e8f0] rounded-xl shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-[#f8fafc] border-b border-[#e2e8f0] text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider h-10 select-none">
+<th class="pl-space-md pr-space-xs w-10" scope="col">
+<input aria-label="Select all" class="w-4 h-4 rounded border-[#cbd5e1] text-[#0284c7] focus:ring-[#0284c7] accent-[#0284c7] cursor-pointer" type="checkbox"/>
+</th>
+<th class="px-space-md min-w-[280px]" scope="col">Document Title &amp; Identifier</th>
+<th class="px-space-md w-24" scope="col">Type</th>
+<th class="px-space-md w-24" scope="col">Version</th>
+<th class="px-space-md min-w-[200px]" scope="col">Index Status</th>
+<th class="px-space-md w-28" scope="col">File Size</th>
+<th class="px-space-md min-w-[140px]" scope="col">Last Updated</th>
+<th class="pr-space-md pl-space-xs w-12 text-right" scope="col">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#e2e8f0]">
+<!-- Row 1 -->
+<tr class="hover:bg-[#f8fafc] transition-colors group">
+<td class="pl-space-md pr-space-xs py-space-md">
+<input aria-label="Select row" class="w-4 h-4 rounded border-[#cbd5e1] text-[#0284c7] focus:ring-[#0284c7] accent-[#0284c7] cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-space-md py-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="p-space-xs rounded bg-[#f1f5f9] border border-[#e2e8f0] text-[#0284c7] shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</div>
+<div class="min-w-0">
+<span class="font-title-md text-title-md text-on-surface font-semibold group-hover:text-[#0284c7] transition-colors block truncate">Remote Work &amp; Equipment Policy</span>
+<span class="font-code-inline text-code-inline text-on-surface-variant block truncate">Remote_Work_Equipment_Policy_2024.pdf</span>
+</div>
+</div>
+</td>
+<td class="px-space-md py-space-md">
+<span class="inline-flex items-center px-space-xs py-0.5 rounded bg-[#f1f5f9] border border-[#e2e8f0] font-label-sm text-label-sm text-[#334155] font-mono uppercase">PDF</span>
+</td>
+<td class="px-space-md py-space-md">
+<span class="font-code-inline text-code-inline text-on-surface font-medium">v2.1</span>
+</td>
+<td class="px-space-md py-space-md">
+<div class="inline-flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-[#f1f5f9] border border-[#e2e8f0] text-[#334155] font-label-md text-label-md">
+<span class="material-symbols-outlined text-[15px] text-[#0284c7]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-medium">Indexed</span>
+</div>
+</td>
+<td class="px-space-md py-space-md font-code-inline text-code-inline text-on-surface-variant">2.4 MB</td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">Oct 12, 2024</td>
+<td class="pr-space-md pl-space-xs py-space-md text-right">
+<button aria-label="Row menu" class="w-8 h-8 rounded-lg hover:bg-[#f1f5f9] text-on-surface-variant hover:text-on-surface flex items-center justify-center ml-auto transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-[#f8fafc] transition-colors group">
+<td class="pl-space-md pr-space-xs py-space-md">
+<input aria-label="Select row" class="w-4 h-4 rounded border-[#cbd5e1] text-[#0284c7] focus:ring-[#0284c7] accent-[#0284c7] cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-space-md py-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="p-space-xs rounded bg-[#f1f5f9] border border-[#e2e8f0] text-[#0284c7] shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">article</span>
+</div>
+<div class="min-w-0">
+<span class="font-title-md text-title-md text-on-surface font-semibold group-hover:text-[#0284c7] transition-colors block truncate">Expense Reimbursement Standard Operating Procedure</span>
+<span class="font-code-inline text-code-inline text-on-surface-variant block truncate">Expense_Reimbursement_SOP.docx</span>
+</div>
+</div>
+</td>
+<td class="px-space-md py-space-md">
+<span class="inline-flex items-center px-space-xs py-0.5 rounded bg-[#f1f5f9] border border-[#e2e8f0] font-label-sm text-label-sm text-[#334155] font-mono uppercase">DOCX</span>
+</td>
+<td class="px-space-md py-space-md">
+<span class="font-code-inline text-code-inline text-on-surface font-medium">v3.0</span>
+</td>
+<td class="px-space-md py-space-md">
+<div class="inline-flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-[#f1f5f9] border border-[#e2e8f0] text-[#334155] font-label-md text-label-md">
+<span class="material-symbols-outlined text-[15px] text-[#0284c7]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-medium">Indexed</span>
+</div>
+</td>
+<td class="px-space-md py-space-md font-code-inline text-code-inline text-on-surface-variant">1.1 MB</td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">Sep 28, 2024</td>
+<td class="pr-space-md pl-space-xs py-space-md text-right">
+<button aria-label="Row menu" class="w-8 h-8 rounded-lg hover:bg-[#f1f5f9] text-on-surface-variant hover:text-on-surface flex items-center justify-center ml-auto transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-[#f8fafc] transition-colors group">
+<td class="pl-space-md pr-space-xs py-space-md">
+<input aria-label="Select row" class="w-4 h-4 rounded border-[#cbd5e1] text-[#0284c7] focus:ring-[#0284c7] accent-[#0284c7] cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-space-md py-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="p-space-xs rounded bg-[#f1f5f9] border border-[#e2e8f0] text-[#0284c7] shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">terminal</span>
+</div>
+<div class="min-w-0">
+<span class="font-title-md text-title-md text-on-surface font-semibold group-hover:text-[#0284c7] transition-colors block truncate">Production Incident Runbook &amp; Escalation Matrix</span>
+<span class="font-code-inline text-code-inline text-on-surface-variant block truncate">Incident_Runbook_v4.md</span>
+</div>
+</div>
+</td>
+<td class="px-space-md py-space-md">
+<span class="inline-flex items-center px-space-xs py-0.5 rounded bg-[#f1f5f9] border border-[#e2e8f0] font-label-sm text-label-sm text-[#334155] font-mono uppercase">MD</span>
+</td>
+<td class="px-space-md py-space-md">
+<span class="font-code-inline text-code-inline text-on-surface font-medium">v4.2</span>
+</td>
+<td class="px-space-md py-space-md">
+<div class="inline-flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-[#f1f5f9] border border-[#e2e8f0] text-[#334155] font-label-md text-label-md">
+<span class="material-symbols-outlined text-[15px] text-[#0284c7]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-medium">Indexed</span>
+</div>
+</td>
+<td class="px-space-md py-space-md font-code-inline text-code-inline text-on-surface-variant">420 KB</td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">Nov 04, 2024</td>
+<td class="pr-space-md pl-space-xs py-space-md text-right">
+<button aria-label="Row menu" class="w-8 h-8 rounded-lg hover:bg-[#f1f5f9] text-on-surface-variant hover:text-on-surface flex items-center justify-center ml-auto transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-[#f8fafc] transition-colors group">
+<td class="pl-space-md pr-space-xs py-space-md">
+<input aria-label="Select row" class="w-4 h-4 rounded border-[#cbd5e1] text-[#0284c7] focus:ring-[#0284c7] accent-[#0284c7] cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-space-md py-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="p-space-xs rounded bg-[#f1f5f9] border border-[#e2e8f0] text-[#0284c7] shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+</div>
+<div class="min-w-0">
+<span class="font-title-md text-title-md text-on-surface font-semibold group-hover:text-[#0284c7] transition-colors block truncate">Information Security &amp; Data Classification Policy</span>
+<span class="font-code-inline text-code-inline text-on-surface-variant block truncate">InfoSec_Data_Classification.pdf</span>
+</div>
+</div>
+</td>
+<td class="px-space-md py-space-md">
+<span class="inline-flex items-center px-space-xs py-0.5 rounded bg-[#f1f5f9] border border-[#e2e8f0] font-label-sm text-label-sm text-[#334155] font-mono uppercase">PDF</span>
+</td>
+<td class="px-space-md py-space-md">
+<span class="font-code-inline text-code-inline text-on-surface font-medium">v1.8</span>
+</td>
+<td class="px-space-md py-space-md">
+<div class="inline-flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-[#f1f5f9] border border-[#e2e8f0] text-[#334155] font-label-md text-label-md">
+<span class="material-symbols-outlined text-[15px] text-[#0284c7]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-medium">Indexed</span>
+</div>
+</td>
+<td class="px-space-md py-space-md font-code-inline text-code-inline text-on-surface-variant">3.8 MB</td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">Aug 15, 2024</td>
+<td class="pr-space-md pl-space-xs py-space-md text-right">
+<button aria-label="Row menu" class="w-8 h-8 rounded-lg hover:bg-[#f1f5f9] text-on-surface-variant hover:text-on-surface flex items-center justify-center ml-auto transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 (Processing) -->
+<tr class="bg-[#f8fafc]/50 hover:bg-[#f8fafc] transition-colors group">
+<td class="pl-space-md pr-space-xs py-space-md">
+<input aria-label="Select row" class="w-4 h-4 rounded border-[#cbd5e1] text-[#0284c7] focus:ring-[#0284c7] accent-[#0284c7] cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-space-md py-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="p-space-xs rounded bg-[#f1f5f9] border border-[#e2e8f0] text-[#0284c7] shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+</div>
+<div class="min-w-0">
+<span class="font-title-md text-title-md text-on-surface font-semibold group-hover:text-[#0284c7] transition-colors block truncate">Q3 Financial Review &amp; Capital Allocation Guidelines</span>
+<span class="font-code-inline text-code-inline text-on-surface-variant block truncate">Q3_Capital_Allocation_2024.pdf</span>
+</div>
+</div>
+</td>
+<td class="px-space-md py-space-md">
+<span class="inline-flex items-center px-space-xs py-0.5 rounded bg-[#f1f5f9] border border-[#e2e8f0] font-label-sm text-label-sm text-[#334155] font-mono uppercase">PDF</span>
+</td>
+<td class="px-space-md py-space-md">
+<span class="font-code-inline text-code-inline text-on-surface font-medium">v1.0</span>
+</td>
+<td class="px-space-md py-space-md">
+<div class="inline-flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-[#f1f5f9] border border-[#e2e8f0] text-[#334155] font-label-md text-label-md">
+<svg class="animate-spin h-3.5 w-3.5 text-[#0284c7]" fill="none" viewbox="0 0 24 24">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8v8H4z" fill="currentColor"></path>
+</svg>
+<span class="font-medium">Extracting text 65%</span>
+</div>
+</td>
+<td class="px-space-md py-space-md font-code-inline text-code-inline text-on-surface-variant">5.2 MB</td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface-variant font-medium">5 mins ago</td>
+<td class="pr-space-md pl-space-xs py-space-md text-right">
+<button aria-label="Row menu" class="w-8 h-8 rounded-lg hover:bg-[#f1f5f9] text-on-surface-variant hover:text-on-surface flex items-center justify-center ml-auto transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 6 (Failed) -->
+<tr class="hover:bg-red-50/30 transition-colors group">
+<td class="pl-space-md pr-space-xs py-space-md">
+<input aria-label="Select row" class="w-4 h-4 rounded border-[#cbd5e1] text-[#0284c7] focus:ring-[#0284c7] accent-[#0284c7] cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-space-md py-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="p-space-xs rounded bg-red-100 border border-red-200 text-error shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+</div>
+<div class="min-w-0">
+<span class="font-title-md text-title-md text-on-surface font-semibold group-hover:text-error transition-colors block truncate">Vendor Security Assessment Checklist</span>
+<span class="font-code-inline text-code-inline text-on-surface-variant block truncate">Vendor_Risk_Assessment.txt</span>
+</div>
+</div>
+</td>
+<td class="px-space-md py-space-md">
+<span class="inline-flex items-center px-space-xs py-0.5 rounded bg-[#f1f5f9] border border-[#e2e8f0] font-label-sm text-label-sm text-[#334155] font-mono uppercase">TXT</span>
+</td>
+<td class="px-space-md py-space-md">
+<span class="font-code-inline text-code-inline text-on-surface font-medium">v1.0</span>
+</td>
+<td class="px-space-md py-space-md">
+<div class="inline-flex items-center gap-space-xs px-2.5 py-1 rounded-full bg-[#f1f5f9] border border-[#e2e8f0] text-[#334155] font-label-md text-label-md">
+<span class="material-symbols-outlined text-[15px] text-error" style="font-variation-settings: 'FILL' 1;">error</span>
+<span class="font-medium truncate max-w-[180px]" title="Unsupported format / Empty body">Unsupported format / Empty body</span>
+</div>
+</td>
+<td class="px-space-md py-space-md font-code-inline text-code-inline text-on-surface-variant">0 KB</td>
+<td class="px-space-md py-space-md font-body-sm text-body-sm text-on-surface">Yesterday</td>
+<td class="pr-space-md pl-space-xs py-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button aria-label="Retry failed document" class="w-8 h-8 rounded-lg hover:bg-red-50 text-error flex items-center justify-center transition-colors" title="Retry ingest" type="button">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+</button>
+<button aria-label="Row menu" class="w-8 h-8 rounded-lg hover:bg-[#f1f5f9] text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Summary Ribbon -->
+<div class="px-gutter py-space-md bg-[#f8fafc] border-t border-[#e2e8f0] flex flex-col sm:flex-row items-center justify-between gap-space-sm font-body-sm text-body-sm text-on-surface-variant">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-[#0284c7]">database</span>
+<span>Showing <strong class="text-on-surface font-semibold">6</strong> of <strong class="text-on-surface font-semibold">48</strong> owner-scoped documents</span>
+<span class="hidden sm:inline mx-1">•</span>
+<span class="hidden sm:inline">All files stored locally in enterprise storage</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-1 rounded bg-[#f1f5f9] border border-[#e2e8f0] hover:bg-[#e2e8f0]/60 text-[#334155] font-label-md text-label-md transition-colors disabled:opacity-50" disabled="" type="button">
+            Previous
+          </button>
+<div class="flex items-center gap-1 font-label-md text-label-md px-1">
+<span class="px-2 py-0.5 rounded bg-[#0284c7] text-white">1</span>
+<button class="px-2 py-0.5 rounded hover:bg-[#f1f5f9] text-[#334155] transition-colors" type="button">2</button>
+<button class="px-2 py-0.5 rounded hover:bg-[#f1f5f9] text-[#334155] transition-colors" type="button">3</button>
+<span>...</span>
+<button class="px-2 py-0.5 rounded hover:bg-[#f1f5f9] text-[#334155] transition-colors" type="button">8</button>
+</div>
+<button class="px-space-sm py-1 rounded bg-[#f1f5f9] border border-[#e2e8f0] hover:bg-[#e2e8f0]/60 text-[#334155] font-label-md text-label-md transition-colors" type="button">
+            Next
+          </button>
+</div>
+</div>
+</div>
+<!-- Supplementary Storage Topology & Extraction Health -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-space-md">
+<!-- Card: Storage Overview -->
+<div class="p-space-lg rounded-xl bg-white border border-[#e2e8f0] shadow-sm flex flex-col justify-between space-y-space-md">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface">Storage Allocation</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">pie_chart</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Local isolated vector chunk cache</p>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="relative w-20 h-20 shrink-0">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 36 36">
+<path class="text-[#f1f5f9]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-[#0284c7]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#0284c7" stroke-dasharray="68, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+<span class="font-title-md text-title-md font-bold text-on-surface">68%</span>
+</div>
+</div>
+<div class="space-y-1 text-on-surface-variant font-body-sm text-body-sm min-w-0">
+<div class="flex items-center justify-between text-on-surface font-title-md text-title-md">
+<span>Used: 3.4 GB</span>
+<span class="text-outline">5.0 GB Max</span>
+</div>
+<div class="flex items-center gap-1.5 text-xs">
+<span class="w-2 h-2 rounded-full bg-[#0284c7] inline-block"></span>
+<span>12,480 chunked embeddings</span>
+</div>
+</div>
+</div>
+<button class="w-full py-1.5 rounded-lg bg-[#f1f5f9] border border-[#e2e8f0] hover:bg-[#e2e8f0]/60 text-[#334155] font-title-md text-title-md text-center transition-colors" type="button">
+          Manage Partitions
+        </button>
+</div>
+<!-- Card: OCR & Pipeline Diagnostics -->
+<div class="p-space-lg rounded-xl bg-white border border-[#e2e8f0] shadow-sm flex flex-col justify-between space-y-space-md">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface">Embedding Model</span>
+<span class="material-symbols-outlined text-[#0284c7] text-[20px]">hub</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Retrieval pipeline operational profile</p>
+</div>
+<div class="space-y-space-xs font-code-inline text-code-inline bg-[#f8fafc] border border-[#e2e8f0] p-space-sm rounded-lg">
+<div class="flex justify-between items-center text-on-surface">
+<span class="text-on-surface-variant">Model:</span>
+<span class="font-semibold text-[#0284c7]">text-embedding-3-large</span>
+</div>
+<div class="flex justify-between items-center text-on-surface">
+<span class="text-on-surface-variant">Dimensions:</span>
+<span>3,072 float32</span>
+</div>
+<div class="flex justify-between items-center text-on-surface">
+<span class="text-on-surface-variant">Quantization:</span>
+<span>INT8 Enabled</span>
+</div>
+</div>
+<div class="flex items-center justify-between font-label-md text-label-md text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#0284c7]"></span>Avg Ingest: 820ms</span>
+<span class="text-[#0284c7] font-medium cursor-pointer hover:underline">Configure Model</span>
+</div>
+</div>
+<!-- Card: Document Hygiene Callout -->
+<div class="p-space-lg rounded-xl bg-white border border-[#e2e8f0] shadow-sm flex flex-col justify-between space-y-space-md relative overflow-hidden">
+<div class="space-y-space-xs">
+<div class="flex items-center gap-space-xs text-[#0284c7] font-label-md text-label-md uppercase tracking-wider font-semibold">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span>Security Compliance</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface block">Zero External Egress</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            All text token extraction and semantic vector generation are pinned to on-premise hardware enclosures.
+          </p>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex -space-x-2">
+<div class="w-7 h-7 rounded-full bg-[#0284c7] flex items-center justify-center text-white font-label-sm text-label-sm shadow-sm ring-2 ring-white">EV</div>
+<div class="w-7 h-7 rounded-full bg-[#334155] flex items-center justify-center text-white font-label-sm text-label-sm shadow-sm ring-2 ring-white">TR</div>
+<div class="w-7 h-7 rounded-full bg-[#64748b] flex items-center justify-center text-white font-label-sm text-label-sm shadow-sm ring-2 ring-white">+4</div>
+</div>
+<span class="font-label-sm text-label-sm text-[#334155] px-2 py-0.5 rounded bg-[#f1f5f9] border border-[#e2e8f0] font-mono">SOC2 Type II • FedRAMP</span>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

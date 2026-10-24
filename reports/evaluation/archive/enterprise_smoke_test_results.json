@@ -1,0 +1,42 @@
+[
+  {
+    "question": "How many annual paid leave days do full-time employees receive?",
+    "expected": "18",
+    "retrieved_count": 2,
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "passed": true,
+    "answer": "Full\u2011time employees receive **18 days of annual paid leave per calendar year** [Source 1]."
+  },
+  {
+    "question": "Where does Rahul Mehta work, and what is his role?",
+    "expected": "Pune",
+    "retrieved_count": 1,
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "passed": false,
+    "answer": "Rahul Mehta works at **NOVA TECH SOLUTIONS** in the Information Technology department, and his role is **IT Support Engineer** [Source 1]."
+  },
+  {
+    "question": "What approvals are required for equipment costing INR 40000?",
+    "expected": "Finance",
+    "retrieved_count": 5,
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "passed": true,
+    "answer": "For equipment costing INR\u202f40,000 (which falls in the \u201cabove INR\u202f10,000 and up to INR\u202f50,000\u201d range), the policy requires **approval from the employee\u2019s department manager and from Finance** [Source 1]."
+  },
+  {
+    "question": "What should employees do during a critical IT incident?",
+    "expected": "IT",
+    "retrieved_count": 3,
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "passed": true,
+    "answer": "During a critical IT incident, employees must **immediately report it by phone to the IT on\u2011call team** and then **create a service\u2011desk ticket through the internal portal**. The ticket should include the affected system, the time the issue was observed, the business impact, and any error messages. **Passwords, private keys, and authentication codes must never be included** in the report. Critical incidents receive priority handling. [Source 1] [Source 2]"
+  },
+  {
+    "question": "What is the CEO's name?",
+    "expected": "ABSTAIN",
+    "retrieved_count": 0,
+    "model": null,
+    "passed": true,
+    "answer": "I couldn't find sufficient relevant evidence in your accessible documents to answer this question reliably."
+  }
+]
