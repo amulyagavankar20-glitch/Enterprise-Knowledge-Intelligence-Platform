@@ -29,6 +29,18 @@ def test_ragas_rows_exclude_unsupported_and_malformed_samples():
     assert rows[0]["user_input"] == "Q"
 
 
+def test_ragas_rows_exclude_failed_cases_from_partial_runs():
+    base = {
+        "question": "Q", "answer": "A", "retrieved_contexts": ["evidence"],
+        "reference_answer_approximate": "R",
+    }
+    rows = evaluate_ragas._evaluation_rows({"results": [
+        {**base, "case_status": "completed"},
+        {**base, "case_status": "failed", "failure_stage": "verification"},
+    ]})
+    assert len(rows) == 1
+
+
 def test_ragas_run_failure_is_machine_readable_and_carries_no_payload(monkeypatch, tmp_path):
     def fail(*args, **kwargs):
         raise ModuleNotFoundError("private import detail")

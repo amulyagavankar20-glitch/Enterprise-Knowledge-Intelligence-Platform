@@ -13,6 +13,7 @@ import re
 import sys
 import time
 import unicodedata
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -56,6 +57,34 @@ def fact_coverage(text: str, facts: list[str]) -> float | None:
     if not facts:
         return None
     return fact_match_count(text, facts) / len(facts)
+
+
+def verification_is_operational_failure(verification: dict[str, Any] | None) -> bool:
+    if not verification:
+        return False
+    if verification.get("status") == "error":
+        return True
+    return (
+        verification.get("status") == "withheld"
+        and verification.get("failure_category") in {
+            "ollama_http_error", "ollama_timeout", "ollama_connection_error",
+            "invalid_verifier_response",
+        }
+    )
+
+
+def runtime_failure_category(exc: Exception) -> str:
+    """Map wrapped local-provider exceptions to stable, non-sensitive categories."""
+    cause_name = type(exc.__cause__).__name__ if exc.__cause__ is not None else ""
+    if cause_name == "HTTPStatusError":
+        return "ollama_http_error"
+    if cause_name in {"TimeoutException", "ConnectTimeout", "ReadTimeout", "WriteTimeout", "PoolTimeout"}:
+        return "ollama_timeout"
+    if cause_name in {"ConnectError", "RemoteProtocolError", "ReadError", "WriteError"}:
+        return "ollama_connection_error"
+    if cause_name.endswith(("Error", "Exception")):
+        return "ollama_request_error"
+    return type(exc).__name__
 
 
 TEST_CASES: list[dict[str, Any]] = [
@@ -106,7 +135,21 @@ def evaluate_case(
     db, case: dict[str, Any], *, use_semantic_judge: bool = False
 ) -> dict[str, Any]:
     started = time.perf_counter()
-    retrieved = retrieve_context(db, user_id=USER_ID, question=case["question"])
+    try:
+        retrieved = retrieve_context(db, user_id=USER_ID, question=case["question"])
+    except Exception as exc:  # noqa: BLE001 - identify failed retrieval stage without logging data.
+        return {
+            "question": case["question"],
+            "case_type": case.get("case_type", "answerable_factual"),
+            "expected_facts": case["facts"],
+            "expected_source_label": case.get("source"),
+            "expected_source_labels": case.get("sources") or ([case["source"]] if case.get("source") else []),
+            "case_status": "failed",
+            "failure_stage": "retrieval",
+            "failure_category": type(exc).__name__,
+            "latency_seconds": round(time.perf_counter() - started, 4),
+            "passed": False,
+        }
     sources = retrieved.get("sources", [])
     expected_sources = case.get("sources") or ([case["source"]] if case.get("source") else [])
     expected_source = case.get("source")
@@ -133,7 +176,7 @@ def evaluate_case(
                 retrieved["question"], retrieved["context"], valid_source_numbers
             )
         except RuntimeError as exc:
-            baseline_generation_error = type(exc).__name__
+            baseline_generation_error = runtime_failure_category(exc)
     actual_model = None
     generation_error = None
     verification = None
@@ -148,7 +191,11 @@ def evaluate_case(
         actual_model = generated.get("model")
         verification = generated.get("verification")
     except RuntimeError as exc:
-        generation_error = type(exc).__name__
+        generation_error = runtime_failure_category(exc)
+
+    failure_stage = "answer_generation" if generation_error else None
+    if verification_is_operational_failure(verification):
+        failure_stage = "verification"
 
     expected_facts = case["facts"]
     reference_answer = "; ".join(expected_facts) if expected_facts else None
@@ -235,6 +282,7 @@ def evaluate_case(
             semantic_judge_error = type(exc).__name__
         semantic_judge_latency = round(time.perf_counter() - judge_started, 4)
 
+    case_status = "failed" if failure_stage else "completed"
     return {
         "question": case["question"],
         "case_type": case.get("case_type", "answerable_factual"),
@@ -251,6 +299,15 @@ def evaluate_case(
         "baseline_model": baseline_model,
         "baseline_generation_error": baseline_generation_error,
         "verification": verification,
+        "case_status": case_status,
+        "failure_stage": failure_stage,
+        "failure_category": (
+            generation_error
+            if generation_error else
+            verification.get("failure_category") if failure_stage == "verification" and verification else None
+        ),
+        "baseline_failure_stage": "baseline_generation" if baseline_generation_error else None,
+        "semantic_judge_failure_stage": "semantic_judge" if semantic_judge_error else None,
         "model": actual_model,
         "generation_error": generation_error,
         "retrieval_success_at_k": retrieval_success,
@@ -293,6 +350,11 @@ def rate(rows: list[dict[str, Any]], key: str) -> float | None:
     if not values:
         return None
     return round(sum(bool(value) for value in values) / len(values), 4)
+
+
+def completed_cases(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Return only cases with a complete primary retrieval/generation result."""
+    return [row for row in rows if row.get("case_status") == "completed"]
 
 
 def evaluate_thresholds(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -383,9 +445,17 @@ def main() -> None:
                     "expected_source_label": case.get("source"),
                     "expected_source_labels": case.get("sources") or ([case["source"]] if case.get("source") else []),
                     "error": type(exc).__name__,
+                    "case_status": "failed",
+                    "failure_stage": "case_setup",
+                    "failure_category": type(exc).__name__,
                     "passed": False,
                 }
             rows.append(row)
+
+    all_rows = rows
+    failed_rows = [row for row in all_rows if row.get("case_status") != "completed"]
+    rows = completed_cases(all_rows)
+    semantic_judge_error_count = sum(bool(row.get("semantic_judge_error")) for row in all_rows)
 
     answerable_rows = [row for row in rows if row.get("expected_source_labels") or row.get("expected_source_label")]
     reciprocal_ranks = [
@@ -412,6 +482,7 @@ def main() -> None:
     ]
     metrics = {
         "case_count": len(rows),
+        "pass_count": sum(bool(row.get("passed")) for row in rows),
         "overall_pass_rate": rate(rows, "passed"),
         "retrieval_success_recall_at_5": rate(
             answerable_rows, "retrieval_success_at_k"
@@ -488,18 +559,34 @@ def main() -> None:
             ], 4
         ) if rows else None,
     }
+    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     output = {
         "evaluation": "fixed enterprise RAG evaluation with approximate lexical checks",
+        "created_at_utc": datetime.now(UTC).isoformat(),
         "dataset_id": "enterprise-rag-v1",
         "dataset_version": 1,
         "execution_status": (
-            "completed_with_evaluation_errors"
-            if any(row.get("generation_error") or row.get("semantic_judge_error") for row in rows)
+            "partial" if failed_rows or (args.semantic_judge and semantic_judge_error_count)
             else "completed"
         ),
-        "case_count": len(rows),
+        "case_count": len(all_rows),
+        "completed_case_count": len(rows),
+        "failed_case_count": len(failed_rows),
+        "failure_counts_by_stage": {
+            stage: sum(
+                row.get("failure_stage") == stage
+                or row.get("semantic_judge_failure_stage") == stage
+                for row in all_rows
+            )
+            for stage in sorted({
+                row.get("failure_stage") or row.get("semantic_judge_failure_stage")
+                for row in all_rows
+                if row.get("failure_stage") or row.get("semantic_judge_failure_stage")
+            })
+        },
+        "semantic_judge_error_count": semantic_judge_error_count,
         "generation_error_count": sum(
-            bool(row.get("generation_error")) for row in rows
+            bool(row.get("generation_error")) for row in all_rows
         ),
         "semantic_judge": {
             "enabled": args.semantic_judge,
@@ -537,22 +624,25 @@ def main() -> None:
             "threshold, not independent retrieval runs. Because it cannot refill context "
             "from deeper reranked candidates, alternate-threshold Recall@5 can be understated."
         ),
-        "results": rows,
+        "results": all_rows,
     }
     evaluation_dir = PROJECT_ROOT / "reports" / "evaluation"
     evaluation_dir.mkdir(parents=True, exist_ok=True)
-    output_path = evaluation_dir / "enterprise_rag_evaluation_results.json"
-    baseline_path = evaluation_dir / "enterprise_rag_baseline_results.json"
+    output_path = evaluation_dir / f"enterprise_rag_evaluation_{timestamp}.json"
+    baseline_path = evaluation_dir / f"enterprise_rag_baseline_{timestamp}.json"
+    report_path = evaluation_dir / f"enterprise_rag_evaluation_{timestamp}.md"
     output["verification_disabled_baseline_artifact"] = str(baseline_path.relative_to(PROJECT_ROOT))
     output_path.write_text(json.dumps(output, indent=2), encoding="utf-8")
     baseline_output = {
         "evaluation": "verification-disabled baseline; same retrieval, model, dataset, and run contexts",
         "dataset_id": output["dataset_id"],
         "dataset_version": output["dataset_version"],
-        "execution_status": "completed_with_generation_errors" if any(
-            row.get("baseline_generation_error") for row in rows
+        "execution_status": "partial" if any(
+            row.get("baseline_generation_error") for row in all_rows
         ) else "completed",
-        "case_count": len(rows),
+        "created_at_utc": output["created_at_utc"],
+        "case_count": len(all_rows),
+        "baseline_generation_error_count": sum(bool(row.get("baseline_generation_error")) for row in all_rows),
         "top_k": TOP_K,
         "reranker_score_threshold": RERANKER_SCORE_THRESHOLD,
         "model_snapshot": output["model_snapshot"],
@@ -568,7 +658,7 @@ def main() -> None:
                 "model": row.get("baseline_model"),
                 "generation_error": row.get("baseline_generation_error"),
             }
-            for row in rows
+            for row in all_rows
         ],
     }
     baseline_path.write_text(json.dumps(baseline_output, indent=2), encoding="utf-8")
@@ -576,7 +666,9 @@ def main() -> None:
     report = [
         "# Enterprise RAG Evaluation",
         "",
-        f"- Cases: {metrics['case_count']}",
+        f"- Execution status: {output['execution_status']}",
+        f"- Cases completed / failed: {output['completed_case_count']} / {output['failed_case_count']} of {output['case_count']}",
+        f"- Metrics use completed cases only: {metrics['case_count']}",
         f"- Effective reranker threshold: {RERANKER_SCORE_THRESHOLD}",
         f"- Threshold source: {output['reranker_score_threshold_source']}",
         f"- Overall pass rate: {metrics['overall_pass_rate']}",
@@ -624,13 +716,20 @@ def main() -> None:
         "The optional model judge uses the configured generation provider (the same model by default), so its support and entailment estimates are useful signals but are not independent or conclusive evidence.",
         "Threshold-sweep rows are post-filter diagnostics over the at-most-five sources returned at the effective threshold; they are not independent retrieval runs and can understate alternate-threshold Recall@5 because deeper candidates are unavailable for refill.",
         "",
-        "Machine-readable detail: `reports/evaluation/enterprise_rag_evaluation_results.json`.",
+        f"Machine-readable detail: `{output_path.relative_to(PROJECT_ROOT).as_posix()}`.",
     ])
-    (evaluation_dir / "enterprise_rag_evaluation_report.md").write_text(
+    report_path.write_text(
         "\n".join(report) + "\n", encoding="utf-8"
     )
-    print(json.dumps(metrics, indent=2))
-    print(f"Saved: {output_path}")
+    print(json.dumps({
+        "execution_status": output["execution_status"],
+        "completed_case_count": output["completed_case_count"],
+        "failed_case_count": output["failed_case_count"],
+        "failure_counts_by_stage": output["failure_counts_by_stage"],
+        "metrics": metrics,
+        "results_path": str(output_path),
+        "report_path": str(report_path),
+    }, indent=2))
 
 
 if __name__ == "__main__":

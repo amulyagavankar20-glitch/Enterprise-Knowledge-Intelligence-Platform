@@ -94,7 +94,7 @@ def test_ollama_timeout_is_safe_and_never_falls_back(monkeypatch, caplog):
         RuntimeError, match="Could not connect to Ollama"
     ):
         generation.generate_answer("q", "context", {1})
-    assert calls == [generation.OLLAMA_API_URL]
+    assert calls == [generation.OLLAMA_API_URL] * 3
     assert "private context marker" not in caplog.text
 
 

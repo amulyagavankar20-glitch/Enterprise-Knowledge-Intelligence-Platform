@@ -13,6 +13,7 @@ from typing import Any
 import httpx
 
 from app.services.generation import OLLAMA_API_URL
+from app.services.ollama_client import post_chat
 
 logger = logging.getLogger(__name__)
 JUDGMENT_FIELDS = (
@@ -52,7 +53,6 @@ def judge_rag_answer(
         "EVAL_JUDGE_MODEL", os.getenv("OLLAMA_MODEL", "qwen3.5:4b")
     )
     url = os.getenv("OLLAMA_API_URL", OLLAMA_API_URL)
-    headers = {"Content-Type": "application/json"}
     payload = {
         "model": model,
         "messages": _judge_messages(
@@ -66,10 +66,13 @@ def judge_rag_answer(
     timeout = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))
 
     try:
-        response = httpx.post(
-            url, headers=headers, json=payload, timeout=timeout
+        response = post_chat(
+            stage="semantic_evaluation",
+            url=url,
+            payload=payload,
+            timeout_seconds=timeout,
+            context_chars=len(context),
         )
-        response.raise_for_status()
         data = response.json()
     except httpx.HTTPStatusError as exc:
         logger.warning(

@@ -30,6 +30,8 @@ def _load_results(path: Path) -> dict[str, Any]:
 def _evaluation_rows(data: dict[str, Any]) -> list[dict[str, str | list[str]]]:
     rows = []
     for row in data.get("results", []):
+        if row.get("case_status") not in (None, "completed"):
+            continue
         answer = row.get("answer")
         contexts = row.get("retrieved_contexts")
         reference = row.get("reference_answer_approximate")

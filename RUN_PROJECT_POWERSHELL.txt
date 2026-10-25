@@ -1,0 +1,100 @@
+ENTERPRISE KNOWLEDGE INTELLIGENCE PLATFORM
+Local Windows / PowerShell run guide
+=====================================
+
+Prerequisites
+-------------
+- Docker Desktop running (PostgreSQL + pgvector and Redis).
+- Conda environment named enterprise-rag.
+- Ollama installed, running, and qwen3.5:4b already downloaded.
+- A local .env with the required settings. Do not print or share its contents.
+
+1) Start the database and Redis
+------------------------------
+From the repository root, in PowerShell:
+
+    docker compose up -d postgres redis
+    docker compose ps
+
+2) Check Ollama
+---------------
+In another PowerShell window:
+
+    ollama list
+    ollama ps
+
+Confirm qwen3.5:4b appears in `ollama list`. If Ollama is not already running,
+start it with `ollama serve` in its own window. Do not run `ollama pull` unless
+the model is actually missing; downloading/loading a model uses disk, RAM, and
+possibly GPU memory.
+
+3) Start the FastAPI backend
+----------------------------
+In another PowerShell window, from the repository root:
+
+    conda activate enterprise-rag
+    $env:PYTHONPATH = (Resolve-Path .\backend).Path
+    python -m alembic upgrade head
+    python -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000
+
+Keep this window open. The first request may take longer if BGE models need to
+load. Open the app at:
+
+    http://127.0.0.1:8000/
+
+API health check (in another PowerShell window):
+
+    Invoke-RestMethod http://127.0.0.1:8000/health
+
+Register an account in the web app, then sign in. The API serves the frontend
+and backend on the same local origin.
+
+4) Optional: migrate legacy originals into PostgreSQL
+----------------------------------------------------
+Only do this if you have legacy files in stored_documents that have not yet
+been copied into the database. The utility preserves the local files:
+
+    conda activate enterprise-rag
+    $env:PYTHONPATH = (Resolve-Path .\backend).Path
+    python scripts\migrate_document_files.py
+    python scripts\migrate_document_files.py --verify-only
+
+Review the verification output before taking any separate action on old local
+files. Do not delete them as part of this startup guide.
+
+5) Stop local services
+----------------------
+Stop FastAPI and Ollama with Ctrl+C in their respective windows. Stop only the
+Compose services (this does not delete their persistent database volume):
+
+    docker compose stop api postgres redis
+
+For the next session, start postgres and redis again with step 1. Start Ollama
+and FastAPI as in steps 2 and 3.
+
+Optional checks
+---------------
+Run the lightweight automated test suite from the repository root:
+
+    conda activate enterprise-rag
+    $env:RATE_LIMIT_REDIS_REQUIRED = "false"
+    python -m pytest backend -q --tb=short -p no:cacheprovider --basetemp .pytest-tmp-local
+
+Run the live RAG evaluation only when adequate memory is available. It sends
+many requests to local Ollama and can load the generation, verifier, embedding,
+and reranker models:
+
+    conda activate enterprise-rag
+    python scripts\evaluate_rag.py
+
+Do not run the live evaluation while system memory is near capacity. It needs
+the database, seeded evaluation documents, BGE models, and Ollama to be ready.
+
+Troubleshooting
+---------------
+- API cannot connect to PostgreSQL: check `docker compose ps`; local PostgreSQL
+  is mapped to 127.0.0.1:5433.
+- API cannot connect to Redis: check `docker compose ps`; Redis uses port 6379.
+- Ollama connection errors: check `ollama list` and `ollama ps`; local API URL is
+  normally http://127.0.0.1:11434/api/chat.
+- Do not paste .env contents or logs containing credentials into support chats.

@@ -3,10 +3,12 @@ from app.services.rag import RERANKER_SCORE_THRESHOLD
 from evaluate_rag import (
     TEST_CASES,
     answer_looks_like_abstention,
+    completed_cases,
     evaluate_case,
     evaluate_thresholds,
     fact_coverage,
     normalize_fact,
+    verification_is_operational_failure,
 )
 from setup_test_data import (
     answer_looks_like_abstention as smoke_answer_looks_like_abstention,
@@ -124,7 +126,7 @@ def test_threshold_sweep_uses_answerable_and_unsupported_labels():
         {
             "question": "answerable",
             "expected_source_label": "policy.txt",
-            "source_scores": [{"filename": "policy.txt", "reranker_score": 0.05}],
+            "source_scores": [{"filename": "policy.txt", "reranker_score": RERANKER_SCORE_THRESHOLD}],
         },
         {
             "question": "unsupported",
@@ -136,7 +138,38 @@ def test_threshold_sweep_uses_answerable_and_unsupported_labels():
     current = next(
         row for row in sweep if row["threshold"] == RERANKER_SCORE_THRESHOLD
     )
-    high = next(row for row in sweep if row["threshold"] == 0.1)
+    high = next(row for row in sweep if row["threshold"] > RERANKER_SCORE_THRESHOLD)
     assert current["answerable_recall_at_5"] == 1.0
     assert current["unsupported_empty_retrieval_rate"] == 1.0
     assert high["answerable_recall_at_5"] == 0.0
+
+
+def test_completed_case_filter_excludes_failed_rows_from_metrics():
+    rows = [
+        {"case_status": "completed", "passed": True},
+        {"case_status": "failed", "failure_stage": "verification"},
+        {"case_status": "failed", "failure_stage": "answer_generation"},
+    ]
+    assert completed_cases(rows) == [rows[0]]
+
+
+def test_retrieval_failure_is_labeled_without_fabricating_metric_values(monkeypatch):
+    case = TEST_CASES[0]
+    monkeypatch.setattr(
+        evaluate_rag, "retrieve_context",
+        lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("private db detail")),
+    )
+    row = evaluate_case(None, case)
+    assert row["case_status"] == "failed"
+    assert row["failure_stage"] == "retrieval"
+    assert row["failure_category"] == "RuntimeError"
+    assert "private db detail" not in str(row)
+
+
+def test_verifier_transport_failure_is_operational_but_claim_rejection_is_scored():
+    assert verification_is_operational_failure({
+        "status": "withheld", "failure_category": "ollama_http_error",
+    })
+    assert not verification_is_operational_failure({
+        "status": "withheld", "failure_category": "unsupported_or_contradicted_claims",
+    })

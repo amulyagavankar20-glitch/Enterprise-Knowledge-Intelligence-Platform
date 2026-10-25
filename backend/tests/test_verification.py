@@ -47,7 +47,11 @@ def test_verifier_maps_paragraph_citations_and_checks_claims_with_ollama(monkeyp
     verifier_input = json.loads(captured["json"]["messages"][1]["content"])
     assert [item["cited_evidence"][0]["source_number"] for item in verifier_input["claims"]] == [1, 1]
     assert captured["json"]["think"] is False
-    assert captured["json"]["format"] == "json"
+    schema = captured["json"]["format"]
+    assert schema["required"] == ["results"]
+    assert schema["properties"]["results"]["minItems"] == 2
+    assert schema["properties"]["results"]["maxItems"] == 2
+    assert captured["json"]["options"]["num_predict"] == 800
 
 
 def test_invalid_citation_is_rejected_without_calling_verifier(monkeypatch):
@@ -153,6 +157,53 @@ def test_verifier_failure_does_not_log_question_or_evidence(monkeypatch, caplog)
     assert result["failure_category"] == "ollama_timeout"
     assert marker not in caplog.text
     assert "private question marker" not in caplog.text
+
+
+def test_verification_retries_transient_http_failure_then_fails_closed(monkeypatch):
+    calls = []
+
+    def unavailable(url, **kwargs):
+        calls.append(1)
+        response = httpx.Response(
+            503, json={"error": "temporarily unavailable"},
+            request=httpx.Request("POST", url),
+        )
+        response.raise_for_status()
+
+    monkeypatch.setattr(verification.httpx, "post", unavailable)
+    monkeypatch.setattr(verification.time, "sleep", lambda *_: None)
+    result = verification.verify_answer(
+        question="Question?", answer="Supported claim. [Source 1]", sources=[SOURCE],
+    )
+    assert len(calls) == 3
+    assert result["status"] == "error"
+    assert result["failure_category"] == "ollama_http_error"
+
+
+def test_answer_question_does_not_regenerate_when_verifier_is_unavailable(monkeypatch):
+    monkeypatch.setattr(
+        generation, "retrieve_context",
+        lambda *args, **kwargs: {
+            "question": "Where?", "context": "evidence", "sources": [SOURCE],
+        },
+    )
+    generated = []
+    monkeypatch.setattr(
+        generation, "generate_answer",
+        lambda *args, **kwargs: (generated.append(1) or "Claim. [Source 1]", "qwen3.5:4b"),
+    )
+    monkeypatch.setattr(
+        generation, "verify_answer",
+        lambda **kwargs: {
+            "status": "error", "failure_category": "ollama_http_error",
+            "citation_integrity": "valid", "claim_support_estimate": "unavailable",
+            "claim_count": 1, "supported_claim_count": 0,
+        },
+    )
+    result = generation.answer_question(None, user_id=uuid4(), question="Where?")
+    assert len(generated) == 1
+    assert result["answer"] == generation.ABSTENTION
+    assert result["verification"]["status"] == "withheld"
 
 
 def test_context_injection_text_is_json_data_outside_system_instruction():

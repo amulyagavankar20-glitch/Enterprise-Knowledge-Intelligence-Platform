@@ -12,6 +12,7 @@ import httpx
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
+from app.services.ollama_client import post_chat
 from app.services.rag import retrieve_context
 from app.services.verification import verify_answer
 
@@ -48,7 +49,6 @@ def generate_answer(
 ) -> tuple[str, str]:
     model = os.getenv("OLLAMA_MODEL", "qwen3.5:4b")
     api_url = os.getenv("OLLAMA_API_URL", OLLAMA_API_URL)
-    headers = {"Content-Type": "application/json"}
     payload = {
         "model": model,
         "messages": _messages(question, context, verification_retry=verification_retry),
@@ -59,10 +59,13 @@ def generate_answer(
     timeout = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))
 
     try:
-        response = httpx.post(
-            api_url, headers=headers, json=payload, timeout=timeout
+        response = post_chat(
+            stage="answer_generation",
+            url=api_url,
+            payload=payload,
+            timeout_seconds=timeout,
+            context_chars=len(context),
         )
-        response.raise_for_status()
 
     except httpx.HTTPStatusError as exc:
         logger.warning("Ollama returned HTTP %s", exc.response.status_code)
@@ -240,7 +243,10 @@ def answer_question(
         answer = verification.pop("normalized_answer")
     attempts = 1
 
-    if verification["status"] in {"rejected", "error"}:
+    # A rejected draft may warrant one content-repair attempt. A verifier error
+    # has already exhausted transient HTTP retries and must fail closed without
+    # triggering another expensive answer-generation call.
+    if verification["status"] == "rejected":
         answer, actual_model = generate_answer(
             result["question"],
             result["context"],

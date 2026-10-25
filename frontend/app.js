@@ -202,7 +202,7 @@
         : verification?.status === "not_run"
           ? `<p class="verification-note warning" role="status">Citation labels were checked; claim support estimation was not run.</p>`
           : "";
-    article.innerHTML = `<div class="answer-label ${declined ? "abstain" : ""}"><span class="dot" aria-hidden="true"></span>${declined ? "Insufficient evidence" : "Answer"}</div><div class="answer-text"></div>${verificationNote}${message.sources?.length ? `<div class="evidence-heading">Supporting evidence (${message.sources.length})</div>` : ""}<div class="source-list"></div>`;
+    article.innerHTML = `<div class="answer-label ${declined ? "abstain" : ""}"><span class="dot" aria-hidden="true"></span>${declined ? "Insufficient evidence" : "Answer"}</div><div class="answer-text"></div>${verificationNote}${message.sources?.length ? `<details class="evidence-disclosure"><summary>View supporting evidence (${message.sources.length})</summary><div class="source-list"></div></details>` : ""}`;
     article.querySelector(".answer-text").append(answerNodes(message.answer));
     const sourceList = article.querySelector(".source-list");
     (message.sources || []).forEach((source) => {
@@ -735,6 +735,8 @@
         `[data-source-number="${CSS.escape(button.dataset.citation)}"]`,
       ) || document.getElementById(`report-source-${button.dataset.citation}`);
       if (target) {
+        const disclosure = target.closest(".evidence-disclosure");
+        if (disclosure) disclosure.open = true;
         target.scrollIntoView({ behavior: "smooth", block: "center" });
         target.classList.add("highlight");
         window.setTimeout(() => target.classList.remove("highlight"), 1800);
