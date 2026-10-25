@@ -29,6 +29,7 @@
     auditEvents: [],
     auditOffset: 0,
     auditLimit: 50,
+    report: null,
   };
 
   function readSession() {
@@ -127,6 +128,7 @@
           <a class="nav-link ${active === "ask" ? "active" : ""}" href="#/ask"><span class="nav-icon" aria-hidden="true">✳</span>Ask</a>
           <a class="nav-link ${active === "documents" ? "active" : ""}" href="#/documents"><span class="nav-icon" aria-hidden="true">▤</span>Knowledge base</a>
           ${role === "admin" ? `<a class="nav-link ${active === "audit" ? "active" : ""}" href="#/audit"><span class="nav-icon" aria-hidden="true">◷</span>Audit log</a>` : ""}
+          <a class="nav-link ${active === "reports" ? "active" : ""}" href="#/reports"><span class="nav-icon" aria-hidden="true">▤</span>Reports</a>
         </nav>
         <div class="sidebar-bottom"><div class="user-card"><div class="avatar" aria-hidden="true">${escapeHTML(initials(email))}</div><div class="user-meta"><strong>${escapeHTML(email.split("@")[0])}${role ? ` · ${escapeHTML(role)}` : ""}</strong><span>${escapeHTML(email)}</span></div><button type="button" class="signout" data-action="signout" aria-label="Sign out" title="Sign out">↗</button></div></div>
       </aside>
@@ -140,14 +142,24 @@
     const subtitle = register
       ? "Create an account to explore your organization’s knowledge."
       : "Sign in to ask questions across your accessible company documents.";
+    const passwordField = (id, label, autocomplete, minLength, placeholder = "") => `
+      <div class="field">
+        <label for="${id}">${label}</label>
+        <div class="password-input-wrap">
+          <input class="input" id="${id}" name="${id === "confirm-password" ? "confirmPassword" : "password"}" type="password" autocomplete="${autocomplete}" required minlength="${minLength}" maxlength="128" placeholder="${placeholder}" />
+          <button class="password-toggle" type="button" data-action="toggle-password" data-target="${id}" data-show-label="Show ${label.toLowerCase()}" data-hide-label="Hide ${label.toLowerCase()}" aria-controls="${id}" aria-label="Show ${label.toLowerCase()}" title="Show ${label.toLowerCase()}">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>`;
     app.innerHTML = `<main class="auth-page"><section class="card auth-card" aria-labelledby="auth-title">
       <a class="brand auth-brand" href="#/login"><span class="brand-mark">K</span><span>Knowledge Intelligence</span></a>
       <h1 id="auth-title">${title}</h1><p class="subheading">${subtitle}</p>
       ${alertHTML(state.error)}${alertHTML(state.success, true)}
       <form class="auth-form" id="auth-form" data-mode="${register ? "register" : "login"}" novalidate>
         <div class="field"><label for="email">Work email</label><input class="input" id="email" name="email" type="email" autocomplete="email" required maxlength="320" placeholder="name@company.com" /></div>
-        <div class="field"><label for="password">Password</label><input class="input" id="password" name="password" type="password" autocomplete="${register ? "new-password" : "current-password"}" required minlength="${register ? 12 : 1}" maxlength="128" placeholder="${register ? "At least 12 characters" : "Your password"}" /></div>
-        ${register ? `<div class="field"><label for="confirm-password">Confirm password</label><input class="input" id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" required minlength="12" maxlength="128" /></div>` : ""}
+        ${passwordField("password", "Password", register ? "new-password" : "current-password", register ? 12 : 1, register ? "At least 12 characters" : "Your password")}
+        ${register ? passwordField("confirm-password", "Confirm password", "new-password", 12) : ""}
         <button class="button" type="submit" ${state.loading ? "disabled" : ""}>${state.loading ? "Please wait…" : register ? "Create account" : "Sign in"}</button>
       </form>
       <p class="auth-footer">${register ? "Already have an account?" : "New to the platform?"} <a class="link-button" href="#/${register ? "login" : "register"}">${register ? "Sign in" : "Create an account"}</a></p>
@@ -182,7 +194,15 @@
     const declined = /\b(?:couldn.t|cannot|can.t|unable to|does not contain|doesn.t contain|not available|insufficient evidence|not in the (?:document|provided))\b/i.test(message.answer || "");
     const article = document.createElement("article");
     article.className = `answer-block card ${declined ? "abstain" : ""}`;
-    article.innerHTML = `<div class="answer-label ${declined ? "abstain" : ""}"><span class="dot" aria-hidden="true"></span>${declined ? "Insufficient evidence" : "Answer"}</div><div class="answer-text"></div>${message.sources?.length ? `<div class="evidence-heading">Supporting evidence (${message.sources.length})</div>` : ""}<div class="source-list"></div>`;
+    const verification = message.verification;
+    const verificationNote = verification?.status === "verified"
+      ? `<p class="verification-note" role="status">Local model estimate: cited evidence supports the answer. This is not a guarantee of correctness.</p>`
+      : verification?.status === "withheld"
+        ? `<p class="verification-note warning" role="status">The answer was withheld because its claims could not be supported by the cited evidence.</p>`
+        : verification?.status === "not_run"
+          ? `<p class="verification-note warning" role="status">Citation labels were checked; claim support estimation was not run.</p>`
+          : "";
+    article.innerHTML = `<div class="answer-label ${declined ? "abstain" : ""}"><span class="dot" aria-hidden="true"></span>${declined ? "Insufficient evidence" : "Answer"}</div><div class="answer-text"></div>${verificationNote}${message.sources?.length ? `<div class="evidence-heading">Supporting evidence (${message.sources.length})</div>` : ""}<div class="source-list"></div>`;
     article.querySelector(".answer-text").append(answerNodes(message.answer));
     const sourceList = article.querySelector(".source-list");
     (message.sources || []).forEach((source) => {
@@ -259,6 +279,15 @@
     });
   }
 
+  function renderReports() {
+    const body = `<div class="page-head"><div><h1>Grounded reports</h1><p class="subheading">Create a structured report from documents you are authorized to access. Reports are not stored.</p></div></div>
+      ${alertHTML(state.error)}
+      <section class="card report-form-card"><form id="report-form"><div class="field"><label for="report-title">Report title <span class="muted">(optional)</span></label><input class="input" id="report-title" name="title" maxlength="180" /></div><div class="field"><label for="report-question">Purpose or question</label><textarea class="textarea" id="report-question" name="question" maxlength="4000" required placeholder="Describe the decision or subject this report should cover."></textarea></div><button class="button" type="submit" ${state.loading ? "disabled" : ""}>${state.loading ? "Building report…" : "Generate grounded report"}</button></form></section>
+      ${state.report ? `<section class="card report-result"><div class="report-actions"><button class="button secondary small" type="button" data-action="download-report">Download Markdown</button><button class="button secondary small" type="button" data-action="print-report">Print / Save as PDF</button></div><pre class="report-markdown"></pre><h2>Evidence sources</h2><div class="report-source-list">${(state.report.sources || []).map((source) => `<section class="card report-source" id="report-source-${escapeHTML(source.source_number)}"><strong>[Source ${escapeHTML(source.source_number)}] ${escapeHTML(source.filename || source.document_title || "Source document")}</strong><p class="small-text muted">Chunk ${escapeHTML(Number(source.chunk_index) + 1)}${source.page_numbers?.length ? ` · Page ${escapeHTML(source.page_numbers.join(", "))}` : ""}</p><p>${escapeHTML(source.content || "")}</p>${source.document_id ? `<a class="source-document-link" href="#/documents/${encodeURIComponent(source.document_id)}">View source document →</a>` : ""}</section>`).join("")}</div><p class="small-text muted">Citation checks confirm that labels map to retrieved sources. Model support checks are estimates, not proof of correctness.</p></section>` : ""}`;
+    app.innerHTML = shell("reports", body, true);
+    if (state.report) app.querySelector(".report-markdown")?.append(answerNodes(state.report.markdown));
+  }
+
   function documentRows() {
     const term = state.documentSearch.trim().toLocaleLowerCase();
     const docs = state.documents.filter((doc) => !term || `${doc.title} ${doc.filename}`.toLocaleLowerCase().includes(term));
@@ -307,6 +336,7 @@
     );
     const body = `<div class="page-head"><div><a class="link-button" href="#/documents">← Knowledge base</a><h1>${escapeHTML(doc.title || doc.filename)}</h1><p class="subheading">${escapeHTML(doc.filename)} · Version ${escapeHTML(selected)}</p></div></div>
       ${alertHTML(state.error)}${alertHTML(state.success, true)}
+      ${(doc.extraction_warnings || []).length ? `<section class="alert warning" role="status"><strong>Extraction notes</strong><ul>${doc.extraction_warnings.map((warning) => `<li>${escapeHTML(warning)}</li>`).join("")}</ul></section>` : ""}
       <div class="detail-grid"><section class="card detail-main"><div class="page-head"><div><h2>Extracted content</h2><p class="small-text muted">Text segments indexed for search. This view does not display the original file layout.</p></div></div>
         ${state.loading && !state.chunks.length ? `<p class="busy">Loading document content…</p>` : state.chunks.length ? state.chunks.map((chunk) => `<article class="chunk"><div class="chunk-meta">Chunk ${escapeHTML(chunk.chunk_index + 1)} · ${escapeHTML(chunk.token_count ?? "")} tokens</div><p class="chunk-text">${escapeHTML(chunk.content)}</p></article>`).join("") : `<p class="muted small-text">No extracted text is available for this version.</p>`}
         ${state.chunks.length === state.chunksLimit ? `<div style="padding-top:12px"><button class="button secondary small" data-action="more-chunks" type="button">Load more content</button></div>` : ""}
@@ -417,6 +447,7 @@
     if (route === "/login") return authPage(false);
     if (route === "/register") return authPage(true);
     if (route === "/ask") return renderAsk();
+    if (route === "/reports") return renderReports();
     if (route === "/documents") {
       state.documentsOffset = Math.max(0, state.documentsOffset);
       return loadDocuments();
@@ -518,6 +549,7 @@
         question: result.question || cleaned,
         answer: result.answer || "The platform returned an empty answer.",
         sources: Array.isArray(result.sources) ? result.sources : [],
+        verification: result.verification || null,
       };
     } catch (error) {
       state.messages.pop();
@@ -527,6 +559,28 @@
       renderAsk();
       document.getElementById("question")?.focus();
       window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+  }
+
+  async function generateReport(form) {
+    const values = new FormData(form);
+    const question = String(values.get("question") || "").trim();
+    if (!question || state.loading) return;
+    state.loading = true;
+    state.error = "";
+    state.report = null;
+    renderReports();
+    try {
+      state.report = await api("/reports/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question, title: String(values.get("title") || "").trim() || null }),
+      });
+    } catch (error) {
+      state.error = safeError(error);
+    } finally {
+      state.loading = false;
+      renderReports();
     }
   }
 
@@ -650,6 +704,8 @@
       ask(new FormData(form).get("question"));
     } else if (form.id === "upload-form") {
       uploadFiles();
+    } else if (form.id === "report-form") {
+      generateReport(form);
     } else if (form.classList.contains("feedback-form")) {
       submitFeedback(Number(form.dataset.index), form);
     }
@@ -677,7 +733,7 @@
     if (button.dataset.citation) {
       const target = button.closest(".answer-block")?.querySelector(
         `[data-source-number="${CSS.escape(button.dataset.citation)}"]`,
-      );
+      ) || document.getElementById(`report-source-${button.dataset.citation}`);
       if (target) {
         target.scrollIntoView({ behavior: "smooth", block: "center" });
         target.classList.add("highlight");
@@ -686,10 +742,35 @@
       return;
     }
     switch (button.dataset.action) {
+      case "toggle-password": {
+        const input = document.getElementById(button.dataset.target);
+        if (!input) break;
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        const label = show ? button.dataset.hideLabel : button.dataset.showLabel;
+        button.setAttribute("aria-label", label);
+        button.setAttribute("title", label);
+        button.innerHTML = show
+          ? '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a16 16 0 0 1-3.1 3.8M6.2 6.2C3.5 8.1 2 12 2 12s3.6 7 10 7a10 10 0 0 0 3-.5"/></svg>'
+          : '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+        input.focus({ preventScroll: true });
+        break;
+      }
       case "signout": saveSession(null); state.messages = []; state.error = ""; navigate("/login"); break;
       case "docs-prev": state.documentsOffset = Math.max(0, state.documentsOffset - state.documentsLimit); await loadDocuments(); break;
       case "docs-next": state.documentsOffset += state.documentsLimit; await loadDocuments(); break;
       case "new-question": state.messages = []; state.error = ""; renderAsk(); break;
+      case "download-report": {
+        if (!state.report) break;
+        const url = URL.createObjectURL(new Blob([state.report.markdown], { type: "text/markdown;charset=utf-8" }));
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `${(state.report.title || "grounded-report").replace(/[^a-z0-9-_]+/gi, "-").replace(/^-|-$/g, "") || "grounded-report"}.md`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+        break;
+      }
+      case "print-report": window.print(); break;
       case "feedback-select": {
         const message = state.messages[Number(button.dataset.index)];
         if (message && !message.feedbackSubmitted) {

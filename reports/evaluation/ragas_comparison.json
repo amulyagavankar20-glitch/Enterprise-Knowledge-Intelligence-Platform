@@ -1,0 +1,72 @@
+{
+  "evaluation": "optional RAGAS local Ollama estimate",
+  "created_at_utc": "2026-10-25T08:57:00.432017+00:00",
+  "comparison": {
+    "baseline": {
+      "faithfulness": null,
+      "answer_relevancy": null,
+      "context_precision": null,
+      "context_recall": null
+    },
+    "improved": {
+      "faithfulness": null,
+      "answer_relevancy": null,
+      "context_precision": null,
+      "context_recall": null
+    }
+  },
+  "deltas": {
+    "faithfulness": null,
+    "answer_relevancy": null,
+    "context_precision": null,
+    "context_recall": null
+  },
+  "runs": [
+    {
+      "label": "baseline",
+      "source_file": "enterprise_rag_baseline_results.json",
+      "case_count": 34,
+      "scores": {
+        "faithfulness": null,
+        "answer_relevancy": null,
+        "context_precision": null,
+        "context_recall": null
+      },
+      "failure": {
+        "category": "ModuleNotFoundError"
+      },
+      "model_snapshot": {
+        "judge": "qwen3.5:4b",
+        "embedding": "BAAI/bge-large-en-v1.5",
+        "dataset_id": "enterprise-rag-v1",
+        "dataset_version": 1
+      }
+    },
+    {
+      "label": "improved",
+      "source_file": "enterprise_rag_evaluation_results.json",
+      "case_count": 34,
+      "scores": {
+        "faithfulness": null,
+        "answer_relevancy": null,
+        "context_precision": null,
+        "context_recall": null
+      },
+      "failure": {
+        "category": "ModuleNotFoundError"
+      },
+      "model_snapshot": {
+        "judge": "qwen3.5:4b",
+        "embedding": "BAAI/bge-large-en-v1.5",
+        "dataset_id": "enterprise-rag-v1",
+        "dataset_version": 1
+      }
+    }
+  ],
+  "limitations": [
+    "RAGAS scores are model-based estimates and are not proof of correctness or citation entailment.",
+    "References are generated from expected-fact phrases and are approximate; context recall/precision should be interpreted cautiously.",
+    "Baseline deltas are only meaningful for the same versioned dataset, evaluator/model, and compatible configuration.",
+    "No documents or evaluation payloads are sent to an external provider by this script."
+  ]
+}

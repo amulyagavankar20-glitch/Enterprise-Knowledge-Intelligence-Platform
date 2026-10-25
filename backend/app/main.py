@@ -10,6 +10,7 @@ from app.api.routes.auth import router as auth_router
 from app.api.routes.feedback import router as feedback_router
 from app.api.routes.documents import router as documents_router
 from app.api.routes.query import router as query_router
+from app.api.routes.reports import router as reports_router
 from app.services.structured_logging import install_observability
 
 app = FastAPI(
@@ -24,6 +25,7 @@ if "*" not in ALLOWED_HOSTS:
 
 app.include_router(documents_router, prefix="/api/v1")
 app.include_router(query_router, prefix="/api/v1")
+app.include_router(reports_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(feedback_router, prefix="/api/v1")
 app.include_router(audit_router, prefix="/api/v1")

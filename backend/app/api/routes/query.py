@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 
 from app.db.dependencies import get_db
 from app.db.models import User
+from app.services.audit import record_audit
 from app.services.auth import get_current_user
 from app.services.generation import answer_question
-from app.services.audit import record_audit
 from app.services.rate_limit import enforce_rate_limit
 
 router = APIRouter(prefix="/query", tags=["RAG Query"])
@@ -28,6 +28,8 @@ def query_documents(
             is_admin=user.role == "admin",
             question=question,
         )
+        telemetry = result.pop("_telemetry", {})
+        verification = result.get("verification", {})
         record_audit(
             db,
             actor_id=user.id,
@@ -37,6 +39,16 @@ def query_documents(
                 "question_length": len(question),
                 "retrieved_count": result.get("retrieved_count", 0),
                 "model": result.get("model"),
+                "source_document_ids": [
+                    source.get("document_id") for source in result.get("sources", [])
+                ],
+                "verification_status": verification.get("status"),
+                "verification_attempts": verification.get("attempts", 0),
+                "verification_claim_count": verification.get("claim_count", 0),
+                "verification_latency_ms": telemetry.get("verification_latency_ms", 0),
+                "prompt_injection_signal_count": telemetry.get(
+                    "prompt_injection_signal_count", 0
+                ),
             },
         )
         return result

@@ -3,8 +3,7 @@ from unittest.mock import Mock
 from uuid import uuid4
 
 import pytest
-
-from app.db.models import Document, DocumentChunk, DocumentVersion, User
+from app.db.models import Document, DocumentChunk, DocumentFile, DocumentVersion, User
 from app.services import ingestion
 from app.services.extraction import extract_text
 
@@ -151,8 +150,7 @@ def mock_ingestion_work(monkeypatch):
     monkeypatch.setattr(ingestion, "count_tokens", lambda chunk: 4)
 
 
-def test_new_ingestion_persists_original_and_token_count(tmp_path, monkeypatch):
-    monkeypatch.setenv("DOCUMENT_STORAGE_DIR", str(tmp_path))
+def test_new_ingestion_persists_original_in_database_and_token_count(monkeypatch):
     mock_ingestion_work(monkeypatch)
     owner = SimpleNamespace(is_active=True)
     db = IngestionSession(owner, [QueryChain(), QueryChain()])
@@ -162,16 +160,17 @@ def test_new_ingestion_persists_original_and_token_count(tmp_path, monkeypatch):
     )
 
     version = next(item for item in db.added if isinstance(item, DocumentVersion))
+    original = next(item for item in db.added if isinstance(item, DocumentFile))
     chunk = next(item for item in db.added if isinstance(item, DocumentChunk))
-    path = ingestion.Path(tmp_path) / version.storage_path
     assert result["version_number"] == 1
-    assert path.read_bytes() == b"original bytes"
+    assert original.version_id == version.id
+    assert original.content == b"original bytes"
+    assert version.storage_path.startswith("database://")
     assert chunk.token_count == 4
     assert db.committed
 
 
-def test_changed_upload_creates_next_version_and_archives_previous(tmp_path, monkeypatch):
-    monkeypatch.setenv("DOCUMENT_STORAGE_DIR", str(tmp_path))
+def test_changed_upload_creates_next_database_file_version_and_archives_previous(monkeypatch):
     mock_ingestion_work(monkeypatch)
     owner_id = uuid4()
     document = Document(
@@ -192,11 +191,12 @@ def test_changed_upload_creates_next_version_and_archives_previous(tmp_path, mon
     assert result["version_number"] == 2
     assert document.current_version == 2
     assert prior_version.status == "archived"
+    original = next(item for item in db.added if isinstance(item, DocumentFile))
+    assert original.content == b"new bytes"
     assert db.committed
 
 
-def test_failed_commit_removes_new_original_file(tmp_path, monkeypatch):
-    monkeypatch.setenv("DOCUMENT_STORAGE_DIR", str(tmp_path))
+def test_failed_commit_rolls_back_original_file_row(monkeypatch):
     mock_ingestion_work(monkeypatch)
     db = IngestionSession(
         SimpleNamespace(is_active=True),
@@ -207,5 +207,5 @@ def test_failed_commit_removes_new_original_file(tmp_path, monkeypatch):
         ingestion.ingest_document(
             db, owner_id=uuid4(), filename="rollback.txt", content=b"temporary"
         )
-    assert not list(tmp_path.rglob("rollback.txt"))
+    assert any(isinstance(item, DocumentFile) for item in db.added)
     assert db.rolled_back

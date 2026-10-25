@@ -14,7 +14,7 @@ from app.services import auth
 
 
 def test_frontend_assets_are_served_with_security_headers():
-    client = TestClient(app)
+    client = TestClient(app, base_url="http://localhost")
     page = client.get("/")
     script = client.get("/app.js")
     assert page.status_code == 200
@@ -64,7 +64,7 @@ def test_feedback_is_authenticated_scoped_and_audited_without_answer_text(monkey
     app.dependency_overrides[get_db] = override_db
     token = auth.create_access_token(user.id)
     try:
-        client = TestClient(app)
+        client = TestClient(app, base_url="http://localhost")
         response = client.post(
             "/api/v1/feedback",
             headers={"Authorization": f"Bearer {token}"},

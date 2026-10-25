@@ -1,3 +1,5 @@
+import evaluate_rag
+from app.services.rag import RERANKER_SCORE_THRESHOLD
 from evaluate_rag import (
     TEST_CASES,
     answer_looks_like_abstention,
@@ -6,9 +8,9 @@ from evaluate_rag import (
     fact_coverage,
     normalize_fact,
 )
-import evaluate_rag
-from setup_test_data import answer_looks_like_abstention as smoke_answer_looks_like_abstention
-from app.services.rag import RERANKER_SCORE_THRESHOLD
+from setup_test_data import (
+    answer_looks_like_abstention as smoke_answer_looks_like_abstention,
+)
 
 
 def test_fact_normalization_handles_space_and_punctuation_variants():
@@ -62,6 +64,15 @@ def test_saved_policy_failure_requires_specific_procedure_term(monkeypatch):
             "qwen3.5:4b",
         ),
     )
+    monkeypatch.setattr(
+        evaluate_rag,
+        "answer_question",
+        lambda *args, **kwargs: {
+            "answer": "At least one engineer must review and approve the change [Source 1].",
+            "model": "qwen3.5:4b",
+            "verification": {"status": "verified"},
+        },
+    )
     row = evaluate_case(None, case)
     assert row["answer_expected_facts_matched_count"] == 2
     assert row["answer_expected_fact_coverage_approximate"] == 2 / 3
@@ -91,6 +102,15 @@ def test_unsupported_retrieved_context_can_still_be_correctly_abstained(monkeypa
             "The document does not contain the CEO's personal phone number [Source 1].",
             "qwen3.5:4b",
         ),
+    )
+    monkeypatch.setattr(
+        evaluate_rag,
+        "answer_question",
+        lambda *args, **kwargs: {
+            "answer": "The document does not contain the CEO's personal phone number [Source 1].",
+            "model": "qwen3.5:4b",
+            "verification": {"status": "abstained"},
+        },
     )
     row = evaluate_case(None, case)
     assert row["retrieval_success_at_k"] is None

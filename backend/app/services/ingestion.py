@@ -1,19 +1,15 @@
 ﻿
 import hashlib
-import logging
 import uuid
 from pathlib import Path
 from typing import Any
 
 from sqlalchemy.orm import Session
 
-from app.db.models import Document, DocumentChunk, DocumentVersion, User
+from app.db.models import Document, DocumentChunk, DocumentFile, DocumentVersion, User
 from app.services.chunking import chunk_text
-from app.services.document_storage import persist_original, remove_original
 from app.services.embeddings import count_tokens, embed_texts
 from app.services.extraction import extract_text
-
-logger = logging.getLogger(__name__)
 
 
 def ingest_document(
@@ -41,7 +37,6 @@ def ingest_document(
 
     checksum = hashlib.sha256(content).hexdigest()
 
-    stored_path: str | None = None
     try:
         # Validate the owner before processing the file.
         owner = db.get(User, owner_id)
@@ -96,7 +91,8 @@ def ingest_document(
                 }
 
         # Extract text and split it into chunks.
-        text = extract_text(safe_filename, content)
+        extraction_warnings: list[str] = []
+        text = extract_text(safe_filename, content, extraction_warnings)
         chunks = chunk_text(
             text,
             chunk_size=chunk_size,
@@ -140,6 +136,7 @@ def ingest_document(
                     "file_size_bytes": len(content),
                     "sha256": checksum,
                     "chunk_count": len(chunks),
+                    "extraction_warnings": extraction_warnings,
                 },
             )
             db.add(document)
@@ -160,21 +157,18 @@ def ingest_document(
             previous_version.status = "archived"
             document.status = "processing"
 
-        stored_path = persist_original(
-            document_id=document.id,
-            version_number=version_number,
-            filename=safe_filename,
-            content=content,
-        )
         version = DocumentVersion(
             document_id=document.id,
             version_number=version_number,
             checksum=checksum,
-            storage_path=stored_path,
+            # Retained only as a marker; legacy filesystem paths are consumed
+            # by scripts/migrate_document_files.py and never used by the API.
+            storage_path=f"database://{document.id}/{version_number}",
             status="completed",
         )
         db.add(version)
         db.flush()
+        db.add(DocumentFile(version_id=version.id, content=content))
 
         # Save chunks and their embeddings.
         for index, (chunk, vector, token_count) in enumerate(
@@ -203,10 +197,10 @@ def ingest_document(
             "file_size_bytes": len(content),
             "sha256": checksum,
             "chunk_count": len(chunks),
+            "extraction_warnings": extraction_warnings,
         }
         document.status = "completed"
         db.commit()
-        stored_path = None
 
         return {
             "document_id": str(document.id),
@@ -218,13 +212,9 @@ def ingest_document(
             "embedding_dimension": len(vectors[0]),
             "checksum": checksum,
             "duplicate": False,
+            "extraction_warnings": extraction_warnings,
         }
 
     except Exception:
         db.rollback()
-        if stored_path is not None:
-            try:
-                remove_original(stored_path)
-            except OSError:
-                logger.warning("Could not remove an uncommitted document file")
         raise

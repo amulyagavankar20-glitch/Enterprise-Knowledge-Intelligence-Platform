@@ -1,0 +1,83 @@
+# LLM Engineering Audit
+
+Audit date: 2026-10-25
+
+## Architecture and request flow
+
+```mermaid
+flowchart LR
+  UI[Same-origin browser app] --> API[FastAPI routes]
+  API --> AUTH[JWT user and role]
+  API --> EXTRACT[DOCX tables, PDF text/page markers, optional OCR]
+  EXTRACT --> ING[Chunking and BGE embeddings]
+  ING --> DB[(PostgreSQL + pgvector)]
+  API --> RET[Owner-filtered vector + PostgreSQL full-text search]
+  RET --> RRF[Reciprocal rank fusion]
+  RRF --> RERANK[BGE cross-encoder]
+  RERANK --> CTX[Threshold, dedupe, source numbering]
+  CTX --> OLLAMA[Local Ollama generation]
+  OLLAMA --> VERIFY[Claim/source verification, one retry]
+  VERIFY --> API
+  API --> UI
+  UI --> REPORT[Authenticated structured report]
+  REPORT --> VERIFY
+  API --> REDIS[(Shared rate limit counters)]
+```
+
+The query and report routes obtain identity from an active JWT-backed database user. Retrieval paths filter by `documents.owner_id` (admins intentionally search across owners), select the current completed document version, and return passages to local Ollama. Generated claims undergo deterministic citation-ID checks and an optional local verifier estimate. The report route reuses this verified answer path and assembles Markdown; the dependency-free frontend can download Markdown or print to PDF. PostgreSQL stores users, document/version metadata, chunks, embeddings, and, after the new migration is applied, originals in `document_files`. Redis supports shared rate limiting.
+
+## Feature inventory
+
+| Area | Status | Evidence and limits |
+|---|---|---|
+| Upload, versioning, duplicate detection | Implemented | Authenticated PDF/DOCX/TXT/Markdown uploads, 20 MiB limit, SHA-256 duplicate detection, per-owner versions, rollback, and tests. |
+| Original file persistence | Implemented in code; migration pending | New originals are PostgreSQL `LargeBinary` rows keyed by version. `scripts/migrate_document_files.py` imports and verifies legacy files but has not been run against the user's database. The API has no local-file fallback. |
+| Extraction | Partial | TXT/Markdown UTF-8; PDF selectable text via pypdf with page markers; DOCX paragraphs and ordered table rows. PDF tables are not semantically parsed. Scanned-page OCR is opt-in and requires external local Tesseract/Poppler binaries; images/charts are not interpreted. |
+| Embeddings and retrieval | Implemented | `BAAI/bge-large-en-v1.5` (1024 dimensions), PostgreSQL pgvector and English FTS, RRF, `BAAI/bge-reranker-base`, current-version and owner filters, exact-content deduplication. |
+| Retrieval calibration | Partial | Current fallback reranker threshold is `0.1`; the saved 31-case run records `0.001`. The threshold sweep post-filters only the already-returned top five and is not a full-pipeline comparison. The current report records 31 cases, Recall@5 1.0, MRR/nDCG 1.0 and 100% phrase-based pass; unsupported empty retrieval is 0.75. These figures do not prove semantic correctness. |
+| Answer generation | Implemented | Ollama only (`qwen3.5:4b` default), separate system/user messages, context described as untrusted, evidence abstention when retrieval is empty, citations constrained to returned source numbers, safe upstream errors. |
+| Prompt injection resistance | Partial | Context is explicitly untrusted in the system prompt and is not interpolated into the system message. No adversarial query/document regression suite or layered input risk handling exists. A prompt alone cannot guarantee resistance. |
+| Citation/claim verification | Implemented with limits | Deterministic source-label membership checks plus optional per-claim local Ollama estimate against cited passages and retrieved contradictory passages; one constrained retry, then abstention. It is not proven hallucination detection. |
+| Evaluation | Partial | Fixed versioned 34-case suite with direct, paraphrase, multi-fact, multi-document, adversarial-input, unsupported/incomplete-evidence, retrieval/rank, lexical expected-fact, citation, abstention and latency checks. Conflicting-evidence behavior is covered by a deterministic mocked verifier regression, not a live conflicting corpus fixture. Optional RAGAS script is local-Ollama/BGE and optional dependencies; no current RAGAS run or comparable saved baseline exists. Labels remain document-level, not chunk-level. |
+| Reports | Implemented, export/UI checks pending | Authenticated report endpoint calls the verified answer service, validates citation IDs and returns structured Markdown; browser can download Markdown or print/save PDF. Reports are generated on demand, not persisted. |
+| Knowledge graph | Missing; not justified yet | Current fixtures and metrics do not establish a multi-hop failure requiring a graph. A Neo4j service would add operational and authorization burden without demonstrated benefit. |
+| Authentication and authorization | Implemented with known deployment limitations | Argon2 password hashes, short-lived JWT, active-user lookup, member-only self-registration, admin-only audit. `DocumentAccess` sharing is not implemented; admin can access every document. No MFA, refresh, recovery, or SSO. |
+| Observability | Partial | Request ID, path/status/duration JSON logs; audit metadata and feedback. No retrieval-source metrics, verification events, or phase latencies are logged as a unified trace. Prompt/context bodies are intentionally omitted. |
+| Frontend | Implemented, browser verification outstanding | Login/signup, password visibility, document library/upload/detail/version/download/delete, grounded chat/citations, reports, feedback, admin audit. Browser keyboard, screen-reader, responsive, print/export, and cross-browser behavior remain unverified. |
+| Deployment | Local/Compose baseline | Docker/Compose, PostgreSQL, Redis, Ollama, model cache, health checks. No live build, database migration/import, restore, TLS proxy, or production load test was performed in this audit. |
+
+## Prompt and citation behavior
+
+Generation instructions require evidence-only answers, explicit abstention, and source labels. Retrieved passages and the user question are both in a user-role message while the system instruction is separate; this is an improvement over placing retrieved data in the system prompt, but untrusted text still reaches the same model request. There is no independently enforced prompt-injection detector. Generation removes nonexistent source labels and rejects an answer without a valid label when sources exist. This validates label integrity only; it does not establish entailment.
+
+## Data and storage design
+
+PostgreSQL owns document/version metadata, chunks, vectors, and new original-file blobs. Original bytes are limited to 20 MiB per upload. Legacy `stored_documents/` content requires the explicit checksum-verifying importer; files are retained by that utility. Extraction currently produces one flattened text string and chunk metadata has filename/index but no page/table provenance. Token counts use the BGE tokenizer. The existing `DocumentAccess` table has no application-level sharing flow.
+
+## Evaluation interpretation
+
+The checked-in JSON predates the current evaluation schema and cannot be used as a RAGAS input. Re-run `scripts/evaluate_rag.py` to write the current versioned 34-case result with contexts and approximate expected references. Expected-source labels remain document-level; lexical checks and RAGAS estimates do not prove factual correctness or citation entailment. The threshold sweep remains post-filter-only. No RAGAS result or baseline comparison should be claimed until both compatible runs have actually been scored.
+
+## Security and technical debt
+
+- JWT `sub` resolves to an active database user on every protected request; public identity is not client-supplied. Admin role and client address trust depend on deployment/database configuration.
+- Prompt-injection handling relies on system instructions, structured JSON separation, and an advisory pattern counter; prompt injection cannot be reliably detected by regex. Retrieved passages remain untrusted model input.
+- Citation membership is not citation support; a sentence can still be unsupported despite a valid label.
+- The 20 MiB file limit bounds but does not eliminate PostgreSQL blob growth. Backups/restore must include `document_files`.
+- A failed PostgreSQL migration/import must leave legacy files untouched. The utility is designed to retain them, but live-database operation remains unverified.
+- Existing evaluation docs contain historical metric values and must remain explicitly tied to the JSON run/configuration they describe.
+- Browser keyboard, screen-reader, responsive, and cross-browser behavior remains unverified.
+
+## Incremental implementation plan and file impact
+
+1. **RAG hardening:** implemented as described above; focused tests exist. Model-based checks remain heuristic and optional.
+2. **Evaluation:** optional RAGAS adapter/extra dependencies and version metadata added. Historical baseline has no current dataset/context schema, so a like-for-like comparison requires two new runs against the same dataset and settings.
+3. **Reports:** authenticated endpoint, service, Markdown output and frontend page added. PDF is user-triggered browser print/save; no server-side PDF renderer or report persistence.
+4. **Document understanding:** DOCX table rows and PDF page markers are retrievable; OCR is opt-in and the Tesseract/Poppler binaries and live scanned-PDF path are not installed/verified here. PDF tables, charts/images, OCR confidence warnings, and per-chunk structured provenance remain incomplete.
+5. **GraphRAG assessment:** deferred. Current five-document use case and fixed evaluation do not demonstrate a multi-hop retrieval failure sufficient to justify a graph store. The multi-document case is an initial signal only, not enough for graph integration.
+
+No embedding model, hybrid retrieval architecture, database engine, or answer-generation provider change is proposed.
+
+## Audit verification baseline
+
+The pre-change local test baseline was 70 passing tests. Newly added test suites and code changes require a fresh run before declaring acceptance. Tests mostly mock provider/session behavior; they do not prove migrations, OCR binaries, reports in a browser, or RAGAS scoring against live local services.

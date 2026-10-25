@@ -1,13 +1,13 @@
 ﻿
 import os
+import re
 import uuid
 from typing import Any
 
 from sqlalchemy.orm import Session
 
-from app.services.retrieval import hybrid_search
 from app.services.reranking import rerank_results
-
+from app.services.retrieval import hybrid_search
 
 # Provisional threshold; calibrate using a larger evaluation dataset.
 RERANKER_SCORE_THRESHOLD = float(
@@ -83,6 +83,11 @@ def retrieve_context(
             "chunk_index": item["chunk_index"],
             "reranker_score": float(item["reranker_score"]),
             "content": item["content"],
+            "page_numbers": sorted({
+                int(value) for value in re.findall(
+                    r"\[Page\s+(\d+)\]", item["content"], re.IGNORECASE
+                )
+            }),
             "source_number": index,
         }
         for index, item in enumerate(unique_ranked, start=1)

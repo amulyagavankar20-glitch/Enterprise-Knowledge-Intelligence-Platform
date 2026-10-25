@@ -1,0 +1,2 @@
+# Optional judge/evaluation stack; keep out of the core API environment.
+ragas==0.4.3

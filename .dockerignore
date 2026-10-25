@@ -11,7 +11,8 @@
 backend/tests/
 docs/
 reports/
-scripts/
+scripts/*
+!scripts/migrate_document_files.py
 frontend/designs/
 stored_documents
 test_data

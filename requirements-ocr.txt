@@ -1,0 +1,4 @@
+# Optional scanned-PDF support. Also requires Poppler and the Tesseract OCR
+# executable to be installed locally; see docs/DEPLOYMENT.md.
+pdf2image
+pytesseract

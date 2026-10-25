@@ -1,8 +1,6 @@
 import httpx
 import pytest
-
 from app.services import evaluation_judge
-
 
 GOOD_JUDGMENT = {
     "answer_addresses_question": True,
@@ -28,8 +26,12 @@ def test_judge_rejects_malformed_or_untyped_output(content):
         evaluation_judge.parse_judgment(content)
 
 
+def test_judge_rejects_non_text_output():
+    with pytest.raises(TypeError, match="must be text"):
+        evaluation_judge.parse_judgment(None)
+
+
 def test_ollama_judge_explicitly_disables_thinking_and_uses_json(monkeypatch):
-    monkeypatch.setenv("GENERATION_PROVIDER", "ollama")
     captured = {}
 
     def mock_post(url, **kwargs):
@@ -62,7 +64,6 @@ def test_ollama_judge_explicitly_disables_thinking_and_uses_json(monkeypatch):
 def test_judge_timeout_returns_safe_error(monkeypatch, caplog):
     import logging
 
-    monkeypatch.setenv("GENERATION_PROVIDER", "ollama")
     monkeypatch.setattr(
         evaluation_judge.httpx,
         "post",
@@ -70,10 +71,11 @@ def test_judge_timeout_returns_safe_error(monkeypatch, caplog):
             httpx.TimeoutException("private fixture text")
         ),
     )
-    with caplog.at_level(logging.WARNING, logger="app.services.evaluation_judge"):
-        with pytest.raises(RuntimeError, match="unavailable"):
-            evaluation_judge.judge_rag_answer(
-                question="q", answer="a", context="private fixture text",
-                expected_answerable=True,
-            )
+    with caplog.at_level(
+        logging.WARNING, logger="app.services.evaluation_judge"
+    ), pytest.raises(RuntimeError, match="unavailable"):
+        evaluation_judge.judge_rag_answer(
+            question="q", answer="a", context="private fixture text",
+            expected_answerable=True,
+        )
     assert "private fixture text" not in caplog.text

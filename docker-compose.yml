@@ -51,18 +51,18 @@ services:
       REDIS_URL: redis://redis:6379/0
       RATE_LIMIT_REDIS_REQUIRED: "true"
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
-      GENERATION_PROVIDER: ${GENERATION_PROVIDER:-ollama}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3.5:4b}
       OLLAMA_API_URL: ${OLLAMA_CONTAINER_API_URL:-http://host.docker.internal:11434/api/chat}
       OLLAMA_TIMEOUT_SECONDS: ${OLLAMA_TIMEOUT_SECONDS:-120}
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
-      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-openrouter/free}
+      RAG_CLAIM_VERIFICATION_ENABLED: ${RAG_CLAIM_VERIFICATION_ENABLED:-true}
+      RAG_VERIFIER_MODEL: ${RAG_VERIFIER_MODEL:-}
+      DOCUMENT_OCR_ENABLED: ${DOCUMENT_OCR_ENABLED:-false}
       DOCUMENT_STORAGE_DIR: /app/stored_documents
       HF_HOME: /home/eki/.cache/huggingface
     ports:
       - "127.0.0.1:8000:8000"
     volumes:
-      - ./stored_documents:/app/stored_documents
+      - ./stored_documents:/app/stored_documents:ro
       - hf_cache:/home/eki/.cache/huggingface
     healthcheck:
       test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/health', timeout=3)"]

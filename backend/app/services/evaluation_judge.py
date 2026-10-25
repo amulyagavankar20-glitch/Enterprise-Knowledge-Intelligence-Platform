@@ -12,7 +12,7 @@ from typing import Any
 
 import httpx
 
-from app.services.generation import API_URL, OLLAMA_API_URL
+from app.services.generation import OLLAMA_API_URL
 
 logger = logging.getLogger(__name__)
 JUDGMENT_FIELDS = (
@@ -25,9 +25,11 @@ JUDGMENT_FIELDS = (
 
 def parse_judgment(content: Any) -> dict[str, bool]:
     if not isinstance(content, str):
-        raise ValueError("Judge output must be text.")
+        raise TypeError("Judge output must be text.")
     cleaned = content.strip()
-    cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.I)
+    cleaned = re.sub(
+        r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.IGNORECASE
+    )
     try:
         value = json.loads(cleaned)
     except ValueError as exc:
@@ -46,49 +48,22 @@ def judge_rag_answer(
     context: str,
     expected_answerable: bool,
 ) -> dict[str, Any]:
-    provider = os.getenv("GENERATION_PROVIDER", "ollama").strip().lower()
-    if provider not in {"ollama", "openrouter"}:
-        raise RuntimeError("Unsupported evaluation judge provider.")
-
-    if provider == "ollama":
-        model = os.getenv(
-            "EVAL_JUDGE_MODEL", os.getenv("OLLAMA_MODEL", "qwen3.5:4b")
-        )
-        url = os.getenv("OLLAMA_API_URL", OLLAMA_API_URL)
-        headers = {"Content-Type": "application/json"}
-        payload = {
-            "model": model,
-            "messages": _judge_messages(
-                question, answer, context, expected_answerable
-            ),
-            "think": False,
-            "stream": False,
-            "format": "json",
-            "options": {"temperature": 0, "num_predict": 300},
-        }
-        timeout = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))
-    else:
-        api_key = os.getenv("OPENROUTER_API_KEY")
-        if not api_key or api_key == "your_key_here":
-            raise RuntimeError("OpenRouter judge credentials are not configured.")
-        model = os.getenv(
-            "EVAL_JUDGE_MODEL", os.getenv("OPENROUTER_MODEL", "openrouter/free")
-        )
-        url = API_URL
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "model": model,
-            "messages": _judge_messages(
-                question, answer, context, expected_answerable
-            ),
-            "temperature": 0,
-            "max_tokens": 300,
-            "response_format": {"type": "json_object"},
-        }
-        timeout = 60.0
+    model = os.getenv(
+        "EVAL_JUDGE_MODEL", os.getenv("OLLAMA_MODEL", "qwen3.5:4b")
+    )
+    url = os.getenv("OLLAMA_API_URL", OLLAMA_API_URL)
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "model": model,
+        "messages": _judge_messages(
+            question, answer, context, expected_answerable
+        ),
+        "think": False,
+        "stream": False,
+        "format": "json",
+        "options": {"temperature": 0, "num_predict": 300},
+    }
+    timeout = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))
 
     try:
         response = httpx.post(
@@ -99,28 +74,25 @@ def judge_rag_answer(
     except httpx.HTTPStatusError as exc:
         logger.warning(
             "semantic_judge_http_error",
-            extra={"provider": provider, "status_code": exc.response.status_code},
+            extra={"provider": "ollama", "status_code": exc.response.status_code},
         )
         raise RuntimeError("Semantic judge request failed.") from exc
     except httpx.RequestError as exc:
         logger.warning(
             "semantic_judge_connection_error",
-            extra={"provider": provider, "error_type": type(exc).__name__},
+            extra={"provider": "ollama", "error_type": type(exc).__name__},
         )
         raise RuntimeError("Semantic judge is unavailable.") from exc
     except ValueError as exc:
-        logger.warning("semantic_judge_invalid_json", extra={"provider": provider})
+        logger.warning("semantic_judge_invalid_json", extra={"provider": "ollama"})
         raise RuntimeError("Semantic judge returned an invalid response.") from exc
 
     try:
-        if provider == "ollama":
-            message = data["message"]
-            content = message.get("content") if isinstance(message, dict) else None
-        else:
-            content = data["choices"][0]["message"].get("content")
+        message = data["message"]
+        content = message.get("content") if isinstance(message, dict) else None
         result = parse_judgment(content)
     except (KeyError, IndexError, TypeError, ValueError) as exc:
-        logger.warning("semantic_judge_invalid_output", extra={"provider": provider})
+        logger.warning("semantic_judge_invalid_output", extra={"provider": "ollama"})
         raise RuntimeError("Semantic judge returned an unexpected response.") from exc
 
     result["model"] = data.get("model") if isinstance(data.get("model"), str) else model

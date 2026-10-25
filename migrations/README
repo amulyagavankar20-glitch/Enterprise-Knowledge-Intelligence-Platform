@@ -1,1 +1,16 @@
-Generic single-database configuration.
+Database migrations
+===================
+
+Apply the schema, including the original-file table, from the repository root:
+
+    python -m alembic upgrade head
+
+After upgrading, import any legacy files in stored_documents/ and then verify
+all original-file blobs against their version checksums:
+
+    python scripts/migrate_document_files.py
+    python scripts/migrate_document_files.py --verify-only
+
+The utility never deletes or modifies local files. Retire legacy copies only
+after a clean verification and after confirming the database backup policy.
+The document_files downgrade refuses to drop stored file content.

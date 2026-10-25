@@ -15,6 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && chown -R eki:eki /app /home/eki
 
 COPY --chown=eki:eki backend/app ./backend/app
+COPY --chown=eki:eki scripts/migrate_document_files.py ./scripts/migrate_document_files.py
 COPY --chown=eki:eki migrations ./migrations
 COPY --chown=eki:eki alembic.ini ./alembic.ini
 COPY --chown=eki:eki frontend/index.html frontend/app.css frontend/app.js ./frontend/

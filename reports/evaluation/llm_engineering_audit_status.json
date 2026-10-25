@@ -1,0 +1,56 @@
+{
+  "artifact": "LLM engineering implementation and evaluation status",
+  "updated_at": "2026-10-25",
+  "dataset": {
+    "id": "enterprise-rag-v1",
+    "version": 1,
+    "case_count": 34
+  },
+  "automated_checks": {
+    "pytest": {
+      "command": "python -m pytest backend/tests -q --tb=short -p no:cacheprovider --basetemp .pytest-tmp-codex",
+      "status": "passed",
+      "passed": 98,
+      "failed": 0
+    },
+    "compileall": {"status": "passed"},
+    "ruff": {"status": "passed"}
+  },
+  "latest_complete_live_evaluation": {
+    "status": "pre-fix-baseline",
+    "artifact": "enterprise_rag_evaluation_results.json",
+    "case_count": 34,
+    "metrics": {
+      "overall_pass_rate": 0.5882,
+      "retrieval_success_recall_at_5": 1.0,
+      "mrr_by_expected_source_document": 1.0,
+      "ndcg_at_5_by_expected_source_document": 0.9867,
+      "answer_expected_fact_accuracy_approximate": 0.5172,
+      "citation_label_validity": 1.0,
+      "abstention_correctness": 1.0
+    },
+    "interpretation": "Fourteen answerable cases were withheld, mainly because generated claims lacked citation labels. These metrics were recorded before evidence-based source attribution was added."
+  },
+  "post_change_live_checks": {
+    "database": "available",
+    "ollama_health": "available",
+    "uncited_claim_source_mapping": "passed for a focused local Ollama check",
+    "full_34_case_evaluation": {
+      "status": "incomplete",
+      "reason": "Repeated Ollama HTTP 500 responses during answer generation and claim verification; no complete post-change metrics produced."
+    }
+  },
+  "ragas": {
+    "prior_run": "failed",
+    "prior_version": "0.2.15",
+    "prior_failure_category": "ModuleNotFoundError",
+    "scores": null,
+    "updated_runner_target": "0.4.3",
+    "dependency_upgrade": "not completed; pip dependency resolution was stopped before package changes"
+  },
+  "limitations": [
+    "Phrase-based expected-fact checks are approximate.",
+    "Local-model verifier and RAGAS results are estimates, not proof of correctness, faithfulness, or citation entailment.",
+    "No post-change 34-case evaluation completed."
+  ]
+}

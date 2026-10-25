@@ -2,15 +2,29 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 import pytest
-from fastapi import HTTPException
-from fastapi.testclient import TestClient
-from fastapi.security import HTTPAuthorizationCredentials
-from starlette.requests import Request
-
-from app.api.routes import documents, query as query_route
+from app.api.routes import (
+    audit as audit_route,
+)
+from app.api.routes import (
+    auth as auth_route,
+)
+from app.api.routes import (
+    documents,
+)
+from app.api.routes import (
+    feedback as feedback_route,
+)
+from app.api.routes import (
+    query as query_route,
+)
 from app.db.dependencies import get_db
-from app.db.models import Document, User
+from app.db.models import DocumentFile, User
 from app.services import auth, document_storage, rate_limit
+from fastapi import HTTPException
+from fastapi.routing import APIRoute
+from fastapi.security import HTTPAuthorizationCredentials
+from fastapi.testclient import TestClient
+from starlette.requests import Request
 
 
 def test_password_hashing_and_verification():
@@ -91,7 +105,7 @@ def test_register_and_login_routes_hash_passwords_and_issue_tokens(monkeypatch):
     email = f"member-{uuid4()}@example.com"
     password = "at-least-twelve-chars"
     try:
-        client = TestClient(app)
+        client = TestClient(app, base_url="http://localhost")
         registered = client.post(
             "/api/v1/auth/register",
             json={"email": email, "password": password},
@@ -124,7 +138,8 @@ def test_register_and_login_routes_hash_passwords_and_issue_tokens(monkeypatch):
 
 def test_non_admin_document_queries_are_owner_scoped():
     class Query:
-        clauses = []
+        def __init__(self):
+            self.clauses = []
 
         def filter(self, clause):
             self.clauses.append(clause)
@@ -176,25 +191,77 @@ def test_member_getting_another_users_document_returns_not_found():
     assert query.clauses[0].left.name == "owner_id"
 
 
-def test_document_storage_persists_and_removes_original(tmp_path, monkeypatch):
-    monkeypatch.setenv("DOCUMENT_STORAGE_DIR", str(tmp_path))
-    document_id = uuid4()
-    relative = document_storage.persist_original(
-        document_id=document_id,
-        version_number=2,
-        filename="policy.txt",
-        content=b"original file bytes",
+def test_document_storage_rejects_path_traversal(tmp_path):
+    assert document_storage.resolve_legacy_file("../../outside.txt", tmp_path) is None
+
+
+def test_document_download_returns_database_bytes_and_preserves_integrity(monkeypatch):
+    document = SimpleNamespace(
+        id=uuid4(), filename="policy.txt", content_type="text/plain", current_version=2
     )
-    target = document_storage.resolve_original(relative)
-    assert target is not None
-    assert target.read_bytes() == b"original file bytes"
-    document_storage.remove_document_files(document_id)
-    assert document_storage.resolve_original(relative) is None
+    version = SimpleNamespace(id=uuid4())
+    file_row = DocumentFile(version_id=version.id, content=b"original file bytes")
+
+    class Query:
+        def filter(self, *args):
+            return self
+
+        def first(self):
+            return version
+
+    db = SimpleNamespace(query=lambda model: Query(), get=lambda model, key: file_row)
+    user = SimpleNamespace(id=uuid4(), role="member")
+    def authorized_lookup(db_arg, user_arg, document_id):
+        assert db_arg is db
+        assert user_arg is user
+        assert document_id == document.id
+        return document
+
+    monkeypatch.setattr(documents, "_get_document", authorized_lookup)
+    monkeypatch.setattr(documents, "record_audit", lambda *args, **kwargs: None)
+
+    response = documents.download_document(document.id, db, user)
+
+    assert response.body == b"original file bytes"
+    assert response.media_type == "text/plain"
+    assert response.headers["content-disposition"].endswith("policy.txt")
 
 
-def test_document_storage_rejects_path_traversal(tmp_path, monkeypatch):
-    monkeypatch.setenv("DOCUMENT_STORAGE_DIR", str(tmp_path))
-    assert document_storage.resolve_original("../../outside.txt") is None
+def test_document_delete_uses_authorized_document_lookup_and_database_cascade(monkeypatch):
+    document = SimpleNamespace(id=uuid4())
+    user = SimpleNamespace(id=uuid4(), role="member")
+    calls = []
+
+    class VersionQuery:
+        def filter(self, *args):
+            return self
+
+        def delete(self, **kwargs):
+            calls.append(("delete_versions", kwargs))
+
+    db = SimpleNamespace(
+        query=lambda model: VersionQuery(),
+        delete=lambda row: calls.append(("delete", row)),
+        commit=lambda: calls.append(("commit", None)),
+        rollback=lambda: calls.append(("rollback", None)),
+    )
+
+    def authorized_lookup(db_arg, user_arg, document_id):
+        assert db_arg is db
+        assert user_arg is user
+        assert document_id == document.id
+        return document
+
+    monkeypatch.setattr(documents, "_get_document", authorized_lookup)
+    monkeypatch.setattr(documents, "record_audit", lambda *args, **kwargs: None)
+
+    documents.delete_document(document.id, db, user)
+
+    assert calls == [
+        ("delete_versions", {"synchronize_session": False}),
+        ("delete", document),
+        ("commit", None),
+    ]
 
 
 def test_rate_limiter_blocks_after_configured_limit(monkeypatch):
@@ -259,6 +326,37 @@ def test_public_query_no_longer_accepts_owner_id_form_field():
     assert "owner_id" not in query_route.query_documents.__annotations__
 
 
+def test_every_non_public_api_route_requires_authenticated_user():
+    public_routes = {
+        ("/api/v1/auth/register", "POST"),
+        ("/api/v1/auth/token", "POST"),
+    }
+    api_routers = (
+        documents.router,
+        query_route.router,
+        auth_route.router,
+        feedback_route.router,
+        audit_route.router,
+    )
+    protected_routes = [
+        route
+        for router in api_routers
+        for route in router.routes
+        if isinstance(route, APIRoute)
+        and not all(
+            (f"/api/v1{route.path}", method) in public_routes
+            for method in route.methods
+        )
+    ]
+
+    assert protected_routes
+    for route in protected_routes:
+        dependencies = {dependency.call for dependency in route.dependant.dependencies}
+        assert auth.get_current_user in dependencies, (
+            f"{route.path} must derive identity from the authenticated user"
+        )
+
+
 def test_query_identity_comes_from_bearer_token_not_form(monkeypatch):
     monkeypatch.setenv("JWT_SECRET_KEY", "x" * 48)
     user = SimpleNamespace(id=uuid4(), is_active=True, role="member")
@@ -277,7 +375,7 @@ def test_query_identity_comes_from_bearer_token_not_form(monkeypatch):
     monkeypatch.setattr(query_route, "answer_question", fake_answer)
     token = auth.create_access_token(user.id)
     try:
-        client = TestClient(app)
+        client = TestClient(app, base_url="http://localhost")
         unauthenticated = client.post(
             "/api/v1/query/", data={"question": "hello"}
         )
@@ -295,3 +393,50 @@ def test_query_identity_comes_from_bearer_token_not_form(monkeypatch):
         "is_admin": False,
         "question": "hello",
     }
+
+
+def test_upload_uses_authenticated_owner_and_rejects_unauthenticated_request(monkeypatch):
+    monkeypatch.setenv("JWT_SECRET_KEY", "x" * 48)
+    user = SimpleNamespace(id=uuid4(), is_active=True, role="member")
+    db = SimpleNamespace(
+        get=lambda model, identifier: user if model is User and identifier == user.id else None
+    )
+    app = __import__("app.main", fromlist=["app"]).app
+    captured = {}
+
+    def fake_ingest(db_arg, *, owner_id, **kwargs):
+        captured["owner_id"] = owner_id
+        return {
+            "document_id": str(uuid4()),
+            "version_number": 1,
+            "chunk_count": 1,
+            "duplicate": False,
+        }
+
+    monkeypatch.setattr(documents, "ingest_document", fake_ingest)
+    monkeypatch.setattr(documents, "enforce_rate_limit", lambda *args, **kwargs: None)
+    monkeypatch.setattr(documents, "record_audit", lambda *args, **kwargs: None)
+
+    def override_db():
+        yield db
+
+    app.dependency_overrides[get_db] = override_db
+    token = auth.create_access_token(user.id)
+    try:
+        client = TestClient(app, base_url="http://localhost")
+        anonymous = client.post(
+            "/api/v1/documents/upload",
+            files={"file": ("policy.txt", b"test", "text/plain")},
+        )
+        response = client.post(
+            "/api/v1/documents/upload",
+            headers={"Authorization": f"Bearer {token}"},
+            data={"owner_id": str(uuid4())},
+            files={"file": ("policy.txt", b"test", "text/plain")},
+        )
+    finally:
+        app.dependency_overrides.clear()
+
+    assert anonymous.status_code == 401
+    assert response.status_code == 201
+    assert captured["owner_id"] == user.id

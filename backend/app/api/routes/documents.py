@@ -1,24 +1,29 @@
-import logging
 import uuid
 from pathlib import Path
 from typing import Annotated
+from urllib.parse import quote
 
 from fastapi import (
-    APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile,
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
 )
-from fastapi.responses import FileResponse
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from app.db.dependencies import get_db
-from app.db.models import Document, DocumentChunk, DocumentVersion, User
-from app.services.auth import get_current_user
+from app.db.models import Document, DocumentChunk, DocumentFile, DocumentVersion, User
 from app.services.audit import record_audit
-from app.services.document_storage import remove_document_files, resolve_original
+from app.services.auth import get_current_user
 from app.services.ingestion import ingest_document
 from app.services.rate_limit import enforce_rate_limit
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
-logger = logging.getLogger(__name__)
 
 MAX_FILE_SIZE = 20 * 1024 * 1024
 ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
@@ -36,6 +41,23 @@ def _get_document(db: Session, user: User, document_id: uuid.UUID) -> Document:
     if document is None:
         raise HTTPException(status_code=404, detail="Document not found.")
     return document
+
+
+def _original_file_response(
+    db: Session, document: Document, version: DocumentVersion | None
+) -> Response:
+    stored = db.get(DocumentFile, version.id) if version is not None else None
+    if stored is None:
+        raise HTTPException(status_code=404, detail="Original file is unavailable.")
+    return Response(
+        content=stored.content,
+        media_type=document.content_type or "application/octet-stream",
+        headers={
+            "Content-Disposition": (
+                "attachment; filename*=UTF-8''" + quote(document.filename, safe="")
+            )
+        },
+    )
 
 
 @router.post("/upload", status_code=201)
@@ -154,6 +176,7 @@ def get_document(
         "content_type": document.content_type,
         "current_version": document.current_version,
         "chunk_count": chunk_count,
+        "extraction_warnings": (document.metadata_json or {}).get("extraction_warnings", []),
         "created_at": document.created_at,
         "updated_at": document.updated_at,
     }
@@ -226,7 +249,7 @@ def list_document_versions(
                 "checksum": version.checksum,
                 "status": version.status,
                 "created_at": version.created_at,
-                "original_available": resolve_original(version.storage_path) is not None,
+                "original_available": db.get(DocumentFile, version.id) is not None,
             }
             for version in versions
         ],
@@ -248,9 +271,7 @@ def download_document(
         )
         .first()
     )
-    path = resolve_original(version.storage_path) if version else None
-    if path is None:
-        raise HTTPException(status_code=404, detail="Original file is unavailable.")
+    response = _original_file_response(db, document, version)
     record_audit(
         db,
         actor_id=user.id,
@@ -259,11 +280,7 @@ def download_document(
         resource_id=str(document.id),
         details={"version_number": document.current_version},
     )
-    return FileResponse(
-        path,
-        media_type=document.content_type,
-        filename=document.filename,
-    )
+    return response
 
 
 @router.get("/{document_id}/versions/{version_number}/file")
@@ -282,9 +299,7 @@ def download_document_version(
         )
         .first()
     )
-    path = resolve_original(version.storage_path) if version else None
-    if path is None:
-        raise HTTPException(status_code=404, detail="Original file is unavailable.")
+    response = _original_file_response(db, document, version)
     record_audit(
         db,
         actor_id=user.id,
@@ -293,11 +308,7 @@ def download_document_version(
         resource_id=str(document.id),
         details={"version_number": version_number},
     )
-    return FileResponse(
-        path,
-        media_type=document.content_type,
-        filename=document.filename,
-    )
+    return response
 
 
 @router.delete("/{document_id}", status_code=204)
@@ -307,6 +318,11 @@ def delete_document(
     user: Annotated[User, Depends(get_current_user)],
 ):
     document = _get_document(db, user, document_id)
+    # Remove version rows first; their database FK cascades remove original
+    # file blobs. Chunks cascade from the document record itself.
+    db.query(DocumentVersion).filter(
+        DocumentVersion.document_id == document.id
+    ).delete(synchronize_session=False)
     db.delete(document)
     try:
         db.commit()
@@ -316,10 +332,6 @@ def delete_document(
             status_code=500,
             detail="Document deletion failed.",
         ) from exc
-    try:
-        remove_document_files(document_id)
-    except OSError:
-        logger.warning("Could not remove stored files for deleted document")
     record_audit(
         db,
         actor_id=user.id,
