@@ -197,12 +197,15 @@
     const verification = message.verification;
     const verificationNote = verification?.status === "verified"
       ? `<p class="verification-note" role="status">Local model estimate: cited evidence supports the answer. This is not a guarantee of correctness.</p>`
+      : verification?.status === "unavailable"
+        ? `<p class="verification-note warning" role="status">Local verification could not complete. This cited answer is unverified; inspect the evidence before relying on it.</p>`
       : verification?.status === "withheld"
-        ? `<p class="verification-note warning" role="status">The answer was withheld because its claims could not be supported by the cited evidence.</p>`
+        ? `<p class="verification-note warning" role="status">${verification.failure_category === "unsupported_or_contradicted_claims" ? "The answer was withheld because its claims could not be supported by the cited evidence." : "The answer was withheld because verification could not complete and the draft lacked a usable source citation."}</p>`
         : verification?.status === "not_run"
           ? `<p class="verification-note warning" role="status">Citation labels were checked; claim support estimation was not run.</p>`
           : "";
-    article.innerHTML = `<div class="answer-label ${declined ? "abstain" : ""}"><span class="dot" aria-hidden="true"></span>${declined ? "Insufficient evidence" : "Answer"}</div><div class="answer-text"></div>${verificationNote}${message.sources?.length ? `<details class="evidence-disclosure"><summary>View supporting evidence (${message.sources.length})</summary><div class="source-list"></div></details>` : ""}`;
+    const answerLabel = verification?.status === "unavailable" ? "Answer (unverified)" : "Answer";
+    article.innerHTML = `<div class="answer-label ${declined ? "abstain" : ""}"><span class="dot" aria-hidden="true"></span>${declined ? "Insufficient evidence" : answerLabel}</div><div class="answer-text"></div>${verificationNote}${message.sources?.length ? `<details class="evidence-disclosure"><summary>View supporting evidence (${message.sources.length})</summary><div class="source-list"></div></details>` : ""}`;
     article.querySelector(".answer-text").append(answerNodes(message.answer));
     const sourceList = article.querySelector(".source-list");
     (message.sources || []).forEach((source) => {

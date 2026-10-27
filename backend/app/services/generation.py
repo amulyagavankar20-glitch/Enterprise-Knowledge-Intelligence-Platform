@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.services.ollama_client import post_chat
 from app.services.rag import retrieve_context
-from app.services.verification import verify_answer
+from app.services.verification import SOURCE_LABEL, verify_answer
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 load_dotenv(PROJECT_ROOT / ".env")
@@ -264,9 +264,19 @@ def answer_question(
             answer = verification.pop("normalized_answer")
         attempts = 2
 
-    if verification["status"] in {"rejected", "error"}:
+    if verification["status"] == "rejected":
         answer = ABSTENTION
         verification["status"] = "withheld"
+    elif verification["status"] == "error":
+        # A verifier outage is not evidence that a cited draft is unsupported.
+        # Preserve it only as explicitly unverified; never let reports treat it
+        # as verified. Without a source label, fail closed as before.
+        if SOURCE_LABEL.search(answer):
+            verification["status"] = "unavailable"
+        else:
+            answer = ABSTENTION
+            verification["status"] = "withheld"
+            verification["failure_category"] = "verification_unavailable_without_citation"
 
     if not answer:
         answer = ABSTENTION

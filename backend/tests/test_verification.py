@@ -180,7 +180,7 @@ def test_verification_retries_transient_http_failure_then_fails_closed(monkeypat
     assert result["failure_category"] == "ollama_http_error"
 
 
-def test_answer_question_does_not_regenerate_when_verifier_is_unavailable(monkeypatch):
+def test_answer_question_shows_cited_draft_as_unverified_when_verifier_is_unavailable(monkeypatch):
     monkeypatch.setattr(
         generation, "retrieve_context",
         lambda *args, **kwargs: {
@@ -202,8 +202,34 @@ def test_answer_question_does_not_regenerate_when_verifier_is_unavailable(monkey
     )
     result = generation.answer_question(None, user_id=uuid4(), question="Where?")
     assert len(generated) == 1
+    assert result["answer"] == "Claim. [Source 1]"
+    assert result["verification"]["status"] == "unavailable"
+    assert result["verification"]["failure_category"] == "ollama_http_error"
+
+
+def test_answer_question_withholds_uncited_draft_when_verifier_is_unavailable(monkeypatch):
+    monkeypatch.setattr(
+        generation, "retrieve_context",
+        lambda *args, **kwargs: {
+            "question": "Where?", "context": "evidence", "sources": [SOURCE],
+        },
+    )
+    monkeypatch.setattr(
+        generation, "generate_answer", lambda *args, **kwargs: ("Uncited claim.", "qwen3.5:4b"),
+    )
+    monkeypatch.setattr(
+        generation, "verify_answer",
+        lambda **kwargs: {
+            "status": "error", "failure_category": "ollama_timeout",
+            "citation_integrity": "valid", "claim_support_estimate": "unavailable",
+            "claim_count": 1, "supported_claim_count": 0,
+        },
+    )
+
+    result = generation.answer_question(None, user_id=uuid4(), question="Where?")
     assert result["answer"] == generation.ABSTENTION
     assert result["verification"]["status"] == "withheld"
+    assert result["verification"]["failure_category"] == "verification_unavailable_without_citation"
 
 
 def test_context_injection_text_is_json_data_outside_system_instruction():
