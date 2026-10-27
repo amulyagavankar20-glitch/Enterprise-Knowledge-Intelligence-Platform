@@ -2,6 +2,43 @@
 
 Document-grounded company knowledge search with authenticated document management, hybrid retrieval, reranking, source citations, and local Ollama answer generation.
 
+## Architecture
+
+```mermaid
+flowchart LR
+    User[User] --> Browser[Browser UI<br/>served by FastAPI]
+    Browser --> API[FastAPI<br/>auth and API routes]
+
+    API --> Auth[JWT identity<br/>owner and role checks]
+    API --> RateLimit[Redis<br/>shared rate limits]
+
+    API --> Upload[Document upload]
+    Upload --> Extract[Text extraction<br/>PDF · DOCX · TXT · Markdown]
+    Extract --> Chunk[Chunking]
+    Chunk --> Embed[ BGE-large embeddings ]
+    Upload -->|original bytes and version| DB[(PostgreSQL + pgvector)]
+    Embed -->|chunks and vectors| DB
+
+    API --> Query[Question / report request]
+    Query --> Access[Owner-scoped document filter]
+    Access --> Vector[Vector search]
+    Access --> FullText[PostgreSQL full-text search]
+    Vector --> RRF[Reciprocal rank fusion]
+    FullText --> RRF
+    RRF --> Rerank[BGE cross-encoder reranker]
+    Rerank --> Select[Threshold, deduplication<br/>and context selection]
+    Select --> Generate[Ollama answer generation]
+    Generate --> Verify[Citation checks and<br/>claim support estimate]
+    Verify --> Result[Answer or abstention<br/>with source citations]
+    Result --> Browser
+
+    API --> Feedback[Feedback and audit events]
+    Feedback --> DB
+    Auth --> DB
+```
+
+FastAPI serves the UI and API from one origin. PostgreSQL stores users, document/version metadata, original upload bytes, extracted chunks, and embeddings. Redis supports shared rate limiting. Ollama is the only generation provider and runs locally; claim verification is a model-assisted estimate, not proof of factual correctness.
+
 ## Repository map
 
 ```text
