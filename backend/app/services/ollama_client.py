@@ -44,6 +44,15 @@ def post_chat(
                 timeout=timeout_seconds,
             )
             response.raise_for_status()
+            _log_response_metrics(
+                stage=stage,
+                payload=payload,
+                response=response,
+                prompt_chars=prompt_chars,
+                context_chars=context_chars,
+                elapsed_seconds=time.perf_counter() - started,
+                retry_count=retry_count,
+            )
             if retry_count:
                 fields = _diagnostic_fields(
                     stage, payload, prompt_chars, context_chars,
@@ -86,6 +95,57 @@ def post_chat(
 
         time.sleep(BACKOFF_SECONDS * (2 ** retry_count))
         retry_count += 1
+
+
+def _log_response_metrics(
+    *,
+    stage: str,
+    payload: dict[str, Any],
+    response: httpx.Response,
+    prompt_chars: int,
+    context_chars: int,
+    elapsed_seconds: float,
+    retry_count: int,
+) -> None:
+    """Log only Ollama timings/token counts; never log prompts or completions."""
+    try:
+        body = response.json()
+    except ValueError:
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+
+    def duration_ms(name: str) -> float | None:
+        value = body.get(name)
+        return round(value / 1_000_000, 2) if isinstance(value, (int, float)) else None
+
+    eval_count = body.get("eval_count")
+    eval_duration = body.get("eval_duration")
+    tokens_per_second = None
+    if (
+        isinstance(eval_count, (int, float))
+        and isinstance(eval_duration, (int, float))
+        and eval_duration > 0
+    ):
+        tokens_per_second = round(eval_count / (eval_duration / 1_000_000_000), 2)
+    fields = _diagnostic_fields(
+        stage, payload, prompt_chars, context_chars, elapsed_seconds,
+        retry_count, response.status_code,
+    )
+    fields.update({
+        "done_reason": body.get("done_reason"),
+        "prompt_eval_count": body.get("prompt_eval_count"),
+        "prompt_eval_ms": duration_ms("prompt_eval_duration"),
+        "eval_count": eval_count,
+        "eval_ms": duration_ms("eval_duration"),
+        "load_ms": duration_ms("load_duration"),
+        "output_tokens_per_second": tokens_per_second,
+    })
+    logger.info(
+        "ollama_request_complete %s",
+        json.dumps(fields, sort_keys=True, separators=(",", ":")),
+        extra=fields,
+    )
 
 
 def _transient_status(response: httpx.Response) -> bool:

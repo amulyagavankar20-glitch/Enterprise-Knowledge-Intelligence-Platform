@@ -45,7 +45,10 @@ def query_documents(
                 "verification_status": verification.get("status"),
                 "verification_attempts": verification.get("attempts", 0),
                 "verification_claim_count": verification.get("claim_count", 0),
+                "retrieval_latency_ms": telemetry.get("retrieval_latency_ms", 0),
+                "generation_latency_ms": telemetry.get("generation_latency_ms", 0),
                 "verification_latency_ms": telemetry.get("verification_latency_ms", 0),
+                "total_pipeline_latency_ms": telemetry.get("total_pipeline_latency_ms", 0),
                 "prompt_injection_signal_count": telemetry.get(
                     "prompt_injection_signal_count", 0
                 ),

@@ -155,3 +155,5 @@ def test_generation_prompt_preserves_specific_procedure_terms():
     system_prompt = messages[0]["content"].casefold()
     assert "pull request" in system_prompt
     assert "each required step" in system_prompt
+    assert "spelling or grammar mistakes" in system_prompt
+    assert "wording differs" in system_prompt

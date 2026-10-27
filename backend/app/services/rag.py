@@ -1,6 +1,7 @@
-﻿
+
 import os
 import re
+import time
 import uuid
 from typing import Any
 
@@ -10,9 +11,7 @@ from app.services.reranking import rerank_results
 from app.services.retrieval import hybrid_search
 
 # Provisional threshold; calibrate using a larger evaluation dataset.
-RERANKER_SCORE_THRESHOLD = float(
-    os.getenv("RERANKER_SCORE_THRESHOLD", "0.1")
-)
+RERANKER_SCORE_THRESHOLD = float(os.getenv("RERANKER_SCORE_THRESHOLD", "0.001"))
 
 
 def retrieve_context(
@@ -35,6 +34,7 @@ def retrieve_context(
     if candidate_limit < 1 or context_limit < 1:
         raise ValueError("Retrieval limits must be positive.")
 
+    hybrid_started = time.perf_counter()
     candidates = hybrid_search(
         db,
         user_id=user_id,
@@ -43,14 +43,18 @@ def retrieve_context(
         candidate_limit=candidate_limit,
         result_limit=candidate_limit,
     )
+    hybrid_search_ms = round((time.perf_counter() - hybrid_started) * 1000, 2)
 
+    rerank_started = time.perf_counter()
     ranked = rerank_results(
         question,
         candidates,
         top_k=candidate_limit,
     )
+    reranking_ms = round((time.perf_counter() - rerank_started) * 1000, 2)
 
     # Keep only results meeting the provisional relevance threshold.
+    selection_started = time.perf_counter()
     relevant_ranked = [
         item
         for item in ranked
@@ -100,6 +104,7 @@ def retrieve_context(
         f"{source['content']}"
         for source in sources
     )
+    context_selection_ms = round((time.perf_counter() - selection_started) * 1000, 2)
 
     return {
         "question": question,
@@ -107,4 +112,9 @@ def retrieve_context(
         "sources": sources,
         "retrieved_count": len(sources),
         "relevance_threshold": RERANKER_SCORE_THRESHOLD,
+        "_timings_ms": {
+            "hybrid_search_ms": hybrid_search_ms,
+            "reranking_ms": reranking_ms,
+            "context_selection_ms": context_selection_ms,
+        },
     }

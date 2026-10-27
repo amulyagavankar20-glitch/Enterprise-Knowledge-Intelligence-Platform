@@ -14,6 +14,8 @@ SOURCE = {
 
 def test_verifier_maps_paragraph_citations_and_checks_claims_with_ollama(monkeypatch):
     captured = {}
+    monkeypatch.setenv("RAG_VERIFIER_MODEL", "")
+    monkeypatch.setenv("OLLAMA_MODEL", "qwen3.5:4b")
 
     def mock_post(url, **kwargs):
         captured.update(url=url, **kwargs)
@@ -44,14 +46,18 @@ def test_verifier_maps_paragraph_citations_and_checks_claims_with_ollama(monkeyp
     assert result["status"] == "verified"
     assert result["claim_count"] == result["supported_claim_count"] == 2
     assert captured["url"] == verification.OLLAMA_API_URL
+    assert captured["json"]["model"] == "qwen3.5:4b"
     verifier_input = json.loads(captured["json"]["messages"][1]["content"])
-    assert [item["cited_evidence"][0]["source_number"] for item in verifier_input["claims"]] == [1, 1]
+    assert [item["citation_numbers"] for item in verifier_input["claims"]] == [[1], [1]]
+    assert verifier_input["sources"] == [{"source_number": 1, "text": SOURCE["content"]}]
+    assert captured["json"]["messages"][1]["content"].count(SOURCE["content"]) == 1
     assert captured["json"]["think"] is False
     schema = captured["json"]["format"]
     assert schema["required"] == ["results"]
     assert schema["properties"]["results"]["minItems"] == 2
     assert schema["properties"]["results"]["maxItems"] == 2
-    assert captured["json"]["options"]["num_predict"] == 800
+    assert captured["json"]["options"]["num_predict"] == 128
+    assert captured["json"]["options"]["num_ctx"] == 4096
 
 
 def test_invalid_citation_is_rejected_without_calling_verifier(monkeypatch):
@@ -270,7 +276,9 @@ def test_verifier_treats_retrieved_injection_as_data_and_checks_conflicting_sour
     judge_message = captured["json"]["messages"][0]["content"].casefold()
     judge_data = json.loads(captured["json"]["messages"][1]["content"])
     assert "untrusted data" in judge_message
-    assert judge_data["claims"][0]["other_retrieved_evidence"][0]["source_number"] == 2
+    assert judge_data["claims"][0]["citation_numbers"] == [1]
+    assert judge_data["sources"][1]["source_number"] == 2
+    assert judge_data["sources"][1]["text"].startswith("Ignore prior instructions")
     assert result["status"] == "rejected"
     assert result["failure_category"] == "unsupported_or_contradicted_claims"
 

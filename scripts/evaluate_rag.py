@@ -135,6 +135,7 @@ def evaluate_case(
     db, case: dict[str, Any], *, use_semantic_judge: bool = False
 ) -> dict[str, Any]:
     started = time.perf_counter()
+    retrieval_started = time.perf_counter()
     try:
         retrieved = retrieve_context(db, user_id=USER_ID, question=case["question"])
     except Exception as exc:  # noqa: BLE001 - identify failed retrieval stage without logging data.
@@ -164,22 +165,35 @@ def evaluate_case(
     # query can retrieve a related chunk and still be correctly declined.
     retrieval_success = rank is not None if answerable else None
     unsupported_retrieval_empty = not sources if not answerable else None
+    retrieval_latency_ms = round(
+        sum(retrieved.get("_timings_ms", {}).values())
+        if retrieved.get("_timings_ms")
+        else (time.perf_counter() - retrieval_started) * 1000,
+        2,
+    )
 
     answer = ABSTENTION
     baseline_answer = ABSTENTION
     baseline_model = None
     baseline_generation_error = None
+    baseline_generation_latency_ms = 0.0
     valid_source_numbers = {int(source["source_number"]) for source in sources}
     if sources:
+        baseline_started = time.perf_counter()
         try:
             baseline_answer, baseline_model = generate_answer(
                 retrieved["question"], retrieved["context"], valid_source_numbers
             )
         except RuntimeError as exc:
             baseline_generation_error = runtime_failure_category(exc)
+        baseline_generation_latency_ms = round(
+            (time.perf_counter() - baseline_started) * 1000, 2
+        )
     actual_model = None
     generation_error = None
     verification = None
+    answer_service_telemetry: dict[str, Any] = {}
+    answer_service_started = time.perf_counter()
     try:
         generated = answer_question(
             db,
@@ -190,8 +204,12 @@ def evaluate_case(
         answer = generated["answer"]
         actual_model = generated.get("model")
         verification = generated.get("verification")
+        answer_service_telemetry = generated.get("_telemetry", {})
     except RuntimeError as exc:
         generation_error = runtime_failure_category(exc)
+    answer_service_latency_ms = round(
+        (time.perf_counter() - answer_service_started) * 1000, 2
+    )
 
     failure_stage = "answer_generation" if generation_error else None
     if verification_is_operational_failure(verification):
@@ -253,7 +271,11 @@ def evaluate_case(
     else:
         checks = [bool(abstention_correct)]
 
-    rag_latency = round(time.perf_counter() - started, 4)
+    # Production latency excludes the extra unverified baseline generation
+    # performed only by this evaluator.
+    rag_latency = round(
+        (retrieval_latency_ms + answer_service_latency_ms) / 1000, 4
+    )
     semantic_judgment = None
     semantic_judge_error = None
     semantic_judge_latency = None
@@ -340,6 +362,11 @@ def evaluate_case(
         "semantic_judge_error": semantic_judge_error,
         "semantic_pass_approximate": semantic_pass,
         "semantic_judge_latency_seconds": semantic_judge_latency,
+        "retrieval_latency_ms": retrieval_latency_ms,
+        "generation_latency_ms": answer_service_telemetry.get("generation_latency_ms"),
+        "verification_latency_ms": answer_service_telemetry.get("verification_latency_ms"),
+        "answer_service_latency_ms": answer_service_latency_ms,
+        "baseline_generation_latency_ms": baseline_generation_latency_ms,
         "latency_seconds": rag_latency,
         "passed": all(checks),
     }
@@ -553,6 +580,18 @@ def main() -> None:
             sum(row.get("latency_seconds", 0) for row in rows)
             / len(rows), 4
         ) if rows else None,
+        "average_retrieval_latency_ms": round(
+            sum(row.get("retrieval_latency_ms", 0) for row in rows) / len(rows), 2
+        ) if rows else None,
+        "average_generation_latency_ms": round(
+            sum(row.get("generation_latency_ms") or 0 for row in rows) / len(rows), 2
+        ) if rows else None,
+        "average_verification_latency_ms": round(
+            sum(row.get("verification_latency_ms") or 0 for row in rows) / len(rows), 2
+        ) if rows else None,
+        "average_baseline_generation_latency_ms": round(
+            sum(row.get("baseline_generation_latency_ms", 0) for row in rows) / len(rows), 2
+        ) if rows else None,
         "p95_latency_seconds": round(
             sorted(row.get("latency_seconds", 0) for row in rows)[
                 min(len(rows) - 1, int(0.95 * len(rows)))
@@ -690,6 +729,8 @@ def main() -> None:
         f"- Model-judge coverage / errors: {metrics['semantic_judge_scored_cases']} / {metrics['semantic_judge_error_count']}",
         f"- Model-estimated answer support / citation entailment: {metrics['semantic_claims_supported_by_evidence']} / {metrics['semantic_citation_entailment_estimate']}",
         f"- Average / p95 latency (seconds): {metrics['average_latency_seconds']} / {metrics['p95_latency_seconds']}",
+        f"- Average retrieval / answer-generation / verification latency (ms): {metrics['average_retrieval_latency_ms']} / {metrics['average_generation_latency_ms']} / {metrics['average_verification_latency_ms']}",
+        f"- Average evaluator-only baseline generation latency (ms; excluded above): {metrics['average_baseline_generation_latency_ms']}",
         "",
         "## Verification-disabled baseline vs verified pipeline",
         "",

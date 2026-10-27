@@ -63,6 +63,35 @@ def test_permanent_bad_request_is_not_retried(monkeypatch, caplog):
     assert record.retrying is False
 
 
+def test_success_logs_ollama_timing_without_completion_text(monkeypatch, caplog):
+    private_answer = "private answer content marker"
+    response_body = json.dumps({
+        "model": "qwen3.5:4b",
+        "message": {"content": private_answer},
+        "done_reason": "stop",
+        "prompt_eval_count": 120,
+        "prompt_eval_duration": 500_000_000,
+        "eval_count": 30,
+        "eval_duration": 1_000_000_000,
+        "load_duration": 2_000_000_000,
+    })
+    monkeypatch.setattr(
+        ollama_client.httpx, "post", lambda *args, **kwargs: make_response(200, response_body)
+    )
+    caplog.set_level("INFO", logger="app.services.ollama_client")
+    ollama_client.post_chat(
+        stage="answer_generation", url="http://127.0.0.1:11434/api/chat",
+        payload={"model": "qwen3.5:4b", "messages": []},
+        timeout_seconds=1, context_chars=0,
+    )
+    record = next(record for record in caplog.records if record.msg.startswith("ollama_request_complete"))
+    assert record.prompt_eval_count == 120
+    assert record.eval_count == 30
+    assert record.output_tokens_per_second == 30.0
+    assert record.load_ms == 2000.0
+    assert private_answer not in caplog.text
+
+
 def test_transient_500_runner_error_is_retried_but_context_error_is_not(monkeypatch):
     calls = []
 
