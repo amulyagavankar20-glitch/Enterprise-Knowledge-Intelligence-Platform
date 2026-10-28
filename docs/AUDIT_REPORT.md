@@ -1,90 +1,58 @@
-# Enterprise Knowledge Intelligence Platform Audit
+# Project audit and evaluation status
 
-## Findings and fixes
+This report summarizes the implementation and the evaluation artifacts currently committed in the repository. It is an engineering status report, not a security certification or production-readiness claim.
 
-- Ollama (`qwen3.5:4b` by default) is the only generation provider. Generation logs status/error class, rejects malformed or empty responses and standalone safety labels, asks for complete multi-part answers, and validates citation labels against returned sources. Label validity does not prove factual entailment.
-- Original uploads are stored in PostgreSQL by document version. The Alembic migration adds a `document_files` table, and a separate checksum-verifying utility imports legacy files from `stored_documents/` without deleting them. Run verification before manually retiring local copies.
-- Vector and full-text retrieval remain owner-filtered; both select only each document's current version. Admin queries can span owners. RRF removes duplicate chunk IDs and context selection removes identical text.
-- API identity comes from short-lived JWT bearer tokens instead of caller-supplied `owner_id`. Registration hashes passwords with Argon2 and always assigns `member`; current role is loaded from the database on every request.
-- Authentication, query, upload, and feedback have input validation and rate limits. Redis uses an atomic shared counter and privacy-hashed client addresses; local development falls back to a bounded process-local limiter. Configure `RATE_LIMIT_REDIS_REQUIRED=true` for fail-closed deployments. Behind a reverse proxy, configure trusted proxy handling before relying on client IP limits.
-- Changed uploads with the same owner and filename create a new version and archive the old one. Exact duplicate uploads return before extraction/embedding. Ingestion rolls back and removes an uncommitted original file after a database failure.
-- Added paginated document listing, detail/content viewing, version listing, PostgreSQL-backed original-file download, and owner/admin-scoped deletion.
-- Chunk records now store counts from the BGE tokenizer. Chunk boundaries prefer whitespace and keep long words intact when possible.
-- PDF extraction uses the declared `pypdf` dependency. The reranker auto-selects CUDA/CPU. Three invalid top-level Python files were replaced with service compatibility imports.
-- Alembic import ordering was repaired. The existing database reports migration `ae8ca1c7f2fb (head)`.
-- Added structured JSON request logs with request IDs, duration and status; request/response bodies, query strings and client addresses are omitted. Generic exception and validation handlers avoid returning raw input or exception details. Security response headers, a frontend CSP and configurable `ALLOWED_HOSTS` are enabled.
-- Added authenticated feedback submission and metadata-only audit events for auth, query and document actions. Audit history is admin-only and paginated. Feedback records contain the question/answer submitted for review; the UI discloses this before submission.
-- Added frontend profile/role lookup, role-gated admin audit view, question-and-answer grouping, clickable citations, evidence cards, feedback form, keyboard skip link, deletion-dialog focus handling and status/error surfaces. Browser automation is not configured, so real browser/assistive-technology verification remains outstanding.
-- Added a non-root Docker image and Compose configuration with health checks, persistent volumes, internal service networking and shared Redis rate limiting. Added `.env.example` (no credentials) and local/container setup instructions. TLS, reverse proxy, backups, monitoring and production secrets management remain deployment responsibilities.
-- Added opt-in model-assisted answer-support, question-coverage, citation-entailment and abstention estimates to the fixed evaluator. The judge uses the local Ollama model by default, so these are not independent verification. Lexical fact checks remain explicitly approximate.
-- The workspace has no `.git` directory, so the Git diff could not be inspected. `.env` was not modified.
+## Implemented capabilities
 
-## Retrieval evaluation
+- **Authentication and authorization:** JWT bearer authentication, password hashing, database-loaded roles, member-only registration, and owner/admin checks on document and retrieval operations.
+- **Document management:** PDF, DOCX, TXT, and Markdown ingestion; versioning; exact duplicate detection; content viewing; PostgreSQL-backed originals; download and deletion workflows.
+- **Retrieval:** BGE-large embeddings, PostgreSQL/pgvector search, PostgreSQL full-text search, reciprocal rank fusion, BGE cross-encoder reranking, deduplication, and bounded context selection.
+- **Generation:** Local Ollama is the only supported LLM provider. Generation includes source labels, abstention instructions, safe error handling, and optional claim-support estimation.
+- **Frontend:** authenticated Q&A, document library, source excerpts, reports, feedback, and admin audit view. Frontend tests exist, but browser/assistive-technology verification is still needed.
+- **Operations:** Alembic migrations, Docker Compose, Redis-backed rate limiting, structured request logging, metadata audit events, and safe API error surfaces.
 
-The fixed 31-case suite covers HR, IT, finance, software procedures, employee directory, multi-part/paraphrased questions, and unsupported queries. Retrieval metrics are document-level because the fixtures have no stable chunk labels. The evaluator now keeps expected-source retrieval, per-fact phrase coverage, complete expected-fact sets, citations, unsupported retrieval emptiness, and answer abstention as separate measures. Phrase checks remain approximate and do not prove semantic correctness.
+## Latest complete saved evaluation
 
-The latest saved 31-case run records an effective threshold of **0.001** in its JSON and reports overall pass **1.0**, Recall@5 **1.0**, MRR **1.0**, nDCG@5 **1.0**, approximate complete expected-fact accuracy and coverage **1.0**, citation-label validity **1.0** (28 answerable responses), and lexical abstention correctness **1.0** (4/4). The code fallback in `backend/app/services/rag.py` is **0.1** when `RERANKER_SCORE_THRESHOLD` is not set; the `.001` artifact therefore reflects an effective environment override, whose source was not inspected. One unsupported query still retrieved a chunk, so unsupported empty-retrieval rate was **0.75**; its answer correctly abstained.
+Artifact: [`enterprise_rag_evaluation_results.json`](../reports/evaluation/enterprise_rag_evaluation_results.json) with its [Markdown report](../reports/evaluation/enterprise_rag_evaluation_report.md).
 
-Treat the existing threshold sweep as a diagnostic, not a fresh benchmark: it filters the at-most-five sources already returned at the effective threshold and cannot refill context from deeper reranked candidates. Its `0.1` row is therefore not definitive full-pipeline Recall@5 for a run configured at `0.1`. The row at `0.002663` likewise should not be used to select a production threshold without a separate retrieval run. No threshold recommendation is made from that sweep alone.
+The artifact is dataset `enterprise-rag-v1`, version 1, with 34 cases and execution status `completed`. It records Ollama `qwen3.5:4b`, `BAAI/bge-large-en-v1.5`, `BAAI/bge-reranker-base`, top 5, and `RERANKER_SCORE_THRESHOLD=0.001` (the artifact says the threshold came from the environment). The result does not record a run timestamp.
 
-The run completed with zero generation errors and average RAG latency **3.6854 seconds** / P95 **6.5443 seconds**. The optional judge scored all 31 cases with zero errors and estimated question coverage, evidence support, citation entailment, and unsupported abstention at **1.0**. This judge uses the same configured model as generation by default, so those correlated model estimates are not independent evidence. Phrase checks are approximate; none of these scores proves semantic correctness, factual faithfulness, or citation entailment.
+| Metric | Saved result | Qualification |
+|---|---:|---|
+| Overall pass rate | 20/34 (58.82%) | Fixed evaluator criteria |
+| Retrieval Recall@5 | 1.0 | Expected source **document**, not chunk |
+| MRR | 1.0 | Expected source document ranking |
+| nDCG@5 | 0.9867 | Expected source document ranking |
+| Approximate expected-fact accuracy | 51.72% | Phrase-based check |
+| Approximate expected-fact coverage | 40.00% | Phrase-based check |
+| Evidence expected-fact coverage | 100% | Approximate phrase check against retrieved evidence |
+| Citation-label validity | 100% (31 scored answers) | Label maps to a returned source; no entailment guarantee |
+| Abstention correctness | 100% (5 unsupported cases) | Fixed evaluator judgment |
+| Unsupported queries with empty retrieval | 60% | Retrieval diagnostic, not answer correctness |
+| Mean / P95 latency | 6.2682 / 16.4517 seconds | Machine/model state affects timing |
 
-Phrase matching normalizes punctuation and spacing but remains approximate; it does not prove semantic correctness or faithfulness. Citation label validity only proves that a label maps to a retrieved source, not that the source entails the claim. The threshold-sweep implementation has been relabeled as a post-filter diagnostic; future threshold selection requires evaluation over the full reranked candidate list at each threshold.
+The same artifact reports **96.43% approximate expected-fact accuracy for the verification-disabled baseline**, against **51.72% for the verified pipeline**. This is a significant quality regression and must be addressed before presenting verification as an answer-quality improvement. Phrase checks can misclassify paraphrases, but the size of the gap warrants case-level review. The artifact reports no semantic-judge scores.
 
-## Remaining risks
+An earlier timestamped evaluation [`enterprise_rag_evaluation_20261025T114421Z.md`](../reports/evaluation/enterprise_rag_evaluation_20261025T114421Z.md) is **partial**: 30 of 34 cases completed and 4 failed. Its 96.67% pass rate is calculated over the completed subset only. Do not present it as a complete-suite result or compare it directly with the full 34-case rate.
 
-- `JWT_SECRET_KEY` must be configured before auth routes can issue or validate tokens. Registration cannot elevate roles; promote an admin out-of-band through an authorized database session.
-- There is no refresh-token flow, password reset, account lockout, TLS configuration, or load/concurrency test. Redis enforcement is shared across API workers only when Redis is available and required mode is enabled.
-- Legacy files may remain in `stored_documents/` until the migration utility imports and verifies them. The API no longer reads from or writes to that directory.
-- `DocumentAccess` sharing is not implemented. Members see their own documents; admins can see/manage all documents.
-- The version update path uses a row lock but concurrent uploads were not load-tested. Existing historical rows with logical `database://` paths cannot serve the original bytes; new uploads persist originals.
-- Compose build/start, TLS proxying, backups/restore, and production deployment controls have not been verified here.
+## Remaining engineering risks
 
-## Test status
+- **Answer quality:** inspect the 34 saved case records, especially baseline-versus-verified differences. Improve verifier precision and answer completeness, then evaluate on the fixed set and a manually reviewed semantic sample.
+- **Retrieval evaluation:** add stable chunk-level relevance labels and broader, independently held-out documents. The current document-level metrics can overstate whether the exact supporting passage was retrieved.
+- **Latency:** the saved metrics are not a controlled before/after benchmark. Record cold and warm timings by retrieval, embedding, reranking, generation, and verification stage on a documented machine before claiming an optimization.
+- **Notebook methodology:** the optional BGE fine-tuning notebook now groups connected positive/negative source-document IDs and bases candidate selection on validation. Its test metrics are report-only; its limited triplet-candidate evaluation still does not establish production improvement.
+- **Security/deployment:** configure TLS/reverse proxy, trusted proxy behavior, secrets management, encrypted backups and restore drills, monitoring, alerting, and production network controls. MFA, SSO, password reset, and account lockout are not implemented.
+- **Frontend quality:** perform browser-level responsive, keyboard, and screen-reader checks; there is no configured browser automation suite.
+- **Concurrency and resilience:** database version updates, rate limits, and Ollama behavior need deployment-level concurrency/load testing. Do not run resource-heavy evaluation on a memory-saturated development laptop.
 
-- `python -m compileall -q backend migrations`: passed after the current changes.
-- `python -m pytest backend -q --tb=short -p no:cacheprovider --basetemp .pytest-tmp-final-work`: **65 passed**. Workspace-local temporary files and disabling the cache plugin avoid the Windows temp/cache warnings without changing permissions.
-- Alembic `current`: `ae8ca1c7f2fb (head)`.
-- Five-case HTTP smoke test: not run; it now requires a JWT secret, credentials, and a running FastAPI process.
-- Live 31-case evaluation with model judge: completed; **31/31 passed**, zero generation/judge errors. Actual metrics and all case results are saved in `reports/evaluation/enterprise_rag_evaluation_results.json` and `reports/evaluation/enterprise_rag_evaluation_report.md`.
+## Recent automated checks
 
-## Local PowerShell setup
+On 2026-10-27, the focused mocked suite for generation, verification, reranking, retrieval, evaluation, and Ollama client behavior reported **52 passed**. `compileall` and `git diff --check` also passed. These checks did not exercise a live PostgreSQL database, BGE model, or Ollama server, and they do not validate the README/documentation edits. Run the commands in [README: Tests and evaluation](../README.md#tests-and-evaluation) when the relevant local services and resources are available.
 
-Add this line to `.env` manually. Keep the generated value private; the app fails closed without a 32-character minimum secret:
+## Operational boundaries
 
-```text
-JWT_SECRET_KEY=<random secret of at least 32 characters>
-```
-
-Generate one locally with `python -c "import secrets; print(secrets.token_urlsafe(48))"`. Legacy file migration defaults to `stored_documents/`; `DOCUMENT_STORAGE_DIR` or the migration utility's `--root` can point to another legacy root.
-
-Start the services:
-
-```powershell
-docker compose up -d postgres redis
-```
-
-Start FastAPI in a first PowerShell window:
-
-```powershell
-conda activate enterprise-rag
-$env:PYTHONPATH = (Resolve-Path .\backend).Path
-python -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000
-```
-
-`pytest` unit tests do not need evaluation credentials. The 31-case `scripts\evaluate_rag.py` run connects directly to PostgreSQL and uses `RAG_EVAL_USER_ID` (or its configured default); it does not use `RAG_EVAL_EMAIL` or `RAG_EVAL_PASSWORD`. The HTTP smoke harness `scripts\setup_test_data.py` does require a test account. Set dedicated credentials in the second window; set `RAG_EVAL_AUTO_REGISTER=1` only when creating a new member account:
-
-```powershell
-conda activate enterprise-rag
-$env:RAG_EVAL_EMAIL = "your-test-email@example.com"
-$env:RAG_EVAL_PASSWORD = "a-private-password-at-least-12-chars"
-$env:RAG_EVAL_AUTO_REGISTER = "1"
-python -m pytest backend -q --tb=short -p no:cacheprovider --basetemp .pytest-tmp-final-work
-python -m compileall -q backend migrations
-python scripts\setup_test_data.py
-python scripts\evaluate_rag.py
-```
-
-To add model-assisted answer-support and citation-entailment estimates, run `python scripts\evaluate_rag.py --semantic-judge`. It sends evaluation questions, answers and retrieved excerpts to the local Ollama model; it is not independent verification.
-
-The smoke script uploads the five fixed documents as the authenticated user; it can create newer document versions and should be run only when that is intended. The evaluation script calls Ollama for retrieved answerable cases. Neither workflow needs a database reset/drop.
+- PostgreSQL stores originals and derived chunks/vectors. Legacy files may still exist locally until imported and verified; the migration utility does not delete them.
+- Redis-backed rate limits are shared only when Redis is configured and required. Process-local fallback is development-only.
+- Audit events are metadata-oriented. Feedback intentionally stores the question and answer submitted for review.
+- Ollama verification is a model estimate, not proof of entailment. Citation label validity is not factual citation validation.
+- GraphRAG and model fine-tuning are not runtime requirements. Add them only when representative evaluations demonstrate a measurable need.

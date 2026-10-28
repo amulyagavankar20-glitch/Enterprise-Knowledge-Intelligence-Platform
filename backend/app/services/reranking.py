@@ -1,16 +1,26 @@
-﻿from functools import lru_cache
+import os
+from functools import lru_cache
 from typing import Any
 
 from sentence_transformers import CrossEncoder
 
+MODEL_NAME = os.getenv("RERANKER_MODEL_NAME", "BAAI/bge-reranker-base")
 
-MODEL_NAME = "BAAI/bge-reranker-base"
+
+def _device() -> str | None:
+    configured = os.getenv("RERANKER_DEVICE", "auto").strip().lower()
+    if configured != "auto":
+        return configured
+    try:
+        import torch
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    except Exception:
+        return None
 
 
 @lru_cache(maxsize=1)
 def get_reranker() -> CrossEncoder:
-    # Let sentence-transformers select CUDA when available, otherwise CPU.
-    return CrossEncoder(MODEL_NAME)
+    return CrossEncoder(MODEL_NAME, device=_device())
 
 
 def rerank_results(
@@ -20,19 +30,14 @@ def rerank_results(
 ) -> list[dict[str, Any]]:
     if not query.strip() or not results:
         return []
-
     model = get_reranker()
     pairs = [(query, item["content"]) for item in results]
-    scores = model.predict(pairs, batch_size=8, show_progress_bar=False)
-
+    batch_size = max(1, int(os.getenv("RERANKER_BATCH_SIZE", "8")))
+    scores = model.predict(pairs, batch_size=batch_size, show_progress_bar=False)
     reranked = []
     for item, score in zip(results, scores):
         result = dict(item)
         result["reranker_score"] = float(score)
         reranked.append(result)
-
-    reranked.sort(
-        key=lambda item: item["reranker_score"],
-        reverse=True,
-    )
+    reranked.sort(key=lambda item: item["reranker_score"], reverse=True)
     return reranked[:top_k]
