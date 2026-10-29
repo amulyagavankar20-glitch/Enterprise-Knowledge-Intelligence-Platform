@@ -16,7 +16,6 @@ from typing import Any
 from urllib.parse import urlparse
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_RESULTS = PROJECT_ROOT / "reports/evaluation/enterprise_rag_evaluation_results.json"
 METRICS = ("faithfulness", "answer_relevancy", "context_precision", "context_recall")
 os.environ["RAGAS_DO_NOT_TRACK"] = "true"
 os.environ["LANGCHAIN_TRACING_V2"] = "false"
@@ -27,6 +26,36 @@ def _load_results(path: Path) -> dict[str, Any]:
     if data.get("dataset_id") != "enterprise-rag-v1" or data.get("dataset_version") != 1:
         raise ValueError(f"Unsupported or unversioned evaluation dataset in {path.name}")
     return data
+
+
+def _latest_complete_evaluation(directory: Path) -> Path:
+    """Select the newest complete timestamped evaluation, never a legacy alias."""
+    for path in sorted(directory.glob("enterprise_rag_evaluation_*Z.json"), reverse=True):
+        try:
+            data = _load_results(path)
+        except (OSError, json.JSONDecodeError, ValueError):
+            continue
+        if (
+            data.get("execution_status") == "completed"
+            and data.get("failed_case_count") == 0
+            and data.get("completed_case_count") == data.get("case_count")
+        ):
+            return path
+    raise FileNotFoundError(
+        f"No complete timestamped evaluation JSON found in {directory}; "
+        "run scripts/evaluate_rag.py first or pass --improved explicitly."
+    )
+
+
+def _timestamped_output_path(directory: Path, now: datetime | None = None) -> Path:
+    timestamp = (now or datetime.now(UTC)).strftime("%Y%m%dT%H%M%SZ")
+    base = directory / f"ragas_comparison_{timestamp}.json"
+    if not base.exists():
+        return base
+    counter = 2
+    while (candidate := directory / f"ragas_comparison_{timestamp}_{counter}.json").exists():
+        counter += 1
+    return candidate
 
 
 def _evaluation_rows(data: dict[str, Any]) -> list[dict[str, Any]]:
@@ -220,16 +249,22 @@ def _has_scoring_failure(runs: list[dict[str, Any]]) -> bool:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--improved", type=Path, default=DEFAULT_RESULTS)
+    parser.add_argument(
+        "--improved", type=Path,
+        help="Versioned RAG evaluation JSON (defaults to the latest complete timestamped run)",
+    )
     parser.add_argument("--baseline", type=Path, help="Optional compatible baseline JSON for side-by-side comparison")
-    parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "reports/evaluation/ragas_comparison.json")
+    parser.add_argument("--output", type=Path, help="Output JSON (defaults to a new timestamped file)")
     args = parser.parse_args()
 
-    improved_data = _load_results(args.improved)
+    evaluation_dir = PROJECT_ROOT / "reports/evaluation"
+    improved_path = args.improved or _latest_complete_evaluation(evaluation_dir)
+    output_path = args.output or _timestamped_output_path(evaluation_dir)
+    improved_data = _load_results(improved_path)
     runs = []
     if args.baseline:
         runs.append(_score_run_safely(_load_results(args.baseline), "baseline", args.baseline))
-    runs.append(_score_run_safely(improved_data, "improved", args.improved))
+    runs.append(_score_run_safely(improved_data, "improved", improved_path))
     comparison = {"baseline": None, "improved": runs[-1]["scores"]}
     if len(runs) == 2:
         comparison["baseline"] = runs[0]["scores"]
@@ -255,13 +290,13 @@ def main() -> None:
             "Evaluation runs locally through Ollama; no external provider is configured.",
         ],
     }
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     improved_snapshot = runs[-1]["model_snapshot"]
     markdown = [
         "# Optional RAGAS Evaluation", "",
         f"Dataset: `{improved_data['dataset_id']}` v{improved_data['dataset_version']}",
-        f"Source evaluation: `{args.improved.name}` ({improved_snapshot['source_evaluation_created_at_utc']})",
+        f"Source evaluation: `{improved_path.name}` ({improved_snapshot['source_evaluation_created_at_utc']})",
         f"Judge: `{improved_snapshot['provider']} / {improved_snapshot['judge']}`; embedding: `{improved_snapshot['embedding']}`",
         f"Generation model: `{improved_snapshot['generation_model']}`; reranker: `{improved_snapshot['reranker_model']}`",
         f"Retrieval top K: `{improved_snapshot['retrieval_top_k']}`; reranker threshold: `{improved_snapshot['reranker_score_threshold']}` ({improved_snapshot['reranker_score_threshold_source']})",
@@ -274,9 +309,9 @@ def main() -> None:
             *(scores[key] for key in METRICS),
         ))
     markdown.extend(["", "Scores are local model estimates, not proof of correctness or entailment. Any null metric or failed run is recorded; this command exits nonzero if scoring is incomplete.", ""])
-    args.output.with_suffix(".md").write_text("\n".join(markdown), encoding="utf-8")
+    output_path.with_suffix(".md").write_text("\n".join(markdown), encoding="utf-8")
     print(json.dumps({
-        "output": str(args.output),
+        "output": str(output_path),
         "comparison": comparison,
         "deltas": deltas,
         "runs": [

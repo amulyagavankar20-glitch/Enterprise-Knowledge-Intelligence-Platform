@@ -11,21 +11,13 @@
 fastapi
 uvicorn[standard]
 pydantic
-pydantic-settings
+python-dotenv
 python-multipart
-
-# RAG orchestration and model integrations
-langgraph
-langchain-core
-langchain-community
-langchain-ollama
-ollama
 
 # Embeddings, retrieval, and reranking
 sentence-transformers
 transformers
 torch
-rank-bm25
 
 # Database and migrations
 psycopg[binary]
@@ -39,9 +31,6 @@ redis
 # Document parsing
 pypdf
 python-docx
-beautifulsoup4
-markdown
-pandas
 
 # Security and authentication utilities
 PyJWT[crypto]
@@ -49,19 +38,7 @@ pwdlib[argon2]
 
 # HTTP and resilience
 httpx
-tenacity
-
-# Observability and logging
-structlog
-opentelemetry-api
-opentelemetry-sdk
-opentelemetry-instrumentation-fastapi
 
 # Testing
 pytest
 pytest-asyncio
-pytest-cov
-
-# Code quality
-ruff
-mypy

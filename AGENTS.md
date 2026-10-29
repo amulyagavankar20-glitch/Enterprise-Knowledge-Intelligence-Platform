@@ -16,7 +16,7 @@ python -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000
 ```
 
 - The backend suite is fully mocked/offline: no PostgreSQL, Redis, or Ollama required. It imports PyTorch/sentence-transformers and takes roughly 30 seconds.
-- There is no configured lint, format, or typecheck task (`pyproject.toml` only configures pytest). The GitHub workflows are stale generic templates: Node CI with no `package.json`, and Pylint on Python 3.8-3.10 while the project requires 3.11. Do not follow them or add npm commands.
+- GitHub Actions runs the offline Python 3.11 backend tests and compile check from `.github/workflows/python-tests.yml`. There is no configured lint, format, or typecheck task (`pyproject.toml` only configures pytest); do not add npm commands because the frontend has no Node build.
 - Frontend is plain `frontend/index.html`, `app.css`, `app.js`; no build step, bundler, or Node dependencies.
 - Live evaluation is not a normal test: `python scripts\evaluate_rag.py` calls local Ollama/PostgreSQL, needs the seeded evaluation owner (`RAG_EVAL_USER_ID`, default embedded UUID), and writes new artifacts under `reports/evaluation/`.
 - `python scripts\setup_test_data.py` uploads/versions documents; it needs a running API plus `RAG_EVAL_EMAIL`/`RAG_EVAL_PASSWORD` and mutates the database. Run only when intended.

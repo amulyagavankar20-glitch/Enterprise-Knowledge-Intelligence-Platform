@@ -1,6 +1,6 @@
-import json
-
 import asyncio
+import json
+from datetime import UTC, datetime
 
 import pytest
 
@@ -126,3 +126,29 @@ def test_ragas_metric_receives_only_its_declared_fields():
 
     assert result == "score"
     assert captured["values"] == ("question", "answer")
+
+
+def test_ragas_default_selects_latest_complete_timestamped_run(tmp_path):
+    base = {
+        "dataset_id": "enterprise-rag-v1", "dataset_version": 1,
+        "case_count": 34, "completed_case_count": 34, "failed_case_count": 0,
+    }
+    older = tmp_path / "enterprise_rag_evaluation_20261029T070000Z.json"
+    newer_partial = tmp_path / "enterprise_rag_evaluation_20261029T080000Z.json"
+    older.write_text(json.dumps({**base, "execution_status": "completed"}), encoding="utf-8")
+    newer_partial.write_text(json.dumps({
+        **base, "execution_status": "partial", "completed_case_count": 30,
+        "failed_case_count": 4,
+    }), encoding="utf-8")
+
+    assert evaluate_ragas._latest_complete_evaluation(tmp_path) == older
+
+
+def test_ragas_default_output_preserves_existing_timestamped_report(tmp_path):
+    now = datetime(2026, 10, 29, 8, 0, 0, tzinfo=UTC)
+    existing = tmp_path / "ragas_comparison_20261029T080000Z.json"
+    existing.write_text("historical", encoding="utf-8")
+
+    assert evaluate_ragas._timestamped_output_path(tmp_path, now) == (
+        tmp_path / "ragas_comparison_20261029T080000Z_2.json"
+    )

@@ -1,56 +1,91 @@
 {
   "artifact": "LLM engineering implementation and evaluation status",
-  "updated_at": "2026-10-25",
+  "automated_checks": {
+    "pytest": {
+      "command": "python -m pytest backend -q --tb=short -p no:cacheprovider",
+      "status": "passed",
+      "passed": 122,
+      "failed": 0,
+      "mode": "mocked/offline"
+    },
+    "compileall": {
+      "command": "python -m compileall -q backend migrations scripts",
+      "status": "passed"
+    },
+    "git_diff_check": {
+      "status": "passed"
+    },
+    "ruff": {
+      "status": "not_configured"
+    }
+  },
   "dataset": {
     "id": "enterprise-rag-v1",
     "version": 1,
     "case_count": 34
   },
-  "automated_checks": {
-    "pytest": {
-      "command": "python -m pytest backend/tests -q --tb=short -p no:cacheprovider --basetemp .pytest-tmp-codex",
-      "status": "passed",
-      "passed": 98,
-      "failed": 0
-    },
-    "compileall": {"status": "passed"},
-    "ruff": {"status": "passed"}
-  },
   "latest_complete_live_evaluation": {
-    "status": "pre-fix-baseline",
-    "artifact": "enterprise_rag_evaluation_results.json",
+    "status": "completed",
+    "artifact": "enterprise_rag_evaluation_20261029T072902Z.json",
+    "created_at_utc": "2026-10-29T07:29:02.671738+00:00",
     "case_count": 34,
+    "completed_case_count": 34,
+    "failed_case_count": 0,
+    "model_snapshot": {
+      "generation_provider": "ollama",
+      "generation_model": "qwen3.5:4b",
+      "embedding_model": "BAAI/bge-large-en-v1.5",
+      "reranker_model": "BAAI/bge-reranker-base",
+      "top_k": 5,
+      "reranker_score_threshold": 0.001
+    },
     "metrics": {
-      "overall_pass_rate": 0.5882,
-      "retrieval_success_recall_at_5": 1.0,
+      "overall_pass_rate": 0.9118,
+      "query_retrieval_success_at_5": 1.0,
+      "expected_source_label_recall_at_5": 0.9667,
+      "expected_source_label_precision_at_5": 0.2,
+      "chunk_recall_at_5": 0.9655,
+      "chunk_label_recall_at_5": 0.9667,
       "mrr_by_expected_source_document": 1.0,
       "ndcg_at_5_by_expected_source_document": 0.9867,
-      "answer_expected_fact_accuracy_approximate": 0.5172,
+      "chunk_mrr": 0.9655,
+      "chunk_ndcg_at_5": 0.9739,
+      "answer_expected_fact_accuracy_approximate": 0.931,
       "citation_label_validity": 1.0,
-      "abstention_correctness": 1.0
-    },
-    "interpretation": "Fourteen answerable cases were withheld, mainly because generated claims lacked citation labels. These metrics were recorded before evidence-based source attribution was added."
-  },
-  "post_change_live_checks": {
-    "database": "available",
-    "ollama_health": "available",
-    "uncited_claim_source_mapping": "passed for a focused local Ollama check",
-    "full_34_case_evaluation": {
-      "status": "incomplete",
-      "reason": "Repeated Ollama HTTP 500 responses during answer generation and claim verification; no complete post-change metrics produced."
+      "unsupported_abstention_correctness": 0.8,
+      "average_retrieval_plus_generation_latency_seconds": 1.4402,
+      "p95_retrieval_plus_generation_latency_seconds": 4.65,
+      "average_verified_rag_latency_seconds": 3.0766,
+      "p95_verified_rag_latency_seconds": 7.8185
     }
   },
   "ragas": {
-    "prior_run": "failed",
-    "prior_version": "0.2.15",
-    "prior_failure_category": "ModuleNotFoundError",
-    "scores": null,
-    "updated_runner_target": "0.4.3",
-    "dependency_upgrade": "not completed; pip dependency resolution was stopped before package changes"
+    "status": "scored",
+    "artifact": "ragas_comparison_20261029T080223Z.json",
+    "source_evaluation": "enterprise_rag_evaluation_20261029T072902Z.json",
+    "model": "qwen3.5:4b",
+    "provider": "ollama",
+    "case_count": 29,
+    "metric_failure_count": 0,
+    "scores": {
+      "faithfulness": 0.971264,
+      "answer_relevancy": 0.88521,
+      "context_precision": 0.942529,
+      "context_recall": 0.95977
+    },
+    "baseline_scored": false,
+    "interpretation": "Local model estimates using approximate references; not proof of correctness or citation entailment."
+  },
+  "historical_ragas_import_failure": {
+    "version": "0.2.15",
+    "failure_category": "ModuleNotFoundError",
+    "status": "superseded by isolated RAGAS 0.4.3 run"
   },
   "limitations": [
-    "Phrase-based expected-fact checks are approximate.",
-    "Local-model verifier and RAGAS results are estimates, not proof of correctness, faithfulness, or citation entailment.",
-    "No post-change 34-case evaluation completed."
-  ]
+    "The data set is small and fixed.",
+    "The verifier and RAGAS judge use the same local model family as generation.",
+    "Phrase-based checks and model estimates do not prove semantic correctness or citation entailment.",
+    "The direct hallucination rate was not independently measured."
+  ],
+  "updated_at": "2026-10-29"
 }
