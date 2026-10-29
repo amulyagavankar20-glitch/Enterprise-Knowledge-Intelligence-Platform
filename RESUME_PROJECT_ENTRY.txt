@@ -1,0 +1,16 @@
+RESUME-READY PROJECT ENTRY
+
+Enterprise Knowledge Intelligence Platform | AI / Backend Engineering Project
+
+Built an enterprise retrieval-augmented generation platform using FastAPI, PostgreSQL/pgvector, hybrid keyword and vector retrieval, BGE embeddings and reranking, and local Ollama generation with source citations and access-controlled document retrieval.
+
+Evaluation highlights (fixed 34-case enterprise dataset):
+- Achieved 91.18% overall evaluation pass rate, with all 34 cases completing.
+- Measured 96.67% expected-source Recall@5, 1.00 MRR, and 0.9867 nDCG@5.
+- Recorded average retrieval-plus-generation latency of 1.44 seconds; average end-to-end verified response latency was 3.08 seconds.
+- Evaluated 29 answerable cases with local RAGAS estimates: 0.971 faithfulness, 0.885 answer relevancy, 0.943 context precision, and 0.960 context recall.
+- Added automated validation; 120 backend tests passed.
+
+Metric note: RAGAS values use a local model judge and approximate references. Recall@5 is expected-source label recall; the evaluator's separate query-level retrieval success was 100%. These are measured results on a small fixed dataset, not production guarantees.
+
+Detailed results: see results.txt and reports/evaluation/enterprise_rag_evaluation_20261029T072902Z.md.

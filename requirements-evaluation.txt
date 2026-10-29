@@ -1,2 +1,6 @@
-# Optional judge/evaluation stack; keep out of the core API environment.
+# Optional judge/evaluation stack; install in the isolated evaluation environment.
+# RAGAS 0.4.3 imports the Vertex AI shim from LangChain Community 0.3.x.
+langchain-community==0.3.27
+# Pin instructor to avoid resolver backtracking and keep RAGAS 0.4 API compatibility.
+instructor==1.17.0
 ragas==0.4.3

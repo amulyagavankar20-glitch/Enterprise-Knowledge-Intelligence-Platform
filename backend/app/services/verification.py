@@ -25,6 +25,27 @@ ABSTENTION = re.compile(
     r"does not contain enough information)\b",
     re.IGNORECASE,
 )
+# Introductory/meta prose frames the answer but is not a factual claim that
+# retrieved evidence must support. Keep this narrow: a "Based on ..." prefix
+# alone must not exempt a substantive sentence from citation checking.
+LEAD_IN = re.compile(
+    r"^(?:"
+    r"here (?:is|are)\b"
+    r"|below (?:is|are)\b"
+    r"|the answer (?:is|follows)\b"
+    r"|based on [^.!?]{0,120}?\b(?:here (?:is|are)|below (?:is|are)|the following)\b"
+    r")",
+    re.IGNORECASE,
+)
+
+
+def _is_factual_claim(sentence: str, citation_numbers: list[int]) -> bool:
+    """Exclude discourse lead-ins and headings from claim verification."""
+    if citation_numbers:
+        return True
+    if sentence.rstrip().endswith(":"):
+        return False
+    return not LEAD_IN.match(sentence)
 
 
 def parse_answer_claims(answer: str) -> list[dict[str, Any]]:
@@ -37,9 +58,10 @@ def parse_answer_claims(answer: str) -> list[dict[str, Any]]:
         cited_numbers = sorted({int(value) for value in SOURCE_LABEL.findall(paragraph)})
         without_labels = SOURCE_LABEL.sub("", paragraph)
         for sentence in SENTENCE_BOUNDARY.split(without_labels):
-            sentence = re.sub(r"^\s*(?:[-*]\s+|\d+[.)]\s+)", "", sentence)
-            sentence = re.sub(r"\*\*(.*?)\*\*", r"\1", sentence).strip()
-            if not sentence:
+            sentence = re.sub(r"^\s*(?:[-*•]\s+|\d+[.)]\s+)", "", sentence)
+            sentence = re.sub(r"\*\*(.*?)\*\*", r"\1", sentence)
+            sentence = re.sub(r"\s+([,.;:!?])", r"\1", sentence).strip()
+            if not sentence or not _is_factual_claim(sentence, cited_numbers):
                 continue
             claims.append(
                 {
@@ -122,41 +144,89 @@ def verify_answer(
         or (not claims[judgment["claim_id"] - 1]["citation_numbers"]
             and not judgment["supporting_source_numbers"])
     )
-    normalized_answer = None
+    supported_judgments = [
+        judgment for judgment in judgments
+        if judgment["claim_id"] not in unsupported
+    ]
+    citation_by_claim = {
+        judgment["claim_id"]: (
+            judgment["supporting_source_numbers"]
+            or claims[judgment["claim_id"] - 1]["citation_numbers"]
+        )
+        for judgment in judgments
+    }
     if not unsupported:
         # Use the verifier's explicit source mapping to repair missing or misplaced
         # citations. Semantic paraphrases and minor extraction/grammar noise are allowed.
-        citation_by_claim = {
-            judgment["claim_id"]: (
-                judgment["supporting_source_numbers"]
-                or claims[judgment["claim_id"] - 1]["citation_numbers"]
-            )
-            for judgment in judgments
-        }
         citation_changed = any(
             set(claims[judgment["claim_id"] - 1]["citation_numbers"])
             != set(citation_by_claim[judgment["claim_id"]])
             for judgment in judgments
         )
-        if citation_changed:
-            normalized_answer = "\n\n".join(
-                f"{claim['text']} " + " ".join(
-                    f"[Source {number}]" for number in citation_by_claim[claim["claim_id"]]
-                )
-                for claim in claims
-            )
+        normalized_answer = (
+            _render_claims(claims, judgments, citation_by_claim)
+            if citation_changed else None
+        )
+        return _result(
+            "verified",
+            "valid",
+            "all_claims_supported_estimate",
+            len(claims),
+            len(claims),
+            failure_category=None,
+            unsupported_claim_ids=[],
+            normalized_answer=normalized_answer,
+            citation_attribution_estimate=(
+                "ollama_supported_source_mapping" if normalized_answer else None
+            ),
+            verification_latency_ms=round((time.perf_counter() - started) * 1000, 2),
+        )
+
+    if not supported_judgments:
+        return _result(
+            "rejected",
+            "valid",
+            "unsupported_claims",
+            len(claims),
+            0,
+            failure_category="unsupported_or_contradicted_claims",
+            unsupported_claim_ids=unsupported,
+            verification_latency_ms=round((time.perf_counter() - started) * 1000, 2),
+        )
+
+    # Keep the answer when at least one claim is supported, but remove every
+    # unsupported sentence. This avoids withholding a mostly correct answer
+    # because one paraphrase was misjudged, while never returning that sentence.
+    normalized_answer = _render_claims(claims, supported_judgments, citation_by_claim)
     return _result(
-        "rejected" if unsupported else "verified",
+        "verified",
         "valid",
-        "unsupported_claims" if unsupported else "all_claims_supported_estimate",
+        "supported_claims_only",
         len(claims),
-        len(claims) - len(unsupported),
-        failure_category="unsupported_or_contradicted_claims" if unsupported else None,
+        len(supported_judgments),
+        failure_category="unsupported_claims_removed",
         unsupported_claim_ids=unsupported,
+        removed_claim_ids=unsupported,
         normalized_answer=normalized_answer,
-        citation_attribution_estimate=("ollama_supported_source_mapping" if normalized_answer else None),
+        citation_attribution_estimate="ollama_supported_source_mapping",
         verification_latency_ms=round((time.perf_counter() - started) * 1000, 2),
     )
+
+
+def _render_claims(
+    claims: list[dict[str, Any]],
+    judgments: list[dict[str, Any]],
+    citation_by_claim: dict[int, list[int]],
+) -> str:
+    """Re-render only the selected claims with their verified source labels."""
+    return "\n\n".join(
+        f"{claims[judgment['claim_id'] - 1]['text']} "
+        + " ".join(
+            f"[Source {number}]"
+            for number in citation_by_claim[judgment["claim_id"]]
+        )
+        for judgment in judgments
+    ).strip()
 
 
 def _judge_claims(

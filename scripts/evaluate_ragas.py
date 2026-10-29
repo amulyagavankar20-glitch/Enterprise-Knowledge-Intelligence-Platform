@@ -7,11 +7,13 @@ local Ollama API; failures are written to the report and produce a nonzero exit.
 
 import argparse
 import asyncio
+import inspect
 import json
 import os
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RESULTS = PROJECT_ROOT / "reports/evaluation/enterprise_rag_evaluation_results.json"
@@ -27,9 +29,9 @@ def _load_results(path: Path) -> dict[str, Any]:
     return data
 
 
-def _evaluation_rows(data: dict[str, Any]) -> list[dict[str, str | list[str]]]:
+def _evaluation_rows(data: dict[str, Any]) -> list[dict[str, Any]]:
     rows = []
-    for row in data.get("results", []):
+    for case_index, row in enumerate(data.get("results", []), start=1):
         if row.get("case_status") not in (None, "completed"):
             continue
         answer = row.get("answer")
@@ -43,6 +45,7 @@ def _evaluation_rows(data: dict[str, Any]) -> list[dict[str, str | list[str]]]:
         ):
             continue
         rows.append({
+            "case_index": case_index,
             "user_input": str(row["question"]),
             "response": answer,
             "retrieved_contexts": contexts,
@@ -51,9 +54,52 @@ def _evaluation_rows(data: dict[str, Any]) -> list[dict[str, str | list[str]]]:
     return rows
 
 
+def _make_local_ollama_ragas_llm(
+    model: str,
+    base_url: str,
+    *,
+    client_class: Any = None,
+    ragas_llm_factory: Any = None,
+) -> tuple[Any, Any]:
+    """Build a RAGAS LLM adapter over Ollama's local OpenAI-compatible endpoint."""
+    if client_class is None:
+        from openai import AsyncOpenAI
+
+        client_class = AsyncOpenAI
+    if ragas_llm_factory is None:
+        from ragas.llms import llm_factory
+
+        ragas_llm_factory = llm_factory
+
+    parsed = urlparse(base_url)
+    if parsed.scheme not in {"http", "https"} or parsed.hostname not in {
+        "127.0.0.1", "localhost", "::1",
+    }:
+        raise ValueError("RAGAS Ollama endpoint must use a local loopback address")
+    endpoint = base_url.rstrip("/")
+    if not endpoint.endswith("/v1"):
+        endpoint += "/v1"
+
+    # RAGAS 0.4 requires an explicit client. `provider='openai'` selects its
+    # OpenAI-compatible adapter; the client is still pointed only at local Ollama.
+    client = client_class(api_key="ollama", base_url=endpoint)
+    return ragas_llm_factory(
+        model,
+        provider="openai",
+        client=client,
+        reasoning_effort="none",
+    ), client
+
+
+async def _score_metric(metric: Any, row: dict[str, Any]) -> Any:
+    """Pass only fields declared by the selected RAGAS metric."""
+    accepted_fields = inspect.signature(metric.ascore).parameters
+    metric_row = {key: value for key, value in row.items() if key in accepted_fields}
+    return await metric.ascore(**metric_row)
+
+
 async def _score_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     from ragas.embeddings import HuggingFaceEmbeddings
-    from ragas.llms import llm_factory
     from ragas.metrics.collections import (
         AnswerRelevancy,
         ContextPrecisionWithReference,
@@ -63,7 +109,7 @@ async def _score_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
     model = os.getenv("RAG_EVAL_JUDGE_MODEL", os.getenv("OLLAMA_MODEL", "qwen3.5:4b"))
     base_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
-    llm = llm_factory(model, provider="ollama", base_url=base_url)
+    llm, client = _make_local_ollama_ragas_llm(model, base_url)
     embeddings = HuggingFaceEmbeddings(
         model="BAAI/bge-large-en-v1.5", normalize_embeddings=True,
     )
@@ -74,27 +120,27 @@ async def _score_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         "context_recall": ContextRecall(llm=llm),
     }
     results = []
-    for row in rows:
-        scores: dict[str, float | None] = {}
-        failures = []
-        for name, metric in metrics.items():
-            try:
-                value = await metric.ascore(**row)
-                score = value.value
-                if score is None:
-                    raise ValueError("metric returned no score")
-                scores[name] = float(score)
-            except Exception as exc:  # noqa: BLE001 - record per-metric failure without payloads.
-                scores[name] = None
-                failures.append({"metric": name, "category": type(exc).__name__})
-        results.append({
-            "question": row["user_input"],
-            "reference_answer_approximate": row["reference"],
-            "answer": row["response"],
-            "retrieved_contexts": row["retrieved_contexts"],
-            "metric_scores": scores,
-            "failures": failures,
-        })
+    try:
+        for row in rows:
+            scores: dict[str, float | None] = {}
+            failures = []
+            for name, metric in metrics.items():
+                try:
+                    value = await _score_metric(metric, row)
+                    score = value.value
+                    if score is None:
+                        raise ValueError("metric returned no score")
+                    scores[name] = float(score)
+                except Exception as exc:  # noqa: BLE001 - record per-metric failure without payloads.
+                    scores[name] = None
+                    failures.append({"metric": name, "category": type(exc).__name__})
+            results.append({
+                "case_index": row["case_index"],
+                "metric_scores": scores,
+                "failures": failures,
+            })
+    finally:
+        await client.close()
     return results
 
 
@@ -128,6 +174,12 @@ def _score_run(data: dict[str, Any], label: str, source_file: Path) -> dict[str,
             "embedding": "BAAI/bge-large-en-v1.5",
             "dataset_id": data.get("dataset_id"),
             "dataset_version": data.get("dataset_version"),
+            "source_evaluation_created_at_utc": data.get("created_at_utc"),
+            "generation_model": data.get("model_snapshot", {}).get("generation_model"),
+            "reranker_model": data.get("model_snapshot", {}).get("reranker_model"),
+            "retrieval_top_k": data.get("top_k"),
+            "reranker_score_threshold": data.get("reranker_score_threshold"),
+            "reranker_score_threshold_source": data.get("reranker_score_threshold_source"),
         },
     }
 
@@ -148,6 +200,12 @@ def _score_run_safely(data: dict[str, Any], label: str, source_file: Path) -> di
                 "embedding": "BAAI/bge-large-en-v1.5",
                 "dataset_id": data.get("dataset_id"),
                 "dataset_version": data.get("dataset_version"),
+                "source_evaluation_created_at_utc": data.get("created_at_utc"),
+                "generation_model": data.get("model_snapshot", {}).get("generation_model"),
+                "reranker_model": data.get("model_snapshot", {}).get("reranker_model"),
+                "retrieval_top_k": data.get("top_k"),
+                "reranker_score_threshold": data.get("reranker_score_threshold"),
+                "reranker_score_threshold_source": data.get("reranker_score_threshold_source"),
             },
         }
 
@@ -199,13 +257,39 @@ def main() -> None:
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    markdown = ["# Optional RAGAS Evaluation", "", f"Dataset: `{improved_data['dataset_id']}` v{improved_data['dataset_version']}", "", "| Run | Faithfulness | Answer relevancy | Context precision | Context recall |", "|---|---:|---:|---:|---:|"]
+    improved_snapshot = runs[-1]["model_snapshot"]
+    markdown = [
+        "# Optional RAGAS Evaluation", "",
+        f"Dataset: `{improved_data['dataset_id']}` v{improved_data['dataset_version']}",
+        f"Source evaluation: `{args.improved.name}` ({improved_snapshot['source_evaluation_created_at_utc']})",
+        f"Judge: `{improved_snapshot['provider']} / {improved_snapshot['judge']}`; embedding: `{improved_snapshot['embedding']}`",
+        f"Generation model: `{improved_snapshot['generation_model']}`; reranker: `{improved_snapshot['reranker_model']}`",
+        f"Retrieval top K: `{improved_snapshot['retrieval_top_k']}`; reranker threshold: `{improved_snapshot['reranker_score_threshold']}` ({improved_snapshot['reranker_score_threshold_source']})",
+        "", "| Run | Cases | Metric failures | Faithfulness | Answer relevancy | Context precision | Context recall |",
+        "|---|---:|---:|---:|---:|---:|---:|"]
     for run in runs:
         scores = run["scores"]
-        markdown.append("| {} | {} | {} | {} | {} |".format(run["label"], *(scores[key] for key in METRICS)))
+        markdown.append("| {} | {} | {} | {} | {} | {} | {} |".format(
+            run["label"], run["case_count"], run.get("metric_failure_count", "unknown"),
+            *(scores[key] for key in METRICS),
+        ))
     markdown.extend(["", "Scores are local model estimates, not proof of correctness or entailment. Any null metric or failed run is recorded; this command exits nonzero if scoring is incomplete.", ""])
     args.output.with_suffix(".md").write_text("\n".join(markdown), encoding="utf-8")
-    print(json.dumps({"output": str(args.output), "runs": runs}, indent=2))
+    print(json.dumps({
+        "output": str(args.output),
+        "comparison": comparison,
+        "deltas": deltas,
+        "runs": [
+            {
+                "label": run["label"],
+                "source_file": run["source_file"],
+                "case_count": run["case_count"],
+                "metric_failure_count": run.get("metric_failure_count"),
+                "failure": run.get("failure"),
+            }
+            for run in runs
+        ],
+    }, indent=2))
     if _has_scoring_failure(runs):
         raise SystemExit(1)
 

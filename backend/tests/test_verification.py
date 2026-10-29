@@ -87,6 +87,101 @@ def test_missing_citation_is_rejected_deterministically():
     assert result["unsupported_claim_ids"] == [1]
 
 
+def test_introductory_lead_ins_are_not_factual_claims():
+    answer = (
+        "Based on the retrieved evidence, here is the information that belongs in an incident report:\n\n"
+        "* The affected system is listed [Source 1].\n"
+        "* The following items must never be included: passwords and keys [Source 1]."
+    )
+    claims = verification.parse_answer_claims(answer)
+
+    assert [claim["text"] for claim in claims] == [
+        "The affected system is listed.",
+        "The following items must never be included: passwords and keys.",
+    ]
+    assert [claim["citation_numbers"] for claim in claims] == [[1], [1]]
+
+
+def test_verifier_does_not_withhold_cited_answer_for_uncited_intro(monkeypatch):
+    def mock_post(url, **kwargs):
+        return httpx.Response(
+            200,
+            json={"message": {"content": json.dumps({"results": [
+                {"claim_id": 1, "supported": True, "contradicted": False,
+                 "supporting_source_numbers": [1]},
+            ]})}},
+            request=httpx.Request("POST", url),
+        )
+
+    monkeypatch.setattr(verification.httpx, "post", mock_post)
+    result = verification.verify_answer(
+        question="What belongs in an incident report?",
+        answer=(
+            "Based on the provided evidence, an incident report should include "
+            "the following information:\n\n"
+            "The affected system is listed [Source 1]."
+        ),
+        sources=[SOURCE],
+    )
+
+    assert result["status"] == "verified"
+    assert result["claim_count"] == result["supported_claim_count"] == 1
+
+
+def test_verifier_keeps_cited_factual_lead_in_sentence():
+    claims = verification.parse_answer_claims(
+        "The following items must never be included in an incident report: passwords [Source 1]."
+    )
+    assert len(claims) == 1
+    assert claims[0]["citation_numbers"] == [1]
+
+
+def test_uncited_factual_sentence_with_evidence_prefix_is_still_a_claim():
+    # A "Based on the evidence" prefix must not let a substantive, uncited
+    # factual sentence skip claim/citation checking.
+    claims = verification.parse_answer_claims(
+        "Based on the retrieved evidence, employees receive 18 days of leave."
+    )
+    assert [claim["text"] for claim in claims] == [
+        "Based on the retrieved evidence, employees receive 18 days of leave."
+    ]
+    assert claims[0]["citation_numbers"] == []
+
+
+def test_partial_verification_keeps_supported_claims_and_removes_unsupported(monkeypatch):
+    def mock_post(url, **kwargs):
+        return httpx.Response(
+            200,
+            json={"message": {"content": json.dumps({"results": [
+                {"claim_id": 1, "supported": True, "contradicted": False,
+                 "supporting_source_numbers": [1]},
+                {"claim_id": 2, "supported": False, "contradicted": False,
+                 "supporting_source_numbers": []},
+            ]})}},
+            request=httpx.Request("POST", url),
+        )
+
+    monkeypatch.setattr(verification.httpx, "post", mock_post)
+    result = verification.verify_answer(
+        question="Where is Rahul based?",
+        answer=(
+            "Rahul Mehta is based in Pune [Source 1]. "
+            "He also manages the Singapore office [Source 1]."
+        ),
+        sources=[SOURCE],
+    )
+
+    # One misjudged sentence must not withhold the supported part of the answer,
+    # but the unsupported sentence must never be returned.
+    assert result["status"] == "verified"
+    assert result["claim_count"] == 2
+    assert result["supported_claim_count"] == 1
+    assert result["failure_category"] == "unsupported_claims_removed"
+    assert result["removed_claim_ids"] == [2]
+    assert result["normalized_answer"] == "Rahul Mehta is based in Pune. [Source 1]"
+    assert "Singapore" not in result["normalized_answer"]
+
+
 def test_uncited_claim_gets_only_model_supported_retrieved_source(monkeypatch):
     def mock_post(url, **kwargs):
         return httpx.Response(

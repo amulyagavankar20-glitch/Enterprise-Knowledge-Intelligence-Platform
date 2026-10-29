@@ -19,14 +19,24 @@ The import utility copies originals from `stored_documents/` (or `DOCUMENT_STORA
 
 Open `http://127.0.0.1:8000/`. For the fixed RAG evaluation, run `python scripts\evaluate_rag.py`; to additionally request model-assisted support/citation estimates, run `python scripts\evaluate_rag.py --semantic-judge`. The latter sends each evaluation question, answer and retrieved excerpts to the configured Ollama model. Its judgments are estimates, not independent verification.
 
-The evaluation is fixed at dataset `enterprise-rag-v1` (34 cases). It includes a multi-document query and an adversarially worded user query alongside answerable and unsupported cases. Expected-source labels are document-level; expected-fact checks are approximate phrase checks. Re-run the evaluator to refresh the result JSON with retrieved contexts. The existing historical JSON predates this schema and is not directly comparable to a newly generated run.
+The evaluation is fixed at dataset `enterprise-rag-v1` (34 cases). It includes a multi-document query and an adversarially worded user query alongside answerable and unsupported cases. Retrieval labels include expected document filenames plus pinned fixture chunk indexes; expected-fact checks are approximate phrase checks. Re-run the evaluator to refresh the result JSON with retrieved contexts. Historical JSON files predate the current schema and are not directly comparable to a newly generated run.
 
-RAGAS is optional and remains local. In an activated `enterprise-rag` environment, install `python -m pip install -r requirements-evaluation.txt`, ensure Ollama is reachable and the configured judge model is present, then run:
+RAGAS is optional and remains local. Keep its compatibility pins out of the API environment: create an isolated evaluation venv that can reuse the already-installed BGE/Ollama client packages, then install the pinned RAGAS stack. Ensure Ollama is reachable and the configured judge model is present before scoring:
 
 ```powershell
-python scripts\evaluate_rag.py
-python scripts\evaluate_ragas.py --improved reports\evaluation\enterprise_rag_evaluation_results.json --baseline reports\evaluation\enterprise_rag_baseline_results.json
+conda activate enterprise-rag
+$ragasEnv = Join-Path $env:TEMP 'enterprise-rag-ragas'
+if (-not (Test-Path (Join-Path $ragasEnv 'Scripts\python.exe'))) {
+    python -m venv --system-site-packages $ragasEnv
+}
+& (Join-Path $ragasEnv 'Scripts\python.exe') -m pip install -r requirements-evaluation.txt
+& (Join-Path $ragasEnv 'Scripts\python.exe') scripts\evaluate_ragas.py `
+  --improved reports\evaluation\enterprise_rag_evaluation_20261029T072902Z.json `
+  --baseline reports\evaluation\enterprise_rag_baseline_20261029T072902Z.json `
+  --output reports\evaluation\ragas_comparison_20261029.json
 ```
+
+Replace the timestamped filenames with the pair produced by your run.
 
 The main evaluator writes a same-run verification-disabled baseline alongside the improved verified run. This isolates the effect of verification while using the same retrieval results and contexts. RAGAS uses local Ollama plus the existing BGE embedding model, explicitly disables RAGAS analytics and LangChain remote tracing, and writes per-run failure categories. Its scores are judge estimates; the reference answers are synthesized from expected-fact phrases, so context precision/recall are approximate. The script does not send evaluation prompts to an external provider.
 

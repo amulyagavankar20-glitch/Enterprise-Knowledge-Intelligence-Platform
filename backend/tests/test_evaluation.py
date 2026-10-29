@@ -1,3 +1,5 @@
+import math
+
 import evaluate_rag
 from app.services.rag import RERANKER_SCORE_THRESHOLD
 from evaluate_rag import (
@@ -80,6 +82,57 @@ def test_saved_policy_failure_requires_specific_procedure_term(monkeypatch):
     assert row["answer_expected_fact_coverage_approximate"] == 2 / 3
     assert row["answer_expected_facts_complete_approximate"] is False
     assert row["passed"] is False
+
+
+def test_chunk_labels_score_retrieved_chunk_not_just_document(monkeypatch):
+    case = TEST_CASES[0]
+    monkeypatch.setattr(
+        evaluate_rag, "retrieve_context",
+        lambda *args, **kwargs: {
+            "question": case["question"],
+            "context": "Full-time employees receive 18 days of annual paid leave.",
+            "sources": [
+                {
+                    "source_number": 1,
+                    "filename": "hr_policies.txt",
+                    "chunk_index": 1,
+                    "content": "Employees may work remotely up to two days per week.",
+                    "reranker_score": 0.9,
+                },
+                {
+                    "source_number": 2,
+                    "filename": "hr_policies.txt",
+                    "chunk_index": 0,
+                    "content": "Full-time employees receive 18 days of annual paid leave.",
+                    "reranker_score": 0.8,
+                },
+            ],
+        },
+    )
+    monkeypatch.setattr(
+        evaluate_rag, "generate_answer",
+        lambda *args, **kwargs: (
+            "Full-time employees receive 18 days of annual paid leave [Source 2].",
+            "qwen3.5:4b",
+        ),
+    )
+    monkeypatch.setattr(
+        evaluate_rag, "answer_question",
+        lambda *args, **kwargs: {
+            "answer": "Full-time employees receive 18 days of annual paid leave [Source 2].",
+            "model": "qwen3.5:4b",
+            "verification": {"status": "verified"},
+        },
+    )
+
+    row = evaluate_case(None, case)
+
+    assert row["retrieval_success_at_k"] is True
+    assert row["chunk_labels_total"] == 1
+    assert row["chunk_labels_found"] == 1
+    assert row["chunk_retrieval_success_at_k"] is True
+    assert row["chunk_reciprocal_rank"] == 0.5
+    assert row["chunk_ndcg_at_5"] == round(1 / math.log2(3), 4)
 
 
 def test_unsupported_retrieved_context_can_still_be_correctly_abstained(monkeypatch):

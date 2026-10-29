@@ -101,9 +101,9 @@ Identity comes from the authenticated bearer token and current database role, ne
 
 ## 6. Current evaluation baseline and acceptance status
 
-The latest complete saved artifact is `reports/evaluation/enterprise_rag_evaluation_results.json` (34 cases; no run timestamp recorded). It reports document-level Recall@5 1.0, MRR 1.0, nDCG@5 0.9867, overall pass 58.82%, approximate expected-fact accuracy 51.72%, citation-label validity 100%, and abstention correctness 100%. Its verification-disabled baseline has approximate expected-fact accuracy of 96.43%.
+The latest complete saved artifact is `reports/evaluation/enterprise_rag_evaluation_20261029T072902Z.json` (34/34 cases completed; live local services; 2026-10-29). It reports document-level Recall@5 1.0, chunk-complete Recall@5 0.9655, chunk MRR/nDCG@5 0.9655/0.9739, overall pass 91.18%, approximate expected-fact accuracy 93.10%, citation-label validity 100%, and abstention correctness 80%. Its verification-disabled baseline scored 92.86% approximate expected-fact accuracy over 28 of 29 answerable cases (one baseline generation failed). The earlier pre-fix artifact reported 51.72% verified against 96.43% baseline and withheld 14 answerable cases; that regression is fixed on this dataset by excluding uncited lead-ins from claim parsing and removing only unsupported sentences rather than withholding whole answers.
 
-These results do **not** meet a product-quality acceptance bar for answer correctness. The verifier's observed regression requires case-level diagnosis and a rerun before claiming improvement. The evaluation's retrieval labels are document-level; phrase-based accuracy and coverage are approximate, and citation-label validity does not measure entailment.
+These results still do **not** meet a product-quality acceptance bar on their own. The verifier is a local-model estimate, one conflict-precedence case is answered unsupported, and one multi-document query missed its IT-security chunk. Phrase-based accuracy and coverage are approximate, and citation-label validity does not measure entailment.
 
 ### Release acceptance criteria
 
@@ -116,8 +116,8 @@ These results do **not** meet a product-quality acceptance bar for answer correc
 
 ## 7. Risks and open decisions
 
-- The saved verified-answer metric underperforms the verification-disabled baseline.
-- Current retrieval labels do not identify relevant chunks.
+- The verifier no longer underperforms the verification-disabled baseline on the fixed set, but the local model verifier can still accept an evaluative claim such as a conflict-precedence inference (case 34).
+- Chunk-level labels now cover the fixed fixtures, but not a broad held-out corpus; a single multi-document case still misses the expected IT-security chunk.
 - Answer quality and latency vary with hardware, model state, prompts, and document extraction quality.
 - Cross-document sharing, retention/deletion policy, backup retention, and enterprise identity integration require product decisions before production use.
 - Fine-tuning remains optional. The notebook groups connected positive/negative source documents and uses validation for candidate selection; its small candidate-pool metrics still need confirmation on a broader, manually labeled benchmark.

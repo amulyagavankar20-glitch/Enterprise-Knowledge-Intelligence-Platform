@@ -1,0 +1,55 @@
+ENTERPRISE KNOWLEDGE INTELLIGENCE PLATFORM — EVALUATION RESULTS
+
+Evaluation source
+- Fixed dataset: enterprise-rag-v1, version 1
+- RAG evaluation: 2026-10-29 07:29:02 UTC
+- RAGAS scoring: 2026-10-29 08:08:56 UTC
+- RAG cases completed: 34/34; failed stages: 0
+- Answerable cases: 29; unsupported cases: 5
+- Generation: Ollama qwen3.5:4b
+- Embeddings: BAAI/bge-large-en-v1.5
+- Reranker: BAAI/bge-reranker-base
+- Retrieval top K: 5; effective reranker threshold: 0.001 (environment)
+
+Retrieval metrics
+- Recall@5, expected source labels: 96.67% (29 of 30 expected labels retrieved).
+- Query retrieval success@5: 100% (29/29 answerable questions retrieved at least one expected source). This is the existing evaluator's query-level definition; it differs from label-level recall above.
+- Precision@5, expected-source labels with fixed K denominator: 20.00% (29 relevant source labels / 145 slots).
+- Precision among returned source contexts: 38.67% (29/75). The thresholded retriever returned an average of 2.59 contexts per answerable query, so this supplementary measure uses a variable denominator.
+- MRR: 1.0000 (first expected source rank, averaged across answerable queries).
+- nDCG@5: 0.9867 (expected source-document labels).
+- Chunk-label recall: 96.67% (29/30 labels); complete chunk-label recall@5: 96.55% (28/29 answerable cases retrieved every expected chunk label).
+
+RAGAS estimates (29 answerable cases with usable answers, references, and contexts; 0 metric failures)
+- Answer relevancy: 0.885210
+- Faithfulness: 0.971264
+- Context precision: 0.942529
+- Context recall: 0.959770
+- Hallucination rate: not directly measured. A rough unsupported-claim proxy of 1 - faithfulness is 2.87%; this is a local-model estimate, not a verified hallucination rate.
+
+Answer and service metrics
+- Query success rate: 91.18% (31/34 cases passed the evaluator's combined retrieval, answer-fact, citation-label, and abstention checks).
+- Service completion: 100% (34/34 cases completed with no failed stages).
+- Unsupported-question abstention correctness: 80% (4/5).
+- Citation-label validity: 100% on 31 scored answers. This checks that labels point to retrieved sources; it does not prove citation entailment.
+- Average retrieval + answer-generation latency: 1.440 seconds; P95: 4.650 seconds. These values are calculated per case from recorded retrieval latency plus generation latency and exclude verification.
+- Average end-to-end verified RAG latency: 3.0766 seconds; P95: 7.8185 seconds. This includes the answer service and verification.
+- Average component latency: retrieval 494.55 ms; generation 945.68 ms; verification 1636.12 ms.
+
+Validation
+- Automated backend tests: 120 passed in 15.01 seconds.
+- Python compile check: backend, migrations, and scripts completed successfully.
+- No new live RAG query batch was run for this summary. Retrieval and latency values come from the completed timestamped evaluation above; RAGAS values come from the corresponding local Ollama scoring run.
+
+Interpretation and limitations
+- The dataset is fixed and small (34 cases); these scores are a baseline, not a broad production guarantee.
+- RAGAS used local qwen3.5:4b as the judge and approximate reference answers. RAGAS metrics are estimates, not proof of semantic correctness or citation entailment.
+- Precision@5 uses expected source-document labels, not human-reviewed chunk relevance. Because thresholding returns fewer than five contexts on average, the fixed-K value and variable-denominator precision are both shown.
+- The evaluator's query-level retrieval success is 100%, while source-label Recall@5 is 96.67%; these answer different questions.
+- No baseline RAGAS run was scored, so no RAGAS comparison or delta is claimed.
+
+Artifacts
+- reports/evaluation/enterprise_rag_evaluation_20261029T072902Z.json
+- reports/evaluation/enterprise_rag_evaluation_20261029T072902Z.md
+- reports/evaluation/ragas_comparison_20261029T080223Z.json
+- reports/evaluation/ragas_comparison_20261029T080223Z.md

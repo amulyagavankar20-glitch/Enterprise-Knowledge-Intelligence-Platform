@@ -6,7 +6,7 @@ The application uses the pretrained `BAAI/bge-large-en-v1.5` encoder and `BAAI/b
 
 - Retrieve up to 20 hybrid candidates, rerank them, apply the provisional score threshold, deduplicate, and pass up to 5 chunks to the answer service.
 - `RERANKER_SCORE_THRESHOLD=0.001` matches the latest recorded evaluation configuration. It is provisional, not a calibrated probability. Re-evaluate answerable and unsupported questions before changing it or disabling the filter.
-- The evaluator's `Recall@5` and ranking metrics are based on expected document filenames, not labeled relevant chunks.
+- The evaluator computes document-level metrics plus pinned chunk-level alternatives: complete chunk recall, per-label chunk recall, chunk MRR, and chunk nDCG@5. Document-level recall counts a multi-document case as retrieved when at least one expected document is present, so the chunk-complete metric is the stricter passage-retrieval signal.
 
 ## Runtime and memory settings
 
@@ -16,8 +16,10 @@ Changing the embedding model requires confirming its output dimension, migrating
 
 ## Evaluation status
 
-The latest complete saved artifact is `reports/evaluation/enterprise_rag_evaluation_results.json`: 34 cases, threshold 0.001 from the environment, 100% expected-document Recall@5, MRR 1.0, nDCG@5 0.9867, 58.82% overall pass, 51.72% approximate expected-fact accuracy, 100% citation-label validity, and 100% abstention correctness. Mean/P95 latency in that artifact is 6.2682/16.4517 seconds. The artifact has no run timestamp.
+The latest complete saved artifact is `reports/evaluation/enterprise_rag_evaluation_20261029T072902Z.json`: 34/34 cases completed, threshold 0.001 from the environment, 100% document-level Recall@5, chunk-complete Recall@5 0.9655 (28/29), chunk-label recall 0.9667 (29/30), chunk MRR/nDCG@5 0.9655/0.9739, document MRR 1.0, document nDCG@5 0.9867, 91.18% overall pass, 93.10% approximate expected-fact accuracy, 100% citation-label validity, and 80% abstention correctness. Mean/P95 latency is 3.0766/7.8185 seconds in that run. The run used live local services on 2026-10-29.
 
-Its verification-disabled baseline has 96.43% approximate expected-fact accuracy, versus 51.72% for the verified pipeline. This is a significant quality regression that needs case-level diagnosis; do not claim verification improved correctness. The 100% evidence expected-fact coverage is a phrase match, not semantic evidence validation.
+The verification-disabled baseline in the same run scored 92.86% approximate expected-fact accuracy over 28 of 29 answerable cases (one baseline generation failed). The earlier pre-fix artifact reported 96.43% baseline versus 51.72% verified with 14 withheld answerable cases; that gap came from uncited lead-in sentences being verified as claims and all-or-nothing rejection withholding entire answers. The verifier now skips uncited discourse lead-ins, retains cited factual sentences, and removes only unsupported sentences while at least one claim is supported. This run had no withheld answerable cases (31 verified, 3 abstained) and four partial removals. It shows the verifier is no longer an accuracy drag on this dataset, not that it improves correctness.
+
+Case 21 fails the phrase check by paraphrasing “pull request”; case 28 is a multi-document query with a missing IT-security chunk; and case 34 infers a conflict-precedence rule that no document states, which the local verifier did not catch. Phrase-based checks are approximate, and the 100% evidence expected-fact coverage is a phrase match, not semantic evidence validation.
 
 An earlier timestamped artifact completed only 30 of 34 cases; four failed during verification. Its 96.67% pass rate applies to completed cases only and must not be presented as a full-suite result. Phrase-based checks are approximate, citation-label validity does not prove entailment, and the local verifier is a model estimate. See `reports/evaluation/` for the underlying case results and artifact metadata.
